@@ -2,8 +2,7 @@
 
 
 ## 10/5/2021:
-Talk about goals:
-Define a PoC
+Talk about goals: Define a PoC
 
 PoC ideas:
 * Nginx already runs on BF2 (but slowly)
@@ -49,7 +48,8 @@ Agenda:
 * Dan: Building cluster
    * Big Springs Canyon on Broadwell with 2x25GbE
    * Mt Evans on Sapphire Rapids with 2x100GbE
-   * What OS to deploy?  Start with RHEL 8.5, but Red Hat to investigate OCP options.
+   * What OS to deploy?  Start with RHEL 8.5, but Red Hat to investigate OCP
+     options.
 
 
 ## 12/1/2021:
@@ -68,13 +68,16 @@ Merging with the dev platform group
 
 ## 1/5/2022:
 Light discussion today
-* Brief discussion about the Dell presentation, touching on SONiC and whether that applies to DB or not (not general purpose OS)
-* Kyle mentioned attempting to get IPDK environment working, will present the process next week.
+* Brief discussion about the Dell presentation, touching on SONiC and whether
+  that applies to DB or not (not general purpose OS)
+* Kyle mentioned attempting to get IPDK environment working, will present the
+  process next week.
 
 
 ## 1/12/2022:
 * CentOS SIG discussion
-* Meeting recorded: https://drive.google.com/file/d/1gPSXwK7xHvFcfWUL3vay7zEaMkjBJQPU/view?usp=sharing
+* Meeting recorded:
+  https://drive.google.com/file/d/1gPSXwK7xHvFcfWUL3vay7zEaMkjBJQPU/view?usp=sharing
 
 
 ## 1/19/2022:
@@ -94,9 +97,12 @@ Dan Daly and Tim Worsley attended
 
 For next session:
 * Expecting to not have made progress with hardware, so focus on the test
-* Create document describing scenarios, test network, traffic generation, traffic targets
+* Create document describing scenarios, test network, traffic generation,
+  traffic targets
 * Goal is to be able to limit test the solution, which F5 hasn’t done yet
-* Also look into open source tools or languages for describing the test, so diamond bluff doesn’t have to invent something.  Example would be the open ddos (proposed) standard
+* Also look into open source tools or languages for describing the test, so
+  diamond bluff doesn’t have to invent something.  Example would be the open
+  ddos (proposed) standard
 
 
 ## 2/1/2022:
@@ -130,28 +136,34 @@ Attendees: Tim Worsley, Steven Royer
 
 
 ## 2/16/2022:
-Attendees: Kyle Mestery, Maxime Coquelin, Mark Sanders, Michal Kalderon, Laura JH, Steven Royer
+Attendees: Kyle Mestery, Maxime Coquelin, Mark Sanders, Michal Kalderon, Laura
+JH, Steven Royer
 * Review
 * Michal Kalderon to look at providing access to Marvell hardware
 * Artifacts: look at integrating with github actions + github docker registry
 
 
 ## 2/23/2022:
-Attendees: Kyle Mestery, Maxime Coquelin, Mark Sanders, Tom Rix, Dan Daly, Steven Royer, Michal Kalderon
+Attendees: Kyle Mestery, Maxime Coquelin, Mark Sanders, Tom Rix, Dan Daly,
+Steven Royer, Michal Kalderon
 * Dev environment:
    * Provide VM image with some OS (CentOS Stream 9, consider future Debian 11)
       * Tom to talk to Steve about this
 * Steve to find out if Red Hat could host some vendor hardware for Diamond Bluff
-* Michal to see if something like https://www.redhat.com/en/blog/optimizing-server-utilization-datacenters-offloading-network-functions-nvidia-bluefield-2-dpus can be done on Marvell hardware
+* Michal to see if something like
+  https://www.redhat.com/en/blog/optimizing-server-utilization-datacenters-offloading-network-functions-nvidia-bluefield-2-dpus
+  can be done on Marvell hardware
 
 
 ## 3/2/2022:
 Attendees: Tim Worsely, Michal Kalderon, Laura JH, Steven Royer
-* Dev environment follow up: concerns around will adapter vendors support CentOS Stream 9 and Debian 11 (drivers etc…)
+* Dev environment follow up: concerns around will adapter vendors support CentOS
+  Stream 9 and Debian 11 (drivers etc…)
    * Marvell: yes, drivers are upstream
    * Intel: ??? no attendees
 * Hosting vendor hardware by Red Hat:
-   * Answer is no, the plan should be to work this through the foundation when that is set up.
+   * Answer is no, the plan should be to work this through the foundation when
+     that is set up.
 * Action:
    * Tim: put up PR for current PoC plan
 
@@ -172,11 +184,14 @@ Attendees: Steven Royer, Ted Streete, Michal Kalderon, Mark Sanders, Dan Daly
    * Targeting two weeks for schedule
 
 ## 3/23/2022:
-Attendees: Steven Royer, Gene Bagwell, Shafiq Abedin, Tim Worsley, Michal Kalderon, Lionel P
+Attendees: Steven Royer, Gene Bagwell, Shafiq Abedin, Tim Worsley, Michal
+Kalderon, Lionel P
 * Follow-ups:
-   * Steve: Started OS discussion in slack: https://opi-project.slack.com/archives/C033E418VCK/p1648048161645019
+   * Steve: Started OS discussion in slack:
+     https://opi-project.slack.com/archives/C033E418VCK/p1648048161645019
    * Steve: Update working group description: in progress
-   * Steve: Migrate minutes to github: https://github.com/Diamond-Bluff/dbluff-poc/pull/1
+   * Steve: Migrate minutes to github:
+     https://github.com/Diamond-Bluff/dbluff-poc/pull/1
    * Tim: Still working on providing firewall PoC documentation
 * What's the difference between this group and the use cases group?
    * Uses cases group to define use cases
@@ -188,3 +203,27 @@ Attendees: Steven Royer, Gene Bagwell, Shafiq Abedin, Tim Worsley, Michal Kalder
    * Steve to add people to the github org for access to private repos
 * Task list to be managed via github issues in the poc repo
 * Suggestion to move to meeting every other week instead of weekly
+
+## 3/30/2022:
+Attendees: Steven Royer, Venkat Pullela, Lionel P, Laura JH, Michal Kalderon,
+Shafiq Abedin, Mark Sanders
+* Meeting cadence
+   * Moving to every other week meetings
+   * Meeting April 6
+* Review:
+   * https://github.com/Diamond-Bluff/dbluff-poc/pull/2
+
+## 4/6/2022:
+Attendees: Steven Royer, Venkat Pullela, Shafiq Abedin, Michal Kaderon, Mark
+Sanders, Harry Quackenboss
+
+* Venkat volunteers to be involved in performance aspects of PoCs
+* What additional PoCs should we be thinking about?
+   * Layering of function: network, storage, ai, etc implies an ordering
+   * Once pure software firewall is done, look at accelerating it
+   * Look into storage PoC
+      * Shafiq volunteers to work on a storage PoC
+* There was a brief discussion where interest was expressed on hearing more
+  about the IPDK container environment to use as a starting point for us
+   * Ask Kyle for IPDK container presentation at next meeting
+* Reminder meetings are now every other week, next meeting is 4/20/2022
