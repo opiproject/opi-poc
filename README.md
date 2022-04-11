@@ -23,4 +23,9 @@ No specific target has been chosen, the plan was to evaluate members of [this li
 
 # Containers
 Each of the above will be running in a container.  The long term plan is to have multiple types of each container, so more than one way to generate healthy traffic, many types of malicious traffic, multiple sites to automate against, etc.
+# I Want To Contribute!
+
+This project welcomes contributions and suggestions.  We are happy to have the Community involved via submission of **Issues and Pull Requests** (with substantive content or even just fixes). We are hoping for the documents, test framework, etc. to become a community process with active engagement.  PRs can be reviewed by by any number of people, and a maintainer may accept.
+
+See [GitHub Basic Process](doc-github-rules.md).
 
