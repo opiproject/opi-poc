@@ -27,5 +27,5 @@ Each of the above will be running in a container.  The long term plan is to have
 
 This project welcomes contributions and suggestions.  We are happy to have the Community involved via submission of **Issues and Pull Requests** (with substantive content or even just fixes). We are hoping for the documents, test framework, etc. to become a community process with active engagement.  PRs can be reviewed by by any number of people, and a maintainer may accept.
 
-See [GitHub Basic Process](../opi/doc-github-rules.md).
+See [CONTRIBUTING](../opi/CONTRIBUTING.md) and [GitHub Basic Process](../opi/doc-github-rules.md) for more details.
 
