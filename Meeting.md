@@ -217,7 +217,8 @@ Shafiq Abedin, Mark Sanders
 Attendees: Steven Royer, Venkat Pullela, Shafiq Abedin, Michal Kaderon, Mark
 Sanders, Harry Quackenboss
 
-* Venkat volunteers to be involved in performance aspects of PoCs
+* Venkat volunteers to be involved in setting up open infrastructure, open
+  testing that keeps high performance in mind for PoCs
 * What additional PoCs should we be thinking about?
    * Layering of function: network, storage, ai, etc implies an ordering
    * Once pure software firewall is done, look at accelerating it
