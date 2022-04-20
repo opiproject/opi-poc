@@ -228,3 +228,17 @@ Sanders, Harry Quackenboss
   about the IPDK container environment to use as a starting point for us
    * Ask Kyle for IPDK container presentation at next meeting
 * Reminder meetings are now every other week, next meeting is 4/20/2022
+
+## 4/20/2022:
+Attendees: Steven Royer, Kyle Mestery, Mark Sanders, Dan Daly, Tim Worsley,
+Venkat Pullela
+
+* Tim shared his near term plans on the software firewall:
+   * PRs for containers over the next weeks
+* Kyle shared demo of the new p4-eBPF IPDK container environment
+   * https://github.com/ipdk-io/ipdk/tree/main/build/networking_ebpf
+   * Should be able to clone and replicate easily
+   * Should be able to build a version of Tim's software firewall on top of this
+     container environment
+   * p4-DPDK is currently limited in ways that it is inconvenient to use
+      * Dan to work with the team to improve this
