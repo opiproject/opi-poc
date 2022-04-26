@@ -1,0 +1,51 @@
+---
+version: "3.9"
+
+services:
+
+  nginx:
+    container_name: nginx
+    image: nginx
+    volumes:
+      - "./conf/nginx:/usr/share/nginx/html:ro"
+    networks:
+      poc-net1:
+        ipv4_address: 192.168.55.2
+      poc-net2:
+        ipv4_address: 192.168.65.2
+
+  client1:
+    container_name: client1
+    image: busybox
+    networks:
+      poc-net1:
+        ipv4_address: 192.168.55.3
+    entrypoint: ["sleep", "infinity"]
+
+  client2:
+    container_name: client2
+    image: busybox
+    networks:
+      poc-net2:
+        ipv4_address: 192.168.65.3
+    entrypoint: ["sleep", "infinity"]
+
+networks:
+  poc-net1:
+    name: "poc-net1"
+    driver: ipdk
+    ipam:
+      driver: ipdk
+      config:
+        - subnet: "192.168.55.0/24"
+          gateway: "192.168.55.1"
+
+  poc-net2:
+    name: "poc-net2"
+    driver: ipdk
+    ipam:
+      driver: ipdk
+      config:
+        - subnet: "192.168.65.0/24"
+          gateway: "192.168.65.1"
+
