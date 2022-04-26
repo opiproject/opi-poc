@@ -65,3 +65,31 @@ You can now run the demo setup as follows:
 ```
 $ docker compose up -d
 ```
+
+## Verify the PoC
+
+The next step is to verify you have connectivity across the containers via the
+networks IPDK p4-ebpf is providing. The following shows an example of pinging
+from clients to the nginx container:
+
+```
+$ docker exec -it client1 ping -c 3 192.168.55.2
+PING 192.168.55.2 (192.168.55.2): 56 data bytes
+64 bytes from 192.168.55.2: seq=0 ttl=63 time=0.094 ms
+64 bytes from 192.168.55.2: seq=1 ttl=63 time=0.109 ms
+64 bytes from 192.168.55.2: seq=2 ttl=63 time=0.132 ms
+
+--- 192.168.55.2 ping statistics ---
+3 packets transmitted, 3 packets received, 0% packet loss
+round-trip min/avg/max = 0.094/0.111/0.132 ms
+$ docker exec -it client2 ping -c 3 192.168.65.2
+PING 192.168.65.2 (192.168.65.2): 56 data bytes
+64 bytes from 192.168.65.2: seq=0 ttl=63 time=0.075 ms
+64 bytes from 192.168.65.2: seq=1 ttl=63 time=0.095 ms
+64 bytes from 192.168.65.2: seq=2 ttl=63 time=0.103 ms
+
+--- 192.168.65.2 ping statistics ---
+3 packets transmitted, 3 packets received, 0% packet loss
+round-trip min/avg/max = 0.075/0.091/0.103 ms
+$
+```
