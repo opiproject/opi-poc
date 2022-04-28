@@ -32,8 +32,8 @@ start_poc() {
 	docker compose up -d
 
 	# Verify things work
-	docker exec -it client1 ping -c 3 192.168.55.2
-	docker exec -it client2 ping -c 3 192.168.65.2
+	ping -c 3 192.168.55.2
+	ping -c 3 192.168.65.2
 }
 
 stop_poc() {

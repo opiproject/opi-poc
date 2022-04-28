@@ -21,8 +21,7 @@ jobs:
 
     - name: shellcheck
       run: |
-        cd sw_firewall
-        make -C build shellcheck
+        make -C sw_firewall shellcheck
 
   run_poc:
     needs: shellcheck
@@ -39,10 +38,11 @@ jobs:
 
     - name: Setup IPDK
       run: |
-        docker pull ghcr.io/ipdk-io/ipdk-ebpf-ubuntu2004-x86_64
+        docker pull ghcr.io/ipdk-io/ipdk-ebpf-ubuntu2004-x86_64:main
         git clone https://github.com/ipdk-io/ipdk.git
         pushd ipdk/build
         ./ipdk install ebpf-ubuntu2004
+        echo "TAG=main" >> ~/.ipdk/ipdk.env
         popd || exit
 
     - name: Install ipdk-plugin
@@ -53,8 +53,10 @@ jobs:
         cd ipdk-plugin
         go get
         go build
+        sudo mkdir -p /etc/docker/plugins
+        sudo cp ipdk.json /etc/docker/plugins
         popd || exit
 
     - name: Run PoC
       run: |
-        ./sw_firewall/scripts/poc.sh start
+        cd sw_firewall && ./scripts/poc.sh start
