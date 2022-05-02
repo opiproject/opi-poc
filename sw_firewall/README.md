@@ -1,13 +1,26 @@
 # Software Firewall PoC
 
-The Proof of Concept is made up of three types of containers: traffic sources,
-traffic targets, and proxies.  The initial PoC will be:
+The Proof of Concept is made up of three types of containers:
+
+- traffic sources
+- traffic targets
+- proxies
+
+The initial PoC will be:
+
+- IPDK P4-eBPF container for networking
+- Docker-based container setup using Docker Compose
+- Server containers hostring traffic sources
+- Traffic target containers
+- Proxy containers
+
+## Second PoC
+
+The Second Proof of Concept is made up of three types of containers: traffic
+sources, traffic targets, and proxies.  This second PoC will be:
 - Servers hosting traffic sources sending traffic to
 - Servers with IPU or DPU cards, with traffic targets on the servers
 - Proxies running on IPU or DPU cards
-
-The source, target and proxies are all containers so then can all run on a
-laptop.
 
 ## Healthy traffic generation
 Evaluate using iperf first
@@ -34,7 +47,7 @@ multiple types of each container, so more than one way to generate healthy
 traffic, many types of malicious traffic, multiple sites to automate against,
 etc.
 
-# Running the Demo
+# Running the PoC
 
 The OPI PoC uses IPDK with p4-ebpf for networking. You will want to install
 both [IPDK p4-ebpf](https://github.com/ipdk-io/ipdk/tree/main/build/networking_ebpf)
