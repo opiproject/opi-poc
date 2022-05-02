@@ -10,7 +10,7 @@ The initial PoC will be:
 
 - IPDK P4-eBPF container for networking
 - Docker-based container setup using Docker Compose
-- Server containers hostring traffic sources
+- Server containers hosting traffic sources
 - Traffic target containers
 - Proxy containers
 
