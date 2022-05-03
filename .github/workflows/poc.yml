@@ -21,7 +21,7 @@ jobs:
 
     - name: shellcheck
       run: |
-        make -C sw_firewall shellcheck
+        make -C networking shellcheck
 
   run_poc:
     needs: shellcheck
@@ -59,4 +59,4 @@ jobs:
 
     - name: Run PoC
       run: |
-        cd sw_firewall && ./scripts/poc.sh start
+        cd networking && ./scripts/poc.sh start
