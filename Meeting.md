@@ -242,3 +242,12 @@ Venkat Pullela
      container environment
    * p4-DPDK is currently limited in ways that it is inconvenient to use
       * Dan to work with the team to improve this
+
+## 5/4/2022:
+Attendees: Steven Royer, Venkat Pullela, Kyle Mestery, Shafiq Abedin
+
+* Work with Mark Sanders and the API group on basic 2 node PoC
+   * Can API group build on top of the
+     [networking](https://github.com/opiproject/opi-poc/tree/main/networking)
+     PoC?
+* Can still layer Tim's nginx firewall on top of existing PoC
