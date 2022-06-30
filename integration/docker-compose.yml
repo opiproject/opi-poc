@@ -1,0 +1,51 @@
+version: '3.7'
+
+x-common-opi: &common-opi
+    image: ghcr.io/opiproject/opi-poc:main
+    volumes:
+      - /dev/hugepages:/dev/hugepages
+      - /dev/shm:/dev/shm
+      - /proc:/proc
+    environment:
+      PYTHONUNBUFFERED: 1
+    privileged: true
+    networks:
+      - opi
+
+services:
+
+  host-cpu:
+    <<: *common-opi
+    build:
+      context: host-cpu
+    ports:
+      - 22:22
+    command: /usr/sbin/sshd -D -e
+
+  host-bmc:
+    build:
+      context: host-bmc
+    ports:
+      - 8001:8000
+    networks:
+      - opi
+
+  xpu-cpu:
+    <<: *common-opi
+    build:
+      context: xpu-cpu
+    ports:
+      - 22:22
+    command: /usr/sbin/sshd -D -e
+
+  xpu-bmc:
+    build:
+      context: xpu-bmc
+    ports:
+      - 8002:8000
+    networks:
+      - opi
+
+networks:
+  opi:
+
