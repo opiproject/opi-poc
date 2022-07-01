@@ -1,0 +1,46 @@
+version: "3.7"
+
+services:
+
+  telegraf:
+    image: telegraf:1.22
+    volumes:
+      - ./telegraf/telegraf-redfish.conf:/etc/telegraf/telegraf.conf:ro
+    depends_on:
+      - influxdb
+    networks:
+      - opi
+    healthcheck:
+      test: cat /proc/1/status || exit 1
+      interval: 6s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+
+  influxdb:
+    image: influxdb:2.1-alpine
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-storage:/var/lib/influxdb
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=my-user
+      - DOCKER_INFLUXDB_INIT_PASSWORD=my-password
+      - DOCKER_INFLUXDB_INIT_ORG=my-org
+      - DOCKER_INFLUXDB_INIT_BUCKET=my-bucket
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=YourInfluxDBAuthToken
+    networks:
+      - opi
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8086/ping || exit 1
+      interval: 6s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  influxdb-storage:
+
+networks:
+  opi:
+
