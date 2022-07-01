@@ -1,4 +1,4 @@
-FROM fedora:33
+FROM fedora:36
 
 ARG TAG=v22.05
 ARG ARCH=native
