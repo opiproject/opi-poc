@@ -6,6 +6,30 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/storage"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/integration/host-bmc"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/integration/host-cpu"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/integration/xpu-bmc"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/integration/xpu-cpu"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/integration/pxe"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/integration/spdk"
     schedule:
       interval: "weekly"
