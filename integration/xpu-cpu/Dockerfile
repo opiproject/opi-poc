@@ -1,4 +1,4 @@
-FROM fedora:33
+FROM fedora:36
 
 # TODO: consider replacing the base image with linuxserver/openssh-server:arm64v8-latest
 
