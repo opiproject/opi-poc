@@ -48,4 +48,4 @@ services:
 
 networks:
   opi:
-
+    external: true
