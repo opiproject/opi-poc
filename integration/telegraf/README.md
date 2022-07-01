@@ -44,6 +44,15 @@ cpu,cpu=cpu3,host=52ee5c75df01 usage_guest_nice=0,usage_user=99.79999999981374,u
 cpu,cpu=cpu4,host=52ee5c75df01 usage_user=99.70029970233988,usage_guest=0,usage_steal=0,usage_guest_nice=0,usage_system=0.09990009990223975,usage_idle=0,usage_nice=0,usage_iowait=0,usage_irq=0.19980019979993657,usage_softirq=0 1650954170000000000
 cpu,cpu=cpu5,host=52ee5c75df01 usage_nice=0,usage_iowait=0,usage_irq=0.2997002997044478,usage_softirq=0,usage_steal=0,usage_guest_nice=0,usage_user=99.70029970233988,usage_idle=0,usage_guest=0,usage_system=0 1650954170000000000
 
+telegraf_1  | redfish_thermal_temperatures,address=xpu-bmc,health=OK,host=220e68143c3d,member_id=0,name=CPU1\ Temp,rack=WEB43,row=North,source=web483,state=Enabled reading_celsius=41,upper_threshold_critical=45,upper_threshold_fatal=48 1656718190000000000
+telegraf_1  | redfish_thermal_temperatures,address=xpu-bmc,host=220e68143c3d,member_id=1,name=CPU2\ Temp,rack=WEB43,row=North,source=web483,state=Disabled upper_threshold_critical=45,upper_threshold_fatal=48 1656718190000000000
+telegraf_1  | redfish_thermal_temperatures,address=xpu-bmc,health=OK,host=220e68143c3d,member_id=2,name=Chassis\ Intake\ Temp,rack=WEB43,row=North,source=web483,state=Enabled upper_threshold_critical=40,upper_threshold_fatal=50,lower_threshold_critical=5,lower_threshold_fatal=0,reading_celsius=25 1656718190000000000
+telegraf_1  | redfish_thermal_fans,address=xpu-bmc,health=OK,host=220e68143c3d,member_id=0,name=BaseBoard\ System\ Fan,rack=WEB43,row=North,source=web483,state=Enabled lower_threshold_fatal=0i,reading_rpm=2100i 1656718190000000000
+telegraf_1  | redfish_thermal_fans,address=xpu-bmc,health=OK,host=220e68143c3d,member_id=1,name=BaseBoard\ System\ Fan\ Backup,rack=WEB43,row=North,source=web483,state=Enabled lower_threshold_fatal=0i,reading_rpm=2050i 1656718190000000000
+telegraf_1  | redfish_power_powersupplies,address=xpu-bmc,health=Warning,host=220e68143c3d,member_id=0,name=Power\ Supply\ Bay,rack=WEB43,row=North,source=web483,state=Enabled line_input_voltage=120,last_power_output_watts=325,power_capacity_watts=800 1656718190000000000
+telegraf_1  | redfish_power_voltages,address=xpu-bmc,health=OK,host=220e68143c3d,member_id=0,name=VRM1\ Voltage,rack=WEB43,row=North,source=web483,state=Enabled reading_volts=12,upper_threshold_critical=13,upper_threshold_fatal=15,lower_threshold_critical=11,lower_threshold_fatal=10 1656718190000000000
+telegraf_1  | redfish_power_voltages,address=xpu-bmc,health=OK,host=220e68143c3d,member_id=1,name=VRM2\ Voltage,rack=WEB43,row=North,source=web483,state=Enabled reading_volts=5,upper_threshold_critical=7,lower_threshold_critical=4.5 1656718190000000000
+
 ...
 ```
 <!-- markdownlint-restore -->
