@@ -5,7 +5,7 @@ services:
   spdk:
     build:
       context: .
-      dockerfile: Dockerfile.spdk
+      dockerfile: Dockerfile
     volumes:
       - /dev/hugepages:/dev/hugepages
       - /dev/shm:/dev/shm
