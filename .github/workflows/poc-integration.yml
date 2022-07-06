@@ -54,10 +54,12 @@ jobs:
         docker-compose -f docker-compose.yml -f docker-compose.telegraf.yml -f docker-compose.pxe.yml ps
         curl --fail http://127.0.0.1:8001/redfish/v1/Systems/437XR1138R2
         curl --fail http://127.0.0.1:8002/redfish/v1/Systems/437XR1138R2
+        curl --fail http://127.0.0.1:8082/var/lib/tftpboot/
         docker-compose -f docker-compose.pxe.yml exec -T pxe dnf install -y nmap tftp
-        docker-compose -f docker-compose.pxe.yml exec -T pxe nmap --script broadcast-dhcp-discover | grep "Server Identifier: 10.127.127.3"
-        docker-compose -f docker-compose.pxe.yml exec -T pxe curl --fail http://10.127.127.3:8082/var/lib/tftpboot/
-        docker-compose -f docker-compose.pxe.yml exec -T pxe tftp 10.127.127.3 -v -c get grubx64.efi
+        docker-compose -f docker-compose.pxe.yml exec -T pxe nmap --script broadcast-dhcp-discover
+        docker-compose -f docker-compose.pxe.yml exec -T pxe nmap --script broadcast-dhcp-discover | grep "Server Identifier: 10.127.127.103"
+        docker-compose -f docker-compose.pxe.yml exec -T pxe curl --fail http://10.127.127.103:8082/var/lib/tftpboot/
+        docker-compose -f docker-compose.pxe.yml exec -T pxe tftp 10.127.127.103 -v -c get grubx64.efi
       working-directory: integration
 
     - name: Logs

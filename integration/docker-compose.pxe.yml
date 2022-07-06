@@ -12,13 +12,13 @@ services:
       NODE_IP_NETMASK: 255.255.255.0
       NODE_IP_RANGE_MIN: 10.127.127.10
       NODE_IP_RANGE_MAX: 10.127.127.253
-      NODE_IP_ADDRESS: 10.127.127.3
+      NODE_IP_ADDRESS: 10.127.127.103
     volumes:
       - ./pxe/grubx64.efi:/var/lib/tftpboot/grubx64.efi:ro
       - ./pxe/dhcpd.conf.template:/etc/dhcp/dhcpd.conf.template:ro
     networks:
       opi:
-        ipv4_address: 10.127.127.3
+        ipv4_address: 10.127.127.103
     healthcheck:
       test: curl --silent --fail http://localhost:8082 || exit 1
       interval: 6s
