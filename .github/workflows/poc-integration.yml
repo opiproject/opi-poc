@@ -1,0 +1,47 @@
+---
+name: 'OPI Integration CI'
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'integration/**'
+      - '.github/workflows/poc-integration.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'integration/**'
+      - '.github/workflows/poc-integration.yml'
+
+concurrency:
+  # if workflow for PR or push is already running stop it, and start new one
+  group: poc-integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration-shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: integration shellcheck
+      run: |
+        make -C integration shellcheck
+
+  run_integration_poc:
+    needs: integration-shellcheck
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Run Integration Tests
+      run: docker-compose -f docker-compose.yml -f docker-compose.telegraf.yml -f docker-compose.pxe.yml up
+      working-directory: integration

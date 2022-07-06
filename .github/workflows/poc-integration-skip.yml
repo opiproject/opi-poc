@@ -1,0 +1,31 @@
+---
+name: 'OPI Integration CI'
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'integration/**'
+      - '.github/workflows/poc-integration.yml'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'integration/**'
+      - '.github/workflows/poc-integration.yml'
+
+concurrency:
+  # if workflow for PR or push is already running stop it, and start new one
+  group: poc-integartion-skip-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration-shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No integration shellcheck test run required"'
+
+  run_integration_poc:
+    needs: integration-shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No integration test run required"'
