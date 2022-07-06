@@ -1,22 +1,8 @@
 version: '3.7'
 
-x-common-opi: &common-opi
-    image: ghcr.io/opiproject/opi-poc:main
-    volumes:
-      - /dev/hugepages:/dev/hugepages
-      - /dev/shm:/dev/shm
-      - /proc:/proc
-    environment:
-      PYTHONUNBUFFERED: 1
-    privileged: true
-    networks:
-      opi:
-        ipv4_address: 10.127.127.7
-
 services:
 
   host-cpu:
-    <<: *common-opi
     build:
       context: host-cpu
     ports:
@@ -36,12 +22,14 @@ services:
         ipv4_address: 10.127.127.8
 
   xpu-cpu:
-    <<: *common-opi
     build:
       context: xpu-cpu
     ports:
       - '9022:22'
     command: /usr/sbin/sshd -D -e
+    networks:
+      opi:
+        ipv4_address: 10.127.127.7
 
   xpu-bmc:
     build:
