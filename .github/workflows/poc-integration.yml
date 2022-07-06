@@ -43,5 +43,5 @@ jobs:
       uses: docker/setup-buildx-action@v2
 
     - name: Run Integration Tests
-      run: docker-compose -f docker-compose.yml -f docker-compose.telegraf.yml -f docker-compose.pxe.yml up
+      run: docker-compose -f docker-compose.yml -f docker-compose.telegraf.yml -f docker-compose.pxe.yml up -d
       working-directory: integration
