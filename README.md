@@ -1,5 +1,6 @@
 # OPI Project PoC
 
+[![OPI Integration CI](https://github.com/opiproject/opi-poc/actions/workflows/poc-integration.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-integration.yml)
 [![OPI Networking PoC CI](https://github.com/opiproject/opi-poc/actions/workflows/poc-networking.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-networking.yml)
 [![OPI Storage PoC CI](https://github.com/opiproject/opi-poc/actions/workflows/poc-storage.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-storage.yml)
 [![MarkdownLint](https://github.com/opiproject/opi-poc/actions/workflows/markdown.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/markdown.yml)
