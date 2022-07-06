@@ -2,15 +2,29 @@ version: '3.7'
 
 services:
 
-  host-cpu:
-    build:
-      context: host-cpu
+  host-cpu-ssh:
+    image: linuxserver/openssh-server:amd64-latest
+    hostname: host-cpu
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - PASSWORD_ACCESS=true
+      - USER_PASSWORD=123456
+      - USER_NAME=host
     ports:
-      - '8022:22'
+      - '8022:2222'
     networks:
       opi:
         ipv4_address: 10.127.127.10
-    command: /usr/sbin/sshd -D -e
+
+  host-cpu:
+    build:
+      context: host-cpu
+    depends_on:
+      - xpu-cpu-ssh
+    network_mode: service:host-cpu-ssh
+    command: ['/bin/sh', '-c', 'sleep infinity']
 
   host-bmc:
     build:
@@ -21,15 +35,29 @@ services:
       opi:
         ipv4_address: 10.127.127.8
 
-  xpu-cpu:
-    build:
-      context: xpu-cpu
+  xpu-cpu-ssh:
+    image: linuxserver/openssh-server:amd64-latest
+    hostname: xpu-cpu
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - PASSWORD_ACCESS=true
+      - USER_PASSWORD=123456
+      - USER_NAME=xpu
     ports:
-      - '9022:22'
-    command: /usr/sbin/sshd -D -e
+      - '9022:2222'
     networks:
       opi:
         ipv4_address: 10.127.127.7
+
+  xpu-cpu:
+    build:
+      context: xpu-cpu
+    depends_on:
+      - xpu-cpu-ssh
+    network_mode: service:xpu-cpu-ssh
+    command: ['/bin/sh', '-c', 'sleep infinity']
 
   xpu-bmc:
     build:
