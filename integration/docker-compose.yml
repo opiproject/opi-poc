@@ -19,7 +19,7 @@ services:
     build:
       context: host-cpu
     ports:
-      - 8022:22
+      - '8022:22'
     command: /usr/sbin/sshd -D -e
 
   host-bmc:
@@ -35,7 +35,7 @@ services:
     build:
       context: xpu-cpu
     ports:
-      - 9022:22
+      - '9022:22'
     command: /usr/sbin/sshd -D -e
 
   xpu-bmc:
