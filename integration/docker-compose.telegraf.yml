@@ -2,12 +2,10 @@ version: "3.7"
 
 services:
 
-  telegraf:
+  telegraf-on-dpu:
     image: telegraf:1.22
     volumes:
       - ./telegraf/telegraf-redfish.conf:/etc/telegraf/telegraf.conf:ro
-    depends_on:
-      - influxdb
     networks:
       - opi
     healthcheck:
@@ -17,29 +15,30 @@ services:
       start_period: 20s
       timeout: 10s
 
-  influxdb:
-    image: influxdb:2.1-alpine
-    ports:
-      - "8086:8086"
+  otel-gw-collector:
+    image: otel/opentelemetry-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
-      - influxdb-storage:/var/lib/influxdb
-    environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=my-user
-      - DOCKER_INFLUXDB_INIT_PASSWORD=my-password
-      - DOCKER_INFLUXDB_INIT_ORG=my-org
-      - DOCKER_INFLUXDB_INIT_BUCKET=my-bucket
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=YourInfluxDBAuthToken
+      - ./otel/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "1888:1888"   # pprof extension
+      - "8888:8888"   # Prometheus metrics exposed by the collector
+      - "8889:8889"   # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+      - "4317:4317"   # OTLP gRPC receiver
+      - "55679:55679" # zpages extension
     networks:
       - opi
-    healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:8086/ping || exit 1
-      interval: 6s
-      timeout: 10s
-      retries: 5
 
-volumes:
-  influxdb-storage:
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.36.2
+    volumes:
+      - ./otel/prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - opi
 
 networks:
   opi:

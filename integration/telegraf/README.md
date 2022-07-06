@@ -11,10 +11,12 @@
   * <https://github.com/influxdata/telegraf/tree/master/plugins/inputs/dpdk>
   * <https://github.com/influxdata/telegraf/tree/master/plugins/outputs/file>
   * <https://github.com/influxdata/telegraf/tree/master/plugins/outputs/influxdb_v2>
+  * <https://github.com/influxdata/telegraf/tree/master/plugins/outputs/opentelemetry>
 
 * Dockers used
   * <https://hub.docker.com/_/telegraf>
   * <https://hub.docker.com/_/influxdb>
+  * <https://hub.docker.com/r/otel/opentelemetry-collector>
 
 ## Getting started
 
