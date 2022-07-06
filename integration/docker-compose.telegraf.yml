@@ -43,4 +43,5 @@ volumes:
 
 networks:
   opi:
+    name: opi
     external: true
