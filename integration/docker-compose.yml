@@ -13,7 +13,7 @@ services:
       - USER_PASSWORD=123456
       - USER_NAME=host
     ports:
-      - '8022:2222'
+      - '2210:2222'
     networks:
       opi:
         ipv4_address: 10.127.127.10
@@ -26,14 +26,32 @@ services:
     network_mode: service:host-cpu-ssh
     command: ['/bin/sh', '-c', 'sleep infinity']
 
-  host-bmc:
-    build:
-      context: host-bmc
+  host-bmc-ssh:
+    image: linuxserver/openssh-server:amd64-latest
+    hostname: host-bmc
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - PASSWORD_ACCESS=true
+      - USER_PASSWORD=123456
+      - USER_NAME=bmc
     ports:
-      - 8001:8000
+      - '2208:2222'
+      - '8001:8000'
     networks:
       opi:
         ipv4_address: 10.127.127.8
+
+  host-bmc-redfish:
+    image: dmtf/redfish-mockup-server:1.1.8
+    network_mode: service:host-bmc-ssh
+
+  host-bmc:
+    build:
+      context: host-bmc
+    network_mode: service:host-bmc-ssh
+    command: ['/bin/sh', '-c', 'sleep infinity']
 
   xpu-cpu-ssh:
     image: linuxserver/openssh-server:amd64-latest
@@ -46,7 +64,7 @@ services:
       - USER_PASSWORD=123456
       - USER_NAME=xpu
     ports:
-      - '9022:2222'
+      - '2207:2222'
     networks:
       opi:
         ipv4_address: 10.127.127.7
@@ -59,14 +77,32 @@ services:
     network_mode: service:xpu-cpu-ssh
     command: ['/bin/sh', '-c', 'sleep infinity']
 
-  xpu-bmc:
-    build:
-      context: xpu-bmc
+  xpu-bmc-ssh:
+    image: linuxserver/openssh-server:amd64-latest
+    hostname: xpu-bmc
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - PASSWORD_ACCESS=true
+      - USER_PASSWORD=123456
+      - USER_NAME=bmc
     ports:
-      - 8002:8000
+      - '2209:2222'
+      - '8002:8000'
     networks:
       opi:
         ipv4_address: 10.127.127.9
+
+  xpu-bmc-redfish:
+    image: dmtf/redfish-mockup-server:1.1.8
+    network_mode: service:xpu-bmc-ssh
+
+  xpu-bmc:
+    build:
+      context: xpu-bmc
+    network_mode: service:xpu-bmc-ssh
+    command: ['/bin/sh', '-c', 'sleep infinity']
 
 networks:
   opi:

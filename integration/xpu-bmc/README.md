@@ -2,7 +2,6 @@
 
 Runs redfish server, example:
 
-<!-- markdownlint-disable -->
 ```text
 $ curl --fail http://127.0.0.1:8001/redfish/v1                                                                                                             {
     "@odata.id": "/redfish/v1/",
@@ -49,4 +48,16 @@ $ curl --fail http://127.0.0.1:8001/redfish/v1                                  
     }
 }
 ```
-<!-- markdownlint-restore -->
+
+ssh example:
+
+```text
+$ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2209 bmc@127.0.0.1
+Warning: Permanently added '[127.0.0.1]:2209' (ECDSA) to the list of known hosts.
+bmc@127.0.0.1's password:
+Welcome to OpenSSH Server
+
+xpu-bmc:~$ exit
+logout
+Connection to 127.0.0.1 closed.
+```

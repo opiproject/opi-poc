@@ -1,1 +1,1 @@
-FROM dmtf/redfish-mockup-server:1.1.8
+FROM fedora:36

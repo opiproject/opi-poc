@@ -21,8 +21,8 @@ sudo fio --direct=1 --prio=0 --norandommap=1 --group_reporting --cpus_allowed_po
 ssh example:
 
 ```text
-$ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 8022 host@127.0.0.1
-Warning: Permanently added '[127.0.0.1]:8022' (ECDSA) to the list of known hosts.
+$ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2210 host@127.0.0.1
+Warning: Permanently added '[127.0.0.1]:2210' (ECDSA) to the list of known hosts.
 host@127.0.0.1's password:
 Welcome to OpenSSH Server
 
