@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
 
-  spdk:
+  spdk-target:
     build:
       context: spdk
     volumes:
@@ -10,14 +10,15 @@ services:
       - /dev/shm:/dev/shm
       - /proc:/proc
     ports:
-      - "9009:9009"
+      - "9004:9009"
     privileged: true
     networks:
       opi:
         ipv4_address: 10.127.127.4
     command: |
-      sh -c 'echo 2048 > /proc/sys/vm/nr_hugepages && \
-            /root/spdk/build/bin/spdk_tgt -m 0xff -s 1024 & \
+      sh -c 'echo 512 > /proc/sys/vm/nr_hugepages && \
+            grep "" /sys/kernel/mm/hugepages/hugepages-*/nr_hugepages && \
+            /root/spdk/build/bin/spdk_tgt -m 0x1 -s 512 2>&1 \
             echo wait 5s... && sleep 5s && cd /root/spdk/scripts && \
             ./rpc.py bdev_malloc_create -b Malloc0 64 512 && \
             ./rpc.py bdev_malloc_create -b Malloc1 64 512 && \

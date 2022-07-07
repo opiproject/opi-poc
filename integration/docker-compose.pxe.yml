@@ -29,7 +29,6 @@ services:
             /usr/sbin/in.tftpd --listen -s /var/lib/tftpboot  && \
             python3 -m http.server 8082 & \
             dhcpd -d & \
-            /root/spdk/build/bin/spdk_tgt -m 0xff -s 1024 > /tmp/spdk-tgt.log 2>&1 & \
             wait'
 networks:
   opi:

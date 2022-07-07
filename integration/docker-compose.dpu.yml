@@ -14,6 +14,7 @@ services:
       - USER_NAME=xpu
     ports:
       - '2207:2222'
+      - "9009:9009"
     networks:
       opi:
         ipv4_address: 10.127.127.7
@@ -31,6 +32,29 @@ services:
     volumes:
       - ./xpu-cpu/telegraf-redfish.conf:/etc/telegraf/telegraf.conf:ro
     network_mode: service:xpu-cpu-ssh
+
+  xpu-spdk:
+    build:
+      context: spdk
+    volumes:
+      - /dev/hugepages:/dev/hugepages
+      - /dev/shm:/dev/shm
+      - /proc:/proc
+    privileged: true
+    network_mode: service:xpu-cpu-ssh
+    command: |
+      sh -c 'echo 512 > /proc/sys/vm/nr_hugepages && \
+            grep "" /sys/kernel/mm/hugepages/hugepages-*/nr_hugepages && \
+            /root/spdk/build/bin/spdk_tgt -m 0x1 -s 512 2>&1 \
+            echo wait 5s... && sleep 5s && cd /root/spdk/scripts && \
+            ./rpc.py bdev_nvme_attach_controller -b opi-bdev -t tcp -a spdk-target -f ipv4 -s 4420 -n nqn.2016-06.io.spdk:cnode1 && \
+            ./rpc_http_proxy.py 0.0.0.0 9009 spdkuser spdkpass'
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{\"id\": 1, \"method\": \"bdev_get_bdevs\"}' http://localhost:9009 || exit 1"]
+      interval: 6s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   xpu-bmc-ssh:
     image: linuxserver/openssh-server:amd64-latest
