@@ -2,20 +2,6 @@ version: "3.7"
 
 services:
 
-  telegraf-on-dpu:
-    image: telegraf:1.22
-    volumes:
-      - ./telegraf/telegraf-redfish.conf:/etc/telegraf/telegraf.conf:ro
-    networks:
-      opi:
-        ipv4_address: 10.127.127.5
-    healthcheck:
-      test: cat /proc/1/status || exit 1
-      interval: 6s
-      retries: 5
-      start_period: 20s
-      timeout: 10s
-
   otel-gw-collector:
     image: otel/opentelemetry-collector
     command: ["--config=/etc/otel-collector-config.yaml"]

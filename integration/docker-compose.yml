@@ -77,6 +77,12 @@ services:
     network_mode: service:xpu-cpu-ssh
     command: ['/bin/sh', '-c', 'sleep infinity']
 
+  xpu-telegraf:
+    image: telegraf:1.22
+    volumes:
+      - ./xpu-cpu/telegraf-redfish.conf:/etc/telegraf/telegraf.conf:ro
+    network_mode: service:xpu-cpu-ssh
+
   xpu-bmc-ssh:
     image: linuxserver/openssh-server:amd64-latest
     hostname: xpu-bmc
