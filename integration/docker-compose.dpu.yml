@@ -2,33 +2,39 @@ version: '3.7'
 
 services:
 
-  host-cpu-ssh:
+  xpu-cpu-ssh:
     image: linuxserver/openssh-server:amd64-latest
-    hostname: host-cpu
+    hostname: xpu-cpu
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/London
       - PASSWORD_ACCESS=true
       - USER_PASSWORD=123456
-      - USER_NAME=host
+      - USER_NAME=xpu
     ports:
-      - '2210:2222'
+      - '2207:2222'
     networks:
       opi:
-        ipv4_address: 10.127.127.10
+        ipv4_address: 10.127.127.7
 
-  host-cpu:
+  xpu-cpu:
     build:
-      context: host-cpu
+      context: xpu-cpu
     depends_on:
       - xpu-cpu-ssh
-    network_mode: service:host-cpu-ssh
+    network_mode: service:xpu-cpu-ssh
     command: ['/bin/sh', '-c', 'sleep infinity']
 
-  host-bmc-ssh:
+  xpu-telegraf:
+    image: telegraf:1.22
+    volumes:
+      - ./xpu-cpu/telegraf-redfish.conf:/etc/telegraf/telegraf.conf:ro
+    network_mode: service:xpu-cpu-ssh
+
+  xpu-bmc-ssh:
     image: linuxserver/openssh-server:amd64-latest
-    hostname: host-bmc
+    hostname: xpu-bmc
     environment:
       - PUID=1000
       - PGID=1000
@@ -37,20 +43,20 @@ services:
       - USER_PASSWORD=123456
       - USER_NAME=bmc
     ports:
-      - '2208:2222'
-      - '8001:8000'
+      - '2209:2222'
+      - '8002:8000'
     networks:
       opi:
-        ipv4_address: 10.127.127.8
+        ipv4_address: 10.127.127.9
 
-  host-bmc-redfish:
+  xpu-bmc-redfish:
     image: dmtf/redfish-mockup-server:1.1.8
-    network_mode: service:host-bmc-ssh
+    network_mode: service:xpu-bmc-ssh
 
-  host-bmc:
+  xpu-bmc:
     build:
-      context: host-bmc
-    network_mode: service:host-bmc-ssh
+      context: xpu-bmc
+    network_mode: service:xpu-bmc-ssh
     command: ['/bin/sh', '-c', 'sleep infinity']
 
 networks:
