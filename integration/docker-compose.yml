@@ -17,6 +17,12 @@ services:
     networks:
       opi:
         ipv4_address: 10.127.127.10
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/2222'"]
+      interval: 6s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   host-cpu:
     build:
@@ -27,6 +33,12 @@ services:
       - host-cpu-ssh:rw
     network_mode: service:host-cpu-ssh
     command: ['/bin/sh', '-c', 'sleep infinity']
+    healthcheck:
+      test: cat /proc/1/status || exit 1
+      interval: 6s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   host-bmc-ssh:
     image: linuxserver/openssh-server:amd64-latest
@@ -44,6 +56,12 @@ services:
     networks:
       opi:
         ipv4_address: 10.127.127.8
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/2222'"]
+      interval: 6s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   host-bmc-redfish:
     image: dmtf/redfish-mockup-server:1.1.8
@@ -56,6 +74,12 @@ services:
       - host-bmc-ssh:rw
     network_mode: service:host-bmc-ssh
     command: ['/bin/sh', '-c', 'sleep infinity']
+    healthcheck:
+      test: cat /proc/1/status || exit 1
+      interval: 6s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
 networks:
   opi:
