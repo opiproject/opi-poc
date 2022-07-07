@@ -24,6 +24,8 @@ services:
       context: xpu-cpu
     depends_on:
       - xpu-cpu-ssh
+    volumes_from:
+      - xpu-cpu-ssh:rw
     network_mode: service:xpu-cpu-ssh
     command: ['/bin/sh', '-c', 'sleep infinity']
 
@@ -80,6 +82,8 @@ services:
   xpu-bmc:
     build:
       context: xpu-bmc
+    volumes_from:
+      - xpu-bmc-ssh:rw
     network_mode: service:xpu-bmc-ssh
     command: ['/bin/sh', '-c', 'sleep infinity']
 
