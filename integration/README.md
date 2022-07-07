@@ -7,7 +7,7 @@
 ## Start
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml up
+docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml up
 ```
 
 ## Test
@@ -24,5 +24,5 @@ docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose
 ## Stop
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml down --remove-orphans
+docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml down --remove-orphans
 ```

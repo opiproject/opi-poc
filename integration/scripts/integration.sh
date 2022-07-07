@@ -14,18 +14,20 @@ usage() {
 }
 
 build_and_start_containers() {
-    docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml down
+    docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml down
     docker network prune --force
-    docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml up -d
+    docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml up -d
 }
 
 run_integration_tests() {
-    docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml ps
+    docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml ps
     echo wait 5s... && sleep 5s
     curl --fail http://127.0.0.1:8001/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8002/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8082/var/lib/tftpboot/
     curl --fail http://127.0.0.1:9090/
+    curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{\"id\": 1, \"method\": \"bdev_get_bdevs\"}' http://127.0.0.1:9004
+    curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{\"id\": 1, \"method\": \"bdev_get_bdevs\"}' http://127.0.0.1:9009
     docker-compose -f docker-compose.pxe.yml exec -T pxe dnf install -y nmap tftp
     docker-compose -f docker-compose.pxe.yml exec -T pxe nmap --script broadcast-dhcp-discover
     docker-compose -f docker-compose.pxe.yml exec -T pxe nmap --script broadcast-dhcp-discover | grep "Server Identifier: 10.127.127.3"
@@ -37,11 +39,11 @@ acquire_logs() {
     docker-compose logs || true
     netstat -an || true
     ifconfig -a || true
-    docker inspect "$(docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml ps -aq)" || true
+    docker inspect "$(docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml ps -aq)" || true
 }
 
 stop_containers() {
-    docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml down
+    docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml down
 }
 
 if [ "$#" -lt 1 ]
