@@ -30,6 +30,13 @@ services:
             python3 -m http.server 8082 & \
             dhcpd -d & \
             wait'
+
+  sztp:
+    build:
+      context: pxe
+    network_mode: service:pxe
+    command: ['sztpd', '--help']
+
 networks:
   opi:
     name: opi
