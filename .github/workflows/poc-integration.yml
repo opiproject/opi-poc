@@ -42,20 +42,38 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: Build & Start containers
-      run: ./scripts/integration.sh build-start
+    - name: Build & Start DPU containers
+      run: ./scripts/integration.sh -a dpu build-start
       working-directory: integration
 
-    - name: Run Integration Tests
-      run: ./scripts/integration.sh run-tests
+    - name: Run DPU Integration Tests
+      run: ./scripts/integration.sh -a dpu run-tests
       working-directory: integration
 
-    - name: Logs
+    - name: DPU Logs
       if: failure()
-      run: ./scripts/integration.sh logs
+      run: ./scripts/integration.sh -a dpu logs
       working-directory: integration
 
-    - name: Stop containers
+    - name: Stop DPU containers
       if: always()
-      run: ./scripts/integration.sh stop
+      run: ./scripts/integration.sh -a dpu stop
+      working-directory: integration
+
+    - name: Build & Start IPU containers
+      run: ./scripts/integration.sh -a ipu build-start
+      working-directory: integration
+
+    - name: Run IPU Integration Tests
+      run: ./scripts/integration.sh -a ipu run-tests
+      working-directory: integration
+
+    - name: IPU Logs
+      if: failure()
+      run: ./scripts/integration.sh -a ipu logs
+      working-directory: integration
+
+    - name: Stop IPU containers
+      if: always()
+      run: ./scripts/integration.sh -a ipu stop
       working-directory: integration

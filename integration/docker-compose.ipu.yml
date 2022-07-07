@@ -2,38 +2,38 @@ version: '3.7'
 
 services:
 
-  dpu-cpu-ssh:
+  ipu-cpu-ssh:
     image: linuxserver/openssh-server:amd64-latest
-    hostname: dpu-cpu
+    hostname: ipu-cpu
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/London
       - PASSWORD_ACCESS=true
       - USER_PASSWORD=123456
-      - USER_NAME=dpu
+      - USER_NAME=ipu
     ports:
       - '2207:2222'
       - "9009:9009"
     networks:
       opi:
-        ipv4_address: 10.127.127.7
+        ipv4_address: 10.127.127.17
 
-  dpu-cpu:
+  ipu-cpu:
     build:
       context: xpu-cpu
     depends_on:
-      - dpu-cpu-ssh
-    network_mode: service:dpu-cpu-ssh
+      - ipu-cpu-ssh
+    network_mode: service:ipu-cpu-ssh
     command: ['/bin/sh', '-c', 'sleep infinity']
 
-  dpu-telegraf:
+  ipu-telegraf:
     image: telegraf:1.22
     volumes:
       - ./xpu-cpu/telegraf-redfish.conf:/etc/telegraf/telegraf.conf:ro
-    network_mode: service:dpu-cpu-ssh
+    network_mode: service:ipu-cpu-ssh
 
-  dpu-spdk:
+  ipu-spdk:
     build:
       context: spdk
     volumes:
@@ -41,7 +41,7 @@ services:
       - /dev/shm:/dev/shm
       - /proc:/proc
     privileged: true
-    network_mode: service:dpu-cpu-ssh
+    network_mode: service:ipu-cpu-ssh
     command: |
       sh -c 'echo 512 > /proc/sys/vm/nr_hugepages && \
             grep "" /sys/kernel/mm/hugepages/hugepages-*/nr_hugepages && \
@@ -56,9 +56,9 @@ services:
       start_period: 20s
       timeout: 10s
 
-  dpu-bmc-ssh:
+  ipu-bmc-ssh:
     image: linuxserver/openssh-server:amd64-latest
-    hostname: dpu-bmc
+    hostname: ipu-bmc
     environment:
       - PUID=1000
       - PGID=1000
@@ -71,16 +71,16 @@ services:
       - '8002:8000'
     networks:
       opi:
-        ipv4_address: 10.127.127.9
+        ipv4_address: 10.127.127.19
 
-  dpu-bmc-redfish:
+  ipu-bmc-redfish:
     image: dmtf/redfish-mockup-server:1.1.8
-    network_mode: service:dpu-bmc-ssh
+    network_mode: service:ipu-bmc-ssh
 
-  dpu-bmc:
+  ipu-bmc:
     build:
       context: xpu-bmc
-    network_mode: service:dpu-bmc-ssh
+    network_mode: service:ipu-bmc-ssh
     command: ['/bin/sh', '-c', 'sleep infinity']
 
 networks:

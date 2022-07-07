@@ -6,8 +6,16 @@
 
 ## Start
 
+### DPU
+
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml up
+```
+
+### IPU
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.ipu.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml up
 ```
 
 ## Test
@@ -23,6 +31,14 @@ docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose
 
 ## Stop
 
+### DPU
+
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml down --remove-orphans
+```
+
+### IPU
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.ipu.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml down --remove-orphans
 ```
