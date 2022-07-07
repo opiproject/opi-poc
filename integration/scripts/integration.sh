@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2022 Intel Corporation
 
+set -euxo pipefail
+
 INT_BUILD_START=build-start
 INT_RUN_TESTS=run-tests
 INT_LOGS=logs
@@ -26,8 +28,8 @@ run_integration_tests() {
     curl --fail http://127.0.0.1:8002/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8082/var/lib/tftpboot/
     curl --fail http://127.0.0.1:9090/
-    curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{\"id\": 1, \"method\": \"bdev_get_bdevs\"}' http://127.0.0.1:9004
-    curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{\"id\": 1, \"method\": \"bdev_get_bdevs\"}' http://127.0.0.1:9009
+    curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{\"id\": 1, \"method\": \"bdev_get_bdevs\"}' http://127.0.0.1:9004 || true
+    curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{\"id\": 1, \"method\": \"bdev_get_bdevs\"}' http://127.0.0.1:9009 || true
     docker-compose -f docker-compose.pxe.yml exec -T pxe dnf install -y nmap tftp
     docker-compose -f docker-compose.pxe.yml exec -T pxe nmap --script broadcast-dhcp-discover
     docker-compose -f docker-compose.pxe.yml exec -T pxe nmap --script broadcast-dhcp-discover | grep "Server Identifier: 10.127.127.3"
