@@ -14,13 +14,13 @@ usage() {
 }
 
 build_and_start_containers() {
-    docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml down
+    docker-compose -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml down
     docker network prune --force
-    docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml up -d
+    docker-compose -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml up -d
 }
 
 run_integration_tests() {
-    docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml ps
+    docker-compose -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml ps
     echo wait 5s... && sleep 5s
     curl --fail http://127.0.0.1:8001/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8002/redfish/v1/Systems/437XR1138R2
@@ -39,11 +39,11 @@ acquire_logs() {
     docker-compose logs || true
     netstat -an || true
     ifconfig -a || true
-    docker inspect "$(docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml ps -aq)" || true
+    docker inspect "$(docker-compose -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml ps -aq)" || true
 }
 
 stop_containers() {
-    docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml down
+    docker-compose -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml down
 }
 
 if [ "$#" -lt 1 ]
