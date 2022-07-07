@@ -31,7 +31,8 @@ services:
     ports:
       - "9090:9090"
     networks:
-      - opi
+      opi:
+        ipv4_address: 10.127.127.5
 
 networks:
   opi:

@@ -7,7 +7,7 @@
 ## Start
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.telegraf.yml -f docker-compose.pxe.yml up
+docker-compose -f docker-compose.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml up
 ```
 
 ## Test
@@ -24,5 +24,5 @@ docker-compose -f docker-compose.yml -f docker-compose.telegraf.yml -f docker-co
 ## Stop
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.telegraf.yml -f docker-compose.pxe.yml down --remove-orphans
+docker-compose -f docker-compose.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml down --remove-orphans
 ```

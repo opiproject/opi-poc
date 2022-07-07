@@ -15,7 +15,7 @@ OTEL gateway collector runs outside of DPU/IPU and connects to backends like ELK
 
 ## Getting started
 
-Run `docker-compose -f docker-compose.telegraf.yml up`
+Run `docker-compose -f docker-compose.otel.yml up`
 
 ## Example
 
