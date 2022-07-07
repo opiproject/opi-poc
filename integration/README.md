@@ -6,20 +6,25 @@
 
 ## Start
 
-### DPU
+### DPU Start
 
+<!-- markdownlint-disable -->
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml up
 ```
+<!-- markdownlint-restore -->
 
-### IPU
+### IPU Start
 
+<!-- markdownlint-disable -->
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.ipu.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml up
 ```
+<!-- markdownlint-restore -->
 
 ## Test
 
+<!-- markdownlint-disable -->
 * Check Prometheus at <http://0.0.0.0:9090>
 * Check Platform/Host BMC redfish server <http://0.0.0.0:8001/redfish/v1>
 * Check NIC/DPU/IPU BMC redfish server <http://0.0.0.0:8002/redfish/v1>
@@ -28,17 +33,22 @@ docker-compose -f docker-compose.yml -f docker-compose.ipu.yml -f docker-compose
 * Log into Host BMC: `ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2208 bmc@127.0.0.1`
 * Log into  xPU CPU: `ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2207 xpu@127.0.0.1`
 * Log into  xPU BMC: `ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2209 bmc@127.0.0.1`
+<!-- markdownlint-restore -->
 
 ## Stop
 
-### DPU
+### DPU Stop
 
+<!-- markdownlint-disable -->
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.dpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml down --remove-orphans
 ```
+<!-- markdownlint-restore -->
 
-### IPU
+### IPU Stop
 
+<!-- markdownlint-disable -->
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.ipu.yml -f docker-compose.otel.yml -f docker-compose.pxe.yml down --remove-orphans
 ```
+<!-- markdownlint-restore -->
