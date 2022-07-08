@@ -25,7 +25,7 @@ services:
             ./rpc.py bdev_malloc_create -b Malloc1 64 512 && \
             ./rpc.py nvmf_create_transport -t TCP -u 8192 -m 4 -c 0  && \
             ./rpc.py nvmf_create_subsystem nqn.2016-06.io.spdk:cnode1 -a -s SPDK00000000000001 -d SPDK_Controller1  && \
-            ./rpc.py nvmf_subsystem_add_listener nqn.2016-06.io.spdk:cnode1 -t tcp -a 127.0.0.1 -s 4420  && \
+            ./rpc.py nvmf_subsystem_add_listener nqn.2016-06.io.spdk:cnode1 -t tcp -a 0.0.0.0 -s 4420  && \
             ./rpc.py nvmf_subsystem_add_ns nqn.2016-06.io.spdk:cnode1 Malloc0 -n 1  && \
             ./rpc.py nvmf_subsystem_add_ns nqn.2016-06.io.spdk:cnode1 Malloc1 -n 2  && \
             ./rpc_http_proxy.py 0.0.0.0 9009 spdkuser spdkpass'

@@ -47,6 +47,8 @@ run_integration_tests() {
     bash -c "${DC} -f docker-compose.pxe.yml exec -T pxe nmap --script broadcast-dhcp-discover" | grep "Server Identifier: 10.127.127.3"
     bash -c "${DC} -f docker-compose.pxe.yml exec -T pxe curl --fail http://10.127.127.3:8082/var/lib/tftpboot/"
     bash -c "${DC} -f docker-compose.pxe.yml exec -T pxe tftp 10.127.127.3 -v -c get grubx64.efi"
+    bash -c "${DC} -f docker-compose.spdk.yml exec -T spdk-target /root/spdk/build/examples/identify -r 'traddr:127.0.0.1 trtype:TCP adrfam:IPv4 trsvcid:4420'"
+    bash -c "${DC} -f docker-compose.xpu.yml  exec -T xpu-spdk /root/spdk/build/examples/identify -r 'traddr:10.127.127.4 trtype:TCP adrfam:IPv4 trsvcid:4420'"
 }
 
 acquire_logs() {
