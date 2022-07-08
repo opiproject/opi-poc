@@ -57,7 +57,7 @@ services:
     privileged: true
     network_mode: service:xpu-cpu-ssh
     command: |
-      sh -c 'sync; echo 1 | sudo tee /proc/sys/vm/drop_caches  && \
+      sh -x -c 'sync; echo 1 > /proc/sys/vm/drop_caches  && \
             echo 1024 > /proc/sys/vm/nr_hugepages && \
             grep "" /sys/kernel/mm/hugepages/hugepages-*/nr_hugepages && \
             /root/spdk/build/bin/spdk_tgt -m 0x1 -s 512 2>&1 & \
