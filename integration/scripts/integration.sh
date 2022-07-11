@@ -4,6 +4,7 @@
 
 set -euxo pipefail
 
+INT_BUILD=build
 INT_BUILD_START=build-start
 INT_RUN_TESTS=run-tests
 INT_LOGS=logs
@@ -19,14 +20,17 @@ fi
 
 usage() {
     echo ""
-    echo "Usage: integration.sh [${INT_BUILD_START} | ${INT_RUN_TESTS} | ${INT_LOGS} | ${INT_STOP}]"
+    echo "Usage: integration.sh [${INT_BUILD} | ${INT_BUILD_START} | ${INT_RUN_TESTS} | ${INT_LOGS} | ${INT_STOP}]"
     echo ""
 }
 
-build_and_start_containers() {
+build_containers() {
+    bash -c "${DC} -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml build --parallel"
+}
+
+start_containers() {
     bash -c "${DC} -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml down"
     docker network prune --force
-    bash -c "${DC} -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml build --parallel"
     bash -c "${DC} -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml up -d"
 }
 
@@ -70,9 +74,13 @@ then
     exit 1
 fi
 
-if [ "$1" == "${INT_BUILD_START}" ]
+if [ "$1" == "${INT_BUILD}" ]
 then
-    build_and_start_containers
+    build_containers
+elif [ "$1" == "${INT_BUILD_START}" ]
+then
+    build_containers
+    start_containers
 elif [ "$1" == "${INT_RUN_TESTS}" ]
 then
     run_integration_tests
