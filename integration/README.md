@@ -7,7 +7,8 @@
 ## Start
 
 ```bash
-./scripts/integration.sh build-start
+./scripts/integration.sh build
+./scripts/integration.sh start
 ```
 
 ## Test

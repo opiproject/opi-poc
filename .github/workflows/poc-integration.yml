@@ -42,8 +42,12 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: Build & Start containers
-      run: ./scripts/integration.sh build-start
+    - name: Build containers
+      run: ./scripts/integration.sh build
+      working-directory: integration
+
+    - name: Start containers
+      run: ./scripts/integration.sh start
       working-directory: integration
 
     - name: Run Integration Tests

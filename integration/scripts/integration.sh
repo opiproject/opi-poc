@@ -5,7 +5,7 @@
 set -euxo pipefail
 
 INT_BUILD=build
-INT_BUILD_START=build-start
+INT_START=start
 INT_RUN_TESTS=run-tests
 INT_LOGS=logs
 INT_STOP=stop
@@ -20,7 +20,7 @@ fi
 
 usage() {
     echo ""
-    echo "Usage: integration.sh [${INT_BUILD} | ${INT_BUILD_START} | ${INT_RUN_TESTS} | ${INT_LOGS} | ${INT_STOP}]"
+    echo "Usage: integration.sh [${INT_BUILD} | ${INT_START} | ${INT_RUN_TESTS} | ${INT_LOGS} | ${INT_STOP}]"
     echo ""
 }
 
@@ -77,9 +77,8 @@ fi
 if [ "$1" == "${INT_BUILD}" ]
 then
     build_containers
-elif [ "$1" == "${INT_BUILD_START}" ]
+elif [ "$1" == "${INT_START}" ]
 then
-    build_containers
     start_containers
 elif [ "$1" == "${INT_RUN_TESTS}" ]
 then
