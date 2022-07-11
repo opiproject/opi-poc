@@ -3,4 +3,4 @@
 #
 
 shellcheck:
-	./scripts/run-shellcheck.sh
+	../scripts/run-shellcheck.sh
