@@ -47,7 +47,6 @@ run_integration_tests() {
     sshpass -p 123456 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2208  bmc@127.0.0.1 hostname
     sshpass -p 123456 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2207  xpu@127.0.0.1 hostname
     sshpass -p 123456 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2209  bmc@127.0.0.1 hostname
-    bash -c "${DC} -f docker-compose.pxe.yml exec -T pxe dnf install -y nmap tftp"
     bash -c "${DC} -f docker-compose.pxe.yml exec -T pxe nmap --script broadcast-dhcp-discover"
     bash -c "${DC} -f docker-compose.pxe.yml exec -T pxe nmap --script broadcast-dhcp-discover" | grep "Server Identifier: 10.127.127.3"
     bash -c "${DC} -f docker-compose.pxe.yml exec -T pxe curl --fail http://10.127.127.3:8082/var/lib/tftpboot/"
