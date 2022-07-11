@@ -64,7 +64,6 @@ acquire_logs() {
     bash -c "${DC} -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml logs" || true
     netstat -an || true
     ifconfig -a || true
-    docker inspect bash -c "${DC} compose -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml ps -aq" || true
 }
 
 stop_containers() {
