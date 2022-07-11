@@ -34,8 +34,9 @@ services:
   sztp:
     build:
       context: pxe
+      dockerfile: Dockerfile.sztp
     network_mode: service:pxe
-    command: ['sztpd', '--help']
+    command: ['sztpd', 'sqlite:///:memory:']
 
 networks:
   opi:
