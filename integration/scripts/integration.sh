@@ -26,6 +26,7 @@ usage() {
 build_and_start_containers() {
     bash -c "${DC} -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml down"
     docker network prune --force
+    bash -c "${DC} -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml build --parallel"
     bash -c "${DC} -f docker-compose.yml -f docker-compose.xpu.yml -f docker-compose.otel.yml -f docker-compose.spdk.yml -f docker-compose.pxe.yml up -d"
 }
 
