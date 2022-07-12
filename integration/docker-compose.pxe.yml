@@ -35,8 +35,17 @@ services:
     build:
       context: pxe
       dockerfile: Dockerfile.sztp
+    environment:
+      SZTPD_INIT_PORT: 1080
+      SZTPD_INIT_MODE: 1
+      SZTPD_ACCEPT_CONTRACT: "Yes"
     network_mode: service:pxe
     command: ['sztpd', 'sqlite:///:memory:']
+    healthcheck:
+      test: curl --silent --fail -H Accept:application/yang-data+json http://localhost:1080/.well-known/host-meta || exit 1
+      interval: 6s
+      timeout: 10s
+      retries: 5
 
 networks:
   opi:
