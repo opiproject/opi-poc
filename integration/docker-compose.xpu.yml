@@ -62,6 +62,7 @@ services:
             grep "" /sys/kernel/mm/hugepages/hugepages-*/nr_hugepages && \
             /root/spdk/build/bin/spdk_tgt -m 0x1 -s 512 2>&1 & \
             echo wait 5s... && sleep 5s && cd /root/spdk/scripts && \
+            for i in `seq 1 10`; do sleep 1; ./rpc.py spdk_get_version || continue; done  && \
             ./rpc.py bdev_malloc_create -b Malloc0 64 512 && \
             ./rpc.py bdev_malloc_create -b Malloc1 64 512 && \
             echo ./rpc.py bdev_nvme_attach_controller -b opi-bdev -t tcp -a spdk-target -f ipv4 -s 4420 -n nqn.2016-06.io.spdk:cnode1 && \
