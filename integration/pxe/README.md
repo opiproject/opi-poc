@@ -25,7 +25,6 @@ docker-compose -f docker-compose.pxe.yml up --build
 
 ```text
 docker-compose -f docker-compose.pxe.yml exec pxe bash
-dnf install -y nmap tftp
 ```
 
 ## Run DHCP discover and get PXE server IP
