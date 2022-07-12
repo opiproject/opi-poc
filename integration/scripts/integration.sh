@@ -41,7 +41,7 @@ run_integration_tests() {
     curl --fail http://127.0.0.1:8002/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8082/var/lib/tftpboot/
     curl --fail http://127.0.0.1:9090/
-    for i in $(seq 1 10)
+    for i in $(seq 1 20)
     do
         echo "${i}"
 	if [[ "$(curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{"id": 1, "method": "spdk_get_version"}' http://127.0.0.1:9004)" ]]
@@ -51,7 +51,7 @@ run_integration_tests() {
             sleep 1
         fi
     done
-    for i in $(seq 1 10)
+    for i in $(seq 1 20)
     do
         echo "$i"
         if [[ "$(curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{"id": 1, "method": "spdk_get_version"}' http://127.0.0.1:9009)" ]]
