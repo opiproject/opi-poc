@@ -51,7 +51,7 @@ jobs:
       working-directory: integration
 
     - name: Run Integration Tests
-      run: ./scripts/integration.sh run-tests
+      run: ./scripts/integration.sh tests
       working-directory: integration
 
     - name: Logs

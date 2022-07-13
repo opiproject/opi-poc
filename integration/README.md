@@ -29,7 +29,7 @@ To manually check the run, execute the following:
 You can also run the CI tests and log collection as follows:
 
 ```bash
-./scripts/integration.sh run-tests
+./scripts/integration.sh tests
 ./scripts/integration.sh logs
 ```
 

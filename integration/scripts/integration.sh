@@ -6,7 +6,7 @@ set -euxo pipefail
 
 INT_BUILD=build
 INT_START=start
-INT_RUN_TESTS=run-tests
+INT_TESTS=tests
 INT_LOGS=logs
 INT_STOP=stop
 
@@ -20,7 +20,7 @@ fi
 
 usage() {
     echo ""
-    echo "Usage: integration.sh [${INT_BUILD} | ${INT_START} | ${INT_RUN_TESTS} | ${INT_LOGS} | ${INT_STOP}]"
+    echo "Usage: integration.sh [${INT_BUILD} | ${INT_START} | ${INT_TESTS} | ${INT_LOGS} | ${INT_STOP}]"
     echo ""
 }
 
@@ -67,7 +67,7 @@ acquire_logs() {
 }
 
 stop_containers() {
-    bash -c "${DC} down"
+    bash -c "${DC} down --volumes"
 }
 
 if [ "$#" -lt 1 ]
@@ -82,7 +82,7 @@ then
 elif [ "$1" == "${INT_START}" ]
 then
     start_containers
-elif [ "$1" == "${INT_RUN_TESTS}" ]
+elif [ "$1" == "${INT_TESTS}" ]
 then
     run_integration_tests
 elif [ "$1" == "${INT_LOGS}" ]
