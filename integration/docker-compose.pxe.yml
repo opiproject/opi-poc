@@ -10,7 +10,7 @@ services:
     environment:
       NODE_IP_SUBNET: 10.127.127.0
       NODE_IP_NETMASK: 255.255.255.0
-      NODE_IP_RANGE_MIN: 10.127.127.10
+      NODE_IP_RANGE_MIN: 10.127.127.100
       NODE_IP_RANGE_MAX: 10.127.127.253
       NODE_IP_ADDRESS: 10.127.127.3
     volumes:
