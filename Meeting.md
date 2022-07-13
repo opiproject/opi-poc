@@ -268,7 +268,7 @@ Attendees: Steven Royer, Venkat Pullela, Kyle Mestery, Shafiq Abedin
     PoC?
 * Can still layer Tim's nginx firewall on top of existing PoC
 
-## 6/15/2002
+## 6/15/2022
 
 Attendees: Yuval Caduri, Venkat Pullela, Tim Worsley, Dan Daly, Steven Royer
 
@@ -279,7 +279,7 @@ Attendees: Yuval Caduri, Venkat Pullela, Tim Worsley, Dan Daly, Steven Royer
 * Firewall PoC
   * Tim to update existing networking PoC to include his firewall bits
 
-## 6/29/2002
+## 6/29/2022
 
 Attendees: Steven Royer, Dan Daly, Kyle Mestery, Tim Worsley, Anh Thu, Venkat
 Pullela
@@ -298,3 +298,11 @@ Pullela
 * Dan: Testing discussion
   * To post slides around CI/CD: slack and github
   * Venkat to bring Keysight people to talk about test pipeline
+
+## 7/13/2022
+
+Attendees: Steven Royer, Kyle Mestery, Boris Glimcher, Timothy Worsley, Dan Daly, Renato Recio, Venkat Pullela, Anh Thu
+
+* Boris presented the current state of the developer platform
+* Dan to work with IPDK group for how to merge storage test
+  * Need IPDK/SPDK to publish SPDK container image
