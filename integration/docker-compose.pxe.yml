@@ -5,8 +5,6 @@ services:
   pxe:
     build:
       context: pxe
-    ports:
-      - 8082:8082
     environment:
       NODE_IP_SUBNET: 10.127.127.0
       NODE_IP_NETMASK: 255.255.255.0
@@ -14,22 +12,35 @@ services:
       NODE_IP_RANGE_MAX: 10.127.127.253
       NODE_IP_ADDRESS: 10.127.127.3
     volumes:
-      - ./pxe/grubx64.efi:/var/lib/tftpboot/grubx64.efi:ro
       - ./pxe/dhcpd.conf.template:/etc/dhcp/dhcpd.conf.template:ro
     networks:
       opi:
         ipv4_address: 10.127.127.3
     healthcheck:
-      test: curl --silent --fail http://localhost:8082 || exit 1
+      test: tftp localhost -v -c get grubx64.efi || exit 1
       interval: 6s
       timeout: 10s
       retries: 5
     command: |
       sh -e -u -x -c 'envsubst < /etc/dhcp/dhcpd.conf.template > /etc/dhcp/dhcpd.conf && \
             /usr/sbin/in.tftpd --listen -s /var/lib/tftpboot  && \
-            python3 -m http.server 8082 & \
             dhcpd -d & \
             wait'
+  web:
+    image: python:3.9
+    ports:
+      - 8082:8082
+    volumes:
+      - ./pxe/grubx64.efi:/var/lib/tftpboot/grubx64.efi:ro
+    networks:
+      opi:
+        ipv4_address: 10.127.127.16
+    healthcheck:
+      test: curl --silent --fail http://localhost:8082 || exit 1
+      interval: 6s
+      timeout: 10s
+      retries: 5
+    command: python3 -m http.server 8082
 
   sztp:
     build:
