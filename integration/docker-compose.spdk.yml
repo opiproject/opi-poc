@@ -29,7 +29,7 @@ services:
             ./rpc.py nvmf_subsystem_add_listener nqn.2016-06.io.spdk:cnode1 -t tcp -a 10.127.127.4 -s 4420  && \
             ./rpc.py nvmf_subsystem_add_ns nqn.2016-06.io.spdk:cnode1 Malloc0 -n 1  && \
             ./rpc.py nvmf_subsystem_add_ns nqn.2016-06.io.spdk:cnode1 Malloc1 -n 2  && \
-            ./rpc_http_proxy.py 10.127.127.4 9009 spdkuser spdkpass'
+            ./rpc_http_proxy.py 0.0.0.0 9009 spdkuser spdkpass'
     healthcheck:
       test: ["CMD-SHELL", "curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{\"id\": 1, \"method\": \"bdev_get_bdevs\"}' http://localhost:9009 || exit 1"]
       interval: 6s
