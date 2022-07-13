@@ -1,2 +1,9 @@
 FROM python:3.9
 RUN pip install sztpd==0.0.11
+
+# for simulator
+RUN apt update && apt install -y libyang-tools libxml2-utils
+# FIXME: why ADD is not working here?
+RUN curl -kL https://watsen.net/support/sztpd-simulator-0.0.11.tgz | tar -zxvf - -C /tmp/
+WORKDIR /tmp/sztpd-simulator
+RUN cd pki; make pki; cd -

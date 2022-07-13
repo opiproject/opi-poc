@@ -53,6 +53,7 @@ run_integration_tests() {
     bash -c "${DC} exec -T pxe nmap --script broadcast-dhcp-discover" | grep "Server Identifier: 10.127.127.3"
     bash -c "${DC} exec -T pxe curl --fail http://10.127.127.3:8082/var/lib/tftpboot/"
     bash -c "${DC} exec -T pxe tftp 10.127.127.3 -v -c get grubx64.efi"
+    bash -c "${DC} exec -T sztp ./run-sztpd-test.sh"
     bash -c "${DC} exec -T spdk-target /root/spdk/build/examples/identify -r 'traddr:10.127.127.4 trtype:TCP adrfam:IPv4 trsvcid:4420'"
     bash -c "${DC} exec -T xpu-spdk /root/spdk/build/examples/identify    -r 'traddr:10.127.127.4 trtype:TCP adrfam:IPv4 trsvcid:4420'"
     bash -c "${DC} exec -T spdk-target /root/spdk/build/examples/perf     -r 'traddr:10.127.127.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10"
