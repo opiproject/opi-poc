@@ -28,10 +28,10 @@ is_bash() {
 
 while IFS= read -r -d $'' file; do
     if is_bash "$file"; then
-	shellcheck -x -W0 -s bash "$file"
-	rc=$?
-	if [ "${rc}" -eq 0 ]
-	then
+        shellcheck -x -W0 -s bash "$file"
+        rc=$?
+        if [ "${rc}" -eq 0 ]
+        then
             continue
         else
             exit 1
