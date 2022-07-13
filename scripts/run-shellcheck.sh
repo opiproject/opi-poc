@@ -17,7 +17,7 @@
 # Simple script to find all bash scripts and run shellcheck on them
 #
 
-set -eu
+set -euxo pipefail
 
 is_bash() {
     [[ $1 == *.sh ]] && return 0
@@ -28,6 +28,7 @@ is_bash() {
 
 while IFS= read -r -d $'' file; do
     if is_bash "$file"; then
-        shellcheck -x -W0 -s bash "$file" || continue
+	if [ "$(shellcheck -x -W0 -s bash "$file")" != "0" ] ; then exit 1 ; fi
+	continue
     fi
 done < <(find . -type f \! -path "./.git/*" -print0)
