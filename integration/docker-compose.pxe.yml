@@ -39,7 +39,9 @@ services:
       SZTPD_INIT_PORT: 1080
       SZTPD_INIT_MODE: 1
       SZTPD_ACCEPT_CONTRACT: "Yes"
-    network_mode: service:pxe
+    networks:
+      opi:
+        ipv4_address: 10.127.127.11
     command: ['sztpd', 'sqlite:///:memory:']
     healthcheck:
       test: curl --silent --fail -H Accept:application/yang-data+json http://localhost:1080/.well-known/host-meta || exit 1
