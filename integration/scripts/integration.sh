@@ -13,7 +13,7 @@ INT_STOP=stop
 # DOCKER_COMPOSE setup
 DC=docker-compose
 
-if [ "$(which ${DC})" == "" ]
+if [ "$(command -v ${DC})" == "" ]
 then
     DC="docker compose"
 fi
