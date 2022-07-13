@@ -35,17 +35,37 @@ services:
     build:
       context: pxe
       dockerfile: Dockerfile.sztp
+    depends_on:
+      - db
     environment:
       SZTPD_INIT_PORT: 1080
       SZTPD_INIT_MODE: 1
       SZTPD_ACCEPT_CONTRACT: "Yes"
     network_mode: service:pxe
-    command: ['sztpd', 'sqlite:///:memory:']
+    command: ['sztpd', 'postgresql://sztpd-admin:secret@localhost:5432/sztpd-db']
     healthcheck:
       test: curl --silent --fail -H Accept:application/yang-data+json http://localhost:1080/.well-known/host-meta || exit 1
       interval: 6s
       timeout: 10s
       retries: 5
+
+  db:
+    image: postgres:9.5
+    volumes:
+      - sztp_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: sztpd-db
+      POSTGRES_USER: sztpd-admin
+      POSTGRES_PASSWORD: secret
+    network_mode: service:pxe
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "sztpd-admin"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+volumes:
+  sztp_data: {}
 
 networks:
   opi:
