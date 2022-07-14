@@ -35,4 +35,6 @@ for more details.
 
 ## Current PoCs
 
+* [Developer Platform / Integration Platform](integration/README.md)
 * [Pure software networking](networking/README.md)
+* [Storage](storage/README.md)
