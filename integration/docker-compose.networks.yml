@@ -1,0 +1,15 @@
+version: '3.7'
+
+networks:
+  bmc:
+    name: bmc
+    ipam:
+      config:
+        - subnet: "10.128.128.0/24"
+          gateway: "10.128.128.1"
+  opi-external:
+    name: opi-external
+    ipam:
+      config:
+        - subnet: "10.129.129.0/24"
+          gateway: "10.129.129.1"

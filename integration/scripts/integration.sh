@@ -73,10 +73,10 @@ run_integration_tests() {
     bash -c "${DC} exec -T pxe curl --fail http://10.127.127.16:8082/var/lib/tftpboot/"
     bash -c "${DC} exec -T pxe tftp 10.127.127.3 -v -c get grubx64.efi"
     bash -c "${DC} exec -T sztp ./run-sztpd-test.sh"
-    bash -c "${DC} exec -T spdk-target /usr/local/bin/identify -r 'traddr:10.127.127.4 trtype:TCP adrfam:IPv4 trsvcid:4420'"
-    bash -c "${DC} exec -T xpu-spdk /usr/local/bin/identify    -r 'traddr:10.127.127.4 trtype:TCP adrfam:IPv4 trsvcid:4420'"
-    bash -c "${DC} exec -T spdk-target /usr/local/bin/perf     -r 'traddr:10.127.127.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10"
-    bash -c "${DC} exec -T xpu-spdk /usr/local/bin/perf         -r 'traddr:10.127.127.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10"
+    bash -c "${DC} exec -T spdk-target /usr/local/bin/identify -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'"
+    bash -c "${DC} exec -T xpu-spdk /usr/local/bin/identify    -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'"
+    bash -c "${DC} exec -T spdk-target /usr/local/bin/perf     -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10"
+    bash -c "${DC} exec -T xpu-spdk /usr/local/bin/perf         -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10"
 }
 
 acquire_logs() {

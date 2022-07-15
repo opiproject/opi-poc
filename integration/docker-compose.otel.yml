@@ -15,8 +15,8 @@ services:
       - "4317:4317"   # OTLP gRPC receiver
       - "55679:55679" # zpages extension
     networks:
-      opi:
-        ipv4_address: 10.127.127.6
+      opi-external:
+        ipv4_address: 10.129.129.6
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8086/ping || exit 1
       interval: 6s
@@ -30,10 +30,10 @@ services:
     ports:
       - "9090:9090"
     networks:
-      opi:
-        ipv4_address: 10.127.127.5
+      opi-external:
+        ipv4_address: 10.129.129.5
 
 networks:
-  opi:
-    name: opi
+  opi-external:
+    name: opi-external
     external: true
