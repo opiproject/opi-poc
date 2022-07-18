@@ -34,9 +34,9 @@ services:
       - "127.0.0.1:8011:8001/tcp"
       - "127.0.0.1:8444:8444/tcp"
     networks:
-      opi:
+      xpu-cpu:
         ipv4_address: 10.127.127.7
-      opi-external:
+      high-speed-external:
         ipv4_address: 10.129.129.7
     healthcheck:
       test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/2222'"]
@@ -213,14 +213,14 @@ services:
       - kong_data:/var/lib/postgresql/data
 
 networks:
-  opi:
-    name: opi
+  xpu-cpu:
+    name: xpu-cpu
     external: true
   bmc:
     name: bmc
     external: true
-  opi-external:
-    name: opi-external
+  high-speed-external:
+    name: high-speed-external
     external: true
 
 volumes:

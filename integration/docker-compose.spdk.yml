@@ -13,7 +13,7 @@ services:
       - "9004:9009"
     privileged: true
     networks:
-      opi-external:
+      high-speed-external:
         ipv4_address: 10.129.129.4
     command: |
       sh -x -c 'sync; echo 1 > /proc/sys/vm/drop_caches  && \
@@ -38,6 +38,6 @@ services:
       timeout: 10s
 
 networks:
-  opi-external:
+  high-speed-external:
     name: opi-external
     external: true

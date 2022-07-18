@@ -14,7 +14,7 @@ services:
     volumes:
       - ./pxe/dhcpd.conf.template:/etc/dhcp/dhcpd.conf.template:ro
     networks:
-      opi:
+      xpu-cpu:
         ipv4_address: 10.127.127.3
     healthcheck:
       test: tftp localhost -v -c get grubx64.efi || exit 1
@@ -33,7 +33,7 @@ services:
     volumes:
       - ./pxe/grubx64.efi:/var/lib/tftpboot/grubx64.efi:ro
     networks:
-      opi:
+      xpu-cpu:
         ipv4_address: 10.127.127.16
     healthcheck:
       test: curl --silent --fail http://localhost:8082 || exit 1
@@ -51,7 +51,7 @@ services:
       SZTPD_INIT_MODE: 1
       SZTPD_ACCEPT_CONTRACT: "Yes"
     networks:
-      opi:
+      xpu-cpu:
         ipv4_address: 10.127.127.11
     command: ['sztpd', 'sqlite:///:memory:']
     healthcheck:
@@ -61,9 +61,6 @@ services:
       retries: 5
 
 networks:
-  opi:
-    name: opi
-    ipam:
-      config:
-        - subnet: "10.127.127.0/24"
-          gateway: "10.127.127.1"
+  xpu-cpu:
+    name: xpu-cpu
+    external: true

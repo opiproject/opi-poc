@@ -15,7 +15,7 @@ services:
     ports:
       - '2210:2222'
     networks:
-      opi-external:
+      high-speed-external:
         ipv4_address: 10.129.129.10
     healthcheck:
       test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/2222'"]
@@ -82,8 +82,8 @@ services:
       timeout: 10s
 
 networks:
-  opi:
-    name: opi
+  high-speed-external:
+    name: high-speed-external
     external: true
   bmc:
     name: bmc

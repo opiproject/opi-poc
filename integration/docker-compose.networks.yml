@@ -7,8 +7,15 @@ networks:
       config:
         - subnet: "10.128.128.0/24"
           gateway: "10.128.128.1"
-  opi-external:
-    name: opi-external
+  xpu-cpu:
+    name: xpu-cpu
+    ipam:
+      config:
+        - subnet: "10.127.127.0/24"
+          gateway: "10.127.127.1"
+
+  high-speed-external:
+    name: hig-speed-external
     ipam:
       config:
         - subnet: "10.129.129.0/24"
