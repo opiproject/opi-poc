@@ -80,8 +80,8 @@ run_integration_tests() {
     #
     # Kong tests
     #
-    bash -c "${DC} exec -T kong curl -i http://localhost:8001/"
-    bash -c "${DC} exec -T kong curl -i --insecure https://localhost:8444/"
+    bash -c "${DC} exec -T xpu-cpu-ssh curl -i http://localhost:8001/"
+    bash -c "${DC} exec -T xpu-cpu-ssh curl -i --insecure https://localhost:8444/"
 }
 
 acquire_logs() {
