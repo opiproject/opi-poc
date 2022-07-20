@@ -8,6 +8,9 @@
 # * Developer emulated xPU setup
 # * Split setup between an actual xPU and a host/VM/container
 #
+# This script assumes you have Docker installed on the xPU and host
+# instances.
+#
 
 set -eo pipefail
 
@@ -25,10 +28,9 @@ then
     DC="docker compose"
 fi
 
-
 usage() {
     echo ""
-    echo "Usage: $0 -m [dev | xpu] -i [IP address of the host] -x [IP address of the xPU]"
+    echo "Usage: $0 -m [dev | xpu] -b [BMC IP address] -i [IP address of the host] -x [IP address of the xPU]"
     echo ""
     exit 1
 }
@@ -42,27 +44,19 @@ deploy_dev() {
 
 deploy_xpu() {
     echo "Deploying xPU environment"
+    echo "BMC IP address: ${BMC_IP_ADDRESS}"
     echo "Host IP address: ${HOST_IP_ADDRESS}"
     echo "xPU IP address: ${XPU_IP_ADDRESS}"
 
-    # Deploy to XPU
-    #
-    # .FIXME: This should ssh into the xPU and run the following:
-    # .FIXME: Need to handle proxies
-    # git clone https://github.com/opiproject/opi-poc.git
-    # pushd opi-poc/integration
-    # export COMPOSE_FILE=docker-compose.xpu.yml
-    # bash -c "${DC} up -d"
-    # popd
-
     # Deploy to host/VM/container
-    # .FIXME: This should ssh into the host/VM/container and run the following:
-    # git clone https://github.com/opiproject/opi-poc.git
-    # pushd opi-poc/integration
-    # export COMPOSE_FILE=docker-compose.xpu.yml
-    # export COMPOSE_FILE=docker-compose.pxe.yml:docker-compose.spdk.yml
-    # bash -c "${DC} up -d"
-    # popd
+    export COMPOSE_FILE=docker-compose.pxe.yml:docker-compose.spdk.yml
+    export DOCKER_HOST="ssh://user@${HOST_IP_ADDRESS}"
+    bash -c "${DC} up -d"
+
+    # Deploy to XPU
+    export COMPOSE_FILE=docker-compose.xpu.yml
+    export DOCKER_HOST="ssh://user@${XPU_IP_ADDRESS}"
+    bash -c "${DC} up -d"
 }
 
 # Default mode is dev
@@ -72,11 +66,15 @@ MODE=dev
 # IP addresses, only used for xpu mode
 XPU_IP_ADDRESS=
 HOST_IP_ADDRESS=
+BMC_IP_ADDRESS=
 
-while getopts i:m:x: option
+while getopts b:i:m:x: option
 do
     case "${option}"
         in
+        b)
+            BMC_IP_ADDRESS="${OPTARG}"
+            ;;
         i)
             HOST_IP_ADDRESS="${OPTARG}"
             ;;
