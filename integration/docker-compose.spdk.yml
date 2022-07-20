@@ -40,5 +40,4 @@ services:
 
 networks:
   high-speed-external:
-    name: opi-external
     external: true

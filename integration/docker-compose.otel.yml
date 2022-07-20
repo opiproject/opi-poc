@@ -35,5 +35,4 @@ services:
 
 networks:
   high-speed-external:
-    name: high-speed-external
     external: true

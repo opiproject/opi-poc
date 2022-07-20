@@ -62,5 +62,4 @@ services:
 
 networks:
   xpu-cpu:
-    name: xpu-cpu
     external: true
