@@ -45,12 +45,12 @@ deploy_dev() {
 deploy_xpu() {
     echo "Deploying xPU environment"
     echo "BMC IP address: ${BMC_IP_ADDRESS}"
-    echo "Host IP address: ${HOST_IP_ADDRESS}"
+    echo "Host IP address: ${INFRA_IP_ADDRESS}"
     echo "xPU IP address: ${XPU_IP_ADDRESS}"
 
     # Deploy to host/VM/container
     export COMPOSE_FILE=docker-compose.pxe.yml:docker-compose.spdk.yml
-    export DOCKER_HOST="ssh://user@${HOST_IP_ADDRESS}"
+    export DOCKER_HOST="ssh://user@${INFRA_IP_ADDRESS}"
     bash -c "${DC} up -d"
 
     # Deploy to XPU
@@ -65,7 +65,7 @@ MODE=dev
 
 # IP addresses, only used for xpu mode
 XPU_IP_ADDRESS=
-HOST_IP_ADDRESS=
+INFRA_IP_ADDRESS=127.0.0.1
 BMC_IP_ADDRESS=
 
 while getopts b:i:m:x: option
@@ -76,7 +76,7 @@ do
             BMC_IP_ADDRESS="${OPTARG}"
             ;;
         i)
-            HOST_IP_ADDRESS="${OPTARG}"
+            INFRA_IP_ADDRESS="${OPTARG}"
             ;;
         m)
             MODE="${OPTARG}"
