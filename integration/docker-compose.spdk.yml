@@ -4,7 +4,7 @@ services:
 
   spdk-target:
     build:
-      context: spdk
+      context: ../storage
     volumes:
       - /dev/hugepages:/dev/hugepages
       - /dev/shm:/dev/shm
