@@ -21,4 +21,6 @@ WORKDIR /root
 RUN mkdir -p /root/rpmbuild
 COPY --from=build /root/rpmbuild/ /root/rpmbuild/
 RUN dnf install -y /root/rpmbuild/rpm/x86_64/*.rpm && dnf clean all
+EXPOSE 9009
 HEALTHCHECK CMD curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{\"id\": 1, \"method\": \"bdev_get_bdevs\"}' http://localhost:9009 || exit 1
+CMD ["/usr/libexec/spdk/scripts/rpc_http_proxy.py", "0.0.0.0", "9009", "spdkuser", "spdkpass"]
