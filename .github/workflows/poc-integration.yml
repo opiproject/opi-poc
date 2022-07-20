@@ -33,6 +33,14 @@ jobs:
     needs: integration-shellcheck
     runs-on: ubuntu-latest
     steps:
+    - name: configure HUGE pages
+      run: |
+        sync
+        echo 1 | sudo tee /proc/sys/vm/drop_caches
+        echo 1024 | sudo tee /proc/sys/vm/nr_hugepages
+        echo "Check and fail if not enough"
+        grep 1024 /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+
     - name: Checkout repository
       uses: actions/checkout@v2
 
