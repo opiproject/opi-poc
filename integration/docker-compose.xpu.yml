@@ -68,6 +68,7 @@ services:
     network_mode: service:xpu-cpu-ssh
 
   xpu-spdk:
+    image: ghcr.io/opiproject/opi-spdk:main
     build:
       context: ../storage
     volumes:
