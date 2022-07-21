@@ -3,7 +3,7 @@ version: '3.7'
 services:
 
   host-cpu-ssh:
-    image: linuxserver/openssh-server:amd64-latest
+    image: linuxserver/openssh-server:8.8_p1-r1-ls84
     hostname: host-cpu
     environment:
       - PUID=1000
@@ -41,7 +41,7 @@ services:
       timeout: 10s
 
   host-bmc-ssh:
-    image: linuxserver/openssh-server:amd64-latest
+    image: linuxserver/openssh-server:8.8_p1-r1-ls84
     hostname: host-bmc
     environment:
       - PUID=1000
