@@ -213,6 +213,11 @@ services:
     volumes:
       - kong_data:/var/lib/postgresql/data
 
+  opi-api-conglomerate:
+    build:
+      context: opi-api
+    network_mode: service:xpu-cpu-ssh
+
 networks:
   xpu-cpu:
     external: true

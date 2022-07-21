@@ -1,0 +1,22 @@
+syntax = "proto3";
+package proto;
+
+message GetNetworkRequest {
+    string key = 1;
+}
+
+message GetNetworkResponse {
+    bytes value = 1;
+}
+
+message CreateNetworkRequest {
+    string key = 1;
+    bytes value = 2;
+}
+
+message Empty {}
+
+service OPIAPI {
+    rpc GetNetwork(GetNetworkRequest) returns (GetNetworkResponse);
+    rpc CreateNetwork(CreateNetworkRequest) returns (Empty);
+}
