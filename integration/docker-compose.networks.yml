@@ -17,3 +17,5 @@ networks:
       config:
         - subnet: "10.129.129.0/24"
           gateway: "10.129.129.1"
+
+  gateway:

@@ -1,12 +1,5 @@
 version: '3.7'
 
-x-kong-config: &kong-env
-  KONG_DATABASE: ${KONG_DATABASE:-off}
-  KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-  KONG_PG_HOST: xpu-cpu
-  KONG_PG_USER: ${KONG_PG_USER:-kong}
-  KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
-
 services:
 
   xpu-cpu-ssh:
@@ -22,15 +15,6 @@ services:
     ports:
       - '2207:2222'
       - "9009:9009"
-      # The following are Kong ports
-      # The following two environment variables default to an insecure value (0.0.0.0)
-      # according to the CIS Security test.
-      - "${KONG_INBOUND_PROXY_LISTEN:-0.0.0.0}:8010:8000/tcp"
-      - "${KONG_INBOUND_SSL_PROXY_LISTEN:-0.0.0.0}:8443:8443/tcp"
-      # Making them mandatory but undefined, like so would be backwards-breaking:
-      # - "${KONG_INBOUND_PROXY_LISTEN?Missing inbound proxy host}:8010:8010/tcp"
-      # - "${KONG_INBOUND_SSL_PROXY_LISTEN?Missing inbound proxy ssl host}:8443:8443/tcp"
-      # Alternative is deactivating check 5.13 in the security bench, if we consider Kong's own config to be enough security here
       - "127.0.0.1:8011:8001/tcp"
       - "127.0.0.1:8444:8444/tcp"
     networks:
@@ -136,82 +120,59 @@ services:
       start_period: 20s
       timeout: 10s
 
-  kong-migrations:
-    image: "${KONG_DOCKER_TAG:-kong:latest}"
-    command: kong migrations bootstrap
-    profiles: ["database"]
+  gateway:
+    build:
+      context: gateway
+      dockerfile: Dockerfile
     depends_on:
-      - db
+      - example-network
+      - example-storage
+    ports:
+    - "50051:50051"
     environment:
-      <<: *kong-env
-    secrets:
-      - kong_postgres_password
-    network_mode: service:xpu-cpu-ssh
-    restart: on-failure
-
-  kong-migrations-up:
-    image: "${KONG_DOCKER_TAG:-kong:latest}"
-    command: kong migrations up && kong migrations finish
-    profiles: ["database"]
-    depends_on:
-      - db
-    environment:
-      <<: *kong-env
-    secrets:
-      - kong_postgres_password
-    network_mode: service:xpu-cpu-ssh
-    restart: on-failure
-
-  kong:
-    image: "${KONG_DOCKER_TAG:-kong:latest}"
-    user: "${KONG_USER:-kong}"
-    environment:
-      <<: *kong-env
-      KONG_ADMIN_ACCESS_LOG: /dev/stdout
-      KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_PROXY_LISTEN: "0.0.0.0:8000 reuseport backlog=16384, 0.0.0.0:8443 http2 ssl reuseport backlog=16384"
-      KONG_ADMIN_LISTEN: "0.0.0.0:8001 reuseport backlog=16384, 0.0.0.0:8444 http2 ssl reuseport backlog=16384"
-      KONG_PROXY_ACCESS_LOG: /dev/stdout
-      KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_PREFIX: ${KONG_PREFIX:-/var/run/kong}
-      KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
-    secrets:
-      - kong_postgres_password
-    network_mode: service:xpu-cpu-ssh
+    - NGINX_HOST=foobar.com
+    - NGINX_PORT=50051
     healthcheck:
-      test: ["CMD", "kong", "health"]
+      test: curl --fail http://localhost:50051/ || exit 1
       interval: 10s
       timeout: 10s
       retries: 10
-    restart: on-failure:5
-    read_only: true
-    volumes:
-      - kong_prefix_vol:${KONG_PREFIX:-/var/run/kong}
-      - kong_tmp_vol:/tmp
-      - ./api/config:/opt/kong
-    security_opt:
-      - no-new-privileges
-
-  db:
-    image: postgres:9.5
-    profiles: ["database"]
-    environment:
-      POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
-      POSTGRES_USER: ${KONG_PG_USER:-kong}
-      POSTGRES_PASSWORD_FILE: /run/secrets/kong_postgres_password
-    secrets:
-      - kong_postgres_password
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${KONG_PG_USER:-kong}"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
     restart: on-failure
-    #stdin_open: true
-    #tty: true
-    network_mode: service:xpu-cpu-ssh
-    volumes:
-      - kong_data:/var/lib/postgresql/data
+    networks:
+      gateway:
+
+  example-network:
+    build:
+      context: gateway
+      dockerfile: Dockerfile.network
+    networks:
+      gateway:
+  example-storage:
+    build:
+      context: gateway
+      dockerfile: Dockerfile.storage
+    networks:
+      gateway:
+  example-network-client:
+    depends_on:
+      - gateway
+      - example-network
+      - example-storage
+    build:
+      context: gateway
+      dockerfile: Dockerfile.network
+    network_mode: host
+    command: ['python', 'route_guide_client.py']
+  example-storage-client:
+    depends_on:
+      - gateway
+      - example-network
+      - example-storage
+    build:
+      context: gateway
+      dockerfile: Dockerfile.storage
+    network_mode: host
+    command: ['go', 'run', './greeter_client/main.go']
 
 networks:
   xpu-cpu:
@@ -220,18 +181,5 @@ networks:
     external: true
   high-speed-external:
     external: true
-
-volumes:
-  kong_data: {}
-  kong_prefix_vol:
-    driver_opts:
-     type: tmpfs
-     device: tmpfs
-  kong_tmp_vol:
-    driver_opts:
-     type: tmpfs
-     device: tmpfs
-
-secrets:
-  kong_postgres_password:
-    file: ./api/POSTGRES_PASSWORD
+  gateway:
+    external: true

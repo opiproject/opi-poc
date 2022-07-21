@@ -1,0 +1,9 @@
+# This Dockerfile runs the helloworld server from
+# https://grpc.io/docs/quickstart/go.html
+
+FROM golang
+RUN git clone -b v1.48.0 --depth 1 https://github.com/grpc/grpc-go
+WORKDIR grpc-go/examples/helloworld
+
+EXPOSE 50051
+CMD ["go", "run", "greeter_server/main.go"]
