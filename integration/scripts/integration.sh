@@ -31,6 +31,7 @@ build_containers() {
 start_containers() {
     bash -c "${DC} down"
     docker network prune --force
+    bash -c "${DC} pull"
     bash -c "${DC} up -d"
 }
 

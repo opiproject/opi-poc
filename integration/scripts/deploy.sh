@@ -6,9 +6,9 @@
 # environments:
 #
 # * Developer emulated xPU setup
-# * Split setup between an actual xPU and a host/VM/container
+# * Split setup between an actual xPU and a laptop/VM/server
 #
-# This script assumes you have Docker installed on the xPU and host
+# This script assumes you have Docker installed on the xPU and laptop/VM/server
 # instances.
 #
 
@@ -30,7 +30,7 @@ fi
 
 usage() {
     echo ""
-    echo "Usage: $0 -m [dev | xpu] -b [BMC IP address] -i [IP address of the host] -x [IP address of the xPU]"
+    echo "Usage: $0 -m [dev | xpu] -b [BMC IP address] -i [IP address of the infra server] -x [IP address of the xPU]"
     echo ""
     exit 1
 }
@@ -45,17 +45,17 @@ deploy_dev() {
 deploy_xpu() {
     echo "Deploying xPU environment"
     echo "BMC IP address: ${BMC_IP_ADDRESS}"
-    echo "Host IP address: ${INFRA_IP_ADDRESS}"
+    echo "Infra IP address: ${INFRA_IP_ADDRESS}"
     echo "xPU IP address: ${XPU_IP_ADDRESS}"
 
-    # Deploy to host/VM/container
-    export COMPOSE_FILE=docker-compose.pxe.yml:docker-compose.spdk.yml
-    export DOCKER_HOST="ssh://user@${INFRA_IP_ADDRESS}"
+    # Deploy to laptop/VM/server
+    export COMPOSE_FILE=docker-compose.otel.yml:docker-compose.spdk.yml:docker-compose.pxe.yml:docker-compose.networks.yml
+    [[ -n ${INFRA_IP_ADDRESS} ]] && export DOCKER_HOST="ssh://ubuntu@${INFRA_IP_ADDRESS}"
     bash -c "${DC} up -d"
 
     # Deploy to XPU
-    export COMPOSE_FILE=docker-compose.xpu.yml
-    export DOCKER_HOST="ssh://user@${XPU_IP_ADDRESS}"
+    export COMPOSE_FILE=docker-compose.xpu.yml:docker-compose.networks.yml
+    export DOCKER_HOST="ssh://ubuntu@${XPU_IP_ADDRESS}"
     bash -c "${DC} up -d"
 }
 
@@ -65,7 +65,7 @@ MODE=dev
 
 # IP addresses, only used for xpu mode
 XPU_IP_ADDRESS=
-INFRA_IP_ADDRESS=127.0.0.1
+INFRA_IP_ADDRESS=
 BMC_IP_ADDRESS=
 
 while getopts b:i:m:x: option
