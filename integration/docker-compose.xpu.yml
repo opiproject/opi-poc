@@ -62,9 +62,9 @@ services:
       timeout: 10s
 
   xpu-telegraf:
-    image: telegraf:1.22
-    volumes:
-      - ./xpu-cpu/telegraf-redfish.conf:/etc/telegraf/telegraf.conf:ro
+    build:
+      context: xpu-cpu
+      dockerfile: Dockerfile.telegraf
     network_mode: service:xpu-cpu-ssh
 
   xpu-spdk:
