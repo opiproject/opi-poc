@@ -3,7 +3,7 @@ version: "3.7"
 services:
 
   spdk:
-    image: ghcr.io/opiproject/opi-spdk:main
+    image: "ghcr.io/opiproject/opi-spdk:${SPDK_TAG-main}"
     build:
       context: .
       dockerfile: Dockerfile
