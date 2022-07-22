@@ -41,7 +41,7 @@ run_integration_tests() {
     curl --fail http://127.0.0.1:8001/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8002/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8082/var/lib/tftpboot/
-    curl --fail http://127.0.0.1:9090/
+    curl --fail http://127.0.0.1:9091/
     for i in $(seq 1 20)
     do
         echo "${i}"

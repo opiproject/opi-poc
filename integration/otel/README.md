@@ -19,4 +19,4 @@ Run `docker-compose -f docker-compose.otel.yml up`
 
 ## Example
 
-* Prometheus at <http://0.0.0.0:9090>
+* Prometheus at <http://0.0.0.0:9091>

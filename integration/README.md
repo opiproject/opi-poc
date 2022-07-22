@@ -4,11 +4,45 @@
 
 ![DPU SW Components](xPU-Integration-Blocks.png)
 
+## Prereqs
+
+Install docker-compose
+
+### Prereqs - Red Hat
+
+docker-compose does work on Red Hat OSes starting with podman 3.x.
+For example, on Fedora:
+
+```bash
+sudo dnf install -y podman podman-docker docker-compose
+sudo systemctl enable podman.socket --now
+# TODO volume mounts need adjustments for SELinux, disable for now
+sudo setenforce 0
+```
+
 ## Start
+
+This pulls the latest images and only builds those it cannot find.
+
+```bash
+./scripts/integration.sh start
+```
+
+If you are making changes to the container images, you can `build` them before
+running `start`.
 
 ```bash
 ./scripts/integration.sh build
 ./scripts/integration.sh start
+```
+
+### Start - Red Hat
+
+**Note** Root-less podman is not supported.  So run the integration script as
+root:
+
+```bash
+sudo ./scripts/integration.sh start
 ```
 
 ## Test
@@ -16,7 +50,7 @@
 To manually check the run, execute the following:
 
 <!-- markdownlint-disable -->
-* Check Prometheus at <http://0.0.0.0:9090>
+* Check Prometheus at <http://0.0.0.0:9091>
 * Check Platform/Host BMC redfish server <http://0.0.0.0:8001/redfish/v1>
 * Check NIC/DPU/IPU BMC redfish server <http://0.0.0.0:8002/redfish/v1>
 * Check PXE server <http://0.0.0.0:8082/var/lib/tftpboot>
@@ -37,4 +71,14 @@ You can also run the CI tests and log collection as follows:
 
 ```bash
 ./scripts/integration.sh stop
+```
+
+### Stop - Red Hat
+
+**Note** `stop` currently has an issue in this environment where you need to
+run it twice to fully clean up.
+
+```bash
+sudo ./scripts/integration.sh stop
+sudo ./scripts/integration.sh stop
 ```

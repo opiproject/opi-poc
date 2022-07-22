@@ -50,6 +50,7 @@ services:
       context: xpu-cpu
       dockerfile: Dockerfile.telegraf
     network_mode: service:xpu-cpu-ssh
+    privileged: true
 
   xpu-spdk:
     image: ghcr.io/opiproject/opi-spdk:main

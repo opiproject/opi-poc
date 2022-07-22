@@ -28,7 +28,7 @@ services:
     volumes:
       - ./otel/prometheus.yaml:/etc/prometheus/prometheus.yml
     ports:
-      - "9090:9090"
+      - "9091:9090"
     networks:
       high-speed-external:
         ipv4_address: 10.129.129.5
