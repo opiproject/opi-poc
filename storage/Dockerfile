@@ -2,7 +2,7 @@ FROM fedora:36 as build
 
 ARG TAG=v22.05
 ARG ARCH=native
-ARG OPI_SPDK_CFLAGS=""
+ARG OPI_SPDK_CFLAGS
 
 WORKDIR /root
 RUN dnf install -y git rpm-build diffutils procps-ng && dnf clean all
