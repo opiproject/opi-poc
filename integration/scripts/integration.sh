@@ -78,7 +78,7 @@ run_integration_tests() {
     bash -c "${DC} exec -T xpu-spdk /usr/local/bin/identify    -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'"
     bash -c "${DC} exec -T spdk-target /usr/local/bin/perf     -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10"
     bash -c "${DC} exec -T xpu-spdk /usr/local/bin/perf         -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10"
-    # TBD: docker-compose up --build example-storage-client example-network-client
+    bash -c "${DC} up example-storage-client example-network-client"
 }
 
 acquire_logs() {
