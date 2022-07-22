@@ -30,7 +30,7 @@ fi
 
 usage() {
     echo ""
-    echo "Usage: $0 -m [dev | xpu] -b [BMC IP address] -i [IP address of the infra server] -x [IP address of the xPU]"
+    echo "Usage: $0 -m [dev | xpu] -b [BMC IP address] -h [HOST IP address] -i [IP address of the infra server] -x [IP address of the xPU]"
     echo ""
     exit 1
 }
@@ -45,6 +45,7 @@ deploy_dev() {
 deploy_xpu() {
     echo "Deploying xPU environment"
     echo "BMC IP address: ${BMC_IP_ADDRESS}"
+    echo "Host IP address: ${HOST_IP_ADDRESS}"
     echo "Infra IP address: ${INFRA_IP_ADDRESS}"
     echo "xPU IP address: ${XPU_IP_ADDRESS}"
 
@@ -53,9 +54,14 @@ deploy_xpu() {
     [[ -n ${INFRA_IP_ADDRESS} ]] && export DOCKER_HOST="ssh://ubuntu@${INFRA_IP_ADDRESS}"
     bash -c "${DC} up -d"
 
+    # Deploy to x86 HOST where xPU is plugged into (were actual apps are running like iperf, fio, ...)
+    export COMPOSE_FILE=docker-compose.host.yml:docker-compose.networks.yml
+    [[ -n ${HOST_IP_ADDRESS} ]] && export DOCKER_HOST="ssh://root@${HOST_IP_ADDRESS}"
+    bash -c "${DC} up -d"
+
     # Deploy to XPU
     export COMPOSE_FILE=docker-compose.xpu.yml:docker-compose.networks.yml
-    export DOCKER_HOST="ssh://ubuntu@${XPU_IP_ADDRESS}"
+    [[ -n ${XPU_IP_ADDRESS} ]] && export DOCKER_HOST="ssh://ubuntu@${XPU_IP_ADDRESS}"
     bash -c "${DC} up -d"
 }
 
@@ -68,12 +74,17 @@ XPU_IP_ADDRESS=
 INFRA_IP_ADDRESS=
 BMC_IP_ADDRESS=
 
-while getopts b:i:m:x: option
+while getopts b:h:i:m:x: option
 do
     case "${option}"
         in
         b)
             BMC_IP_ADDRESS="${OPTARG}"
+            echo "-b not in use for now"
+            usage
+            ;;
+        h)
+            HOST_IP_ADDRESS="${OPTARG}"
             ;;
         i)
             INFRA_IP_ADDRESS="${OPTARG}"

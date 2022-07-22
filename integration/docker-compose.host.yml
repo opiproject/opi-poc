@@ -28,7 +28,7 @@ services:
     build:
       context: host-cpu
     depends_on:
-      - xpu-cpu-ssh
+      - host-cpu-ssh
     volumes_from:
       - host-cpu-ssh:rw
     network_mode: service:host-cpu-ssh
