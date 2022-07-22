@@ -1,0 +1,77 @@
+syntax = "proto3";
+package opiapistorage;
+
+import "google/protobuf/timestamp.proto";
+
+message FrontEnd {
+	string name = 1;
+	int64 id = 2;
+
+	message NVMe {
+		string name = 1;
+		int64 id = 2;
+
+		message NVMeSubsystem {
+			string name = 1;
+			int64 id = 2;
+			google.protobuf.Timestamp last_updated = 3;
+		}
+
+		message NVMeController {
+			string name = 1;
+			int64 id = 2;
+			google.protobuf.Timestamp last_updated = 3;
+		}
+
+		message NVMeNamespace {
+			string name = 1;
+			int64 id = 2;
+			google.protobuf.Timestamp last_updated = 3;
+		}
+	}
+
+	repeated NVMe nvme = 3;
+
+	message VirtioScsi {
+		string name = 1;
+		int64 id = 2;
+		google.protobuf.Timestamp last_updated = 3;
+	}
+
+	repeated VirtioScsi virtioscsi = 4;
+
+	message VirtioFS {
+		string name = 1;
+		int64 id = 2;
+		google.protobuf.Timestamp last_updated = 3;
+	}
+
+	repeated VirtioFS virtiofs = 5;
+
+	message VirtioBlk {
+		string name = 1;
+		int64 id = 2;
+
+		message VirtioBlkCtrl {
+			string name = 1;
+			int64 id = 2;
+			google.protobuf.Timestamp last_updated = 3;
+		}
+
+		repeated VirtioBlkCtrl ctrl = 3;
+
+		message VirtioBlkVolume {
+			string name = 1;
+			int64 id = 2;
+			google.protobuf.Timestamp last_updated = 3;
+		}
+
+		repeated VirtioBlkVolume volume = 4;
+
+		google.protobuf.Timestamp last_updated = 5;
+	}
+
+	repeated VirtioBlk virtioblk = 6;
+
+	google.protobuf.Timestamp last_updated = 7;
+}
