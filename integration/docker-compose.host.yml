@@ -40,6 +40,13 @@ services:
       start_period: 20s
       timeout: 10s
 
+  host-telegraf:
+    build:
+      context: host-cpu
+      dockerfile: Dockerfile.telegraf
+    network_mode: service:host-cpu-ssh
+    privileged: true
+
   host-bmc-ssh:
     image: linuxserver/openssh-server:8.8_p1-r1-ls84
     hostname: host-bmc

@@ -1,0 +1,2 @@
+FROM telegraf:1.22
+COPY telegraf-redfish.conf /etc/telegraf/telegraf.conf
