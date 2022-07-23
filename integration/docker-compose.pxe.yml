@@ -31,7 +31,7 @@ services:
             dhcpd -d & \
             wait'
   web:
-    image: python:3.9
+    image: python:3.10.6-slim
     ports:
       - 8082:8082
     volumes:
