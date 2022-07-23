@@ -37,7 +37,12 @@ start_containers() {
 
 run_integration_tests() {
     bash -c "${DC} ps"
+
+    # TODO: remove || true and add LOOP wait for all services to become healthy
     echo wait 5s... && sleep 5s
+    uniq -c <<< $(sort <<< $(docker inspect --format='{{json .State.Health.Status}}' $(${DC} ps -q)))
+    uniq -c <<< $(sort <<< $(docker inspect --format='{{json .State.Health.Status}}' $(${DC} ps -q))) | grep -q '16 "healthy"' || true
+
     curl --fail http://127.0.0.1:8001/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8002/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8082/var/lib/tftpboot/
@@ -79,6 +84,11 @@ run_integration_tests() {
     bash -c "${DC} exec -T spdk-target /usr/local/bin/perf     -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10"
     bash -c "${DC} exec -T xpu-spdk /usr/local/bin/perf         -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10"
     bash -c "${DC} up example-storage-client example-network-client"
+
+    bash -c "${DC} ps"
+    # TODO: remove || true
+    uniq -c <<< $(sort <<< $(docker inspect --format='{{json .State.Health.Status}}' $(${DC} ps -q)))
+    uniq -c <<< $(sort <<< $(docker inspect --format='{{json .State.Health.Status}}' $(${DC} ps -q))) | grep -q '16 "healthy"' || true
 }
 
 acquire_logs() {
