@@ -107,20 +107,6 @@ services:
     image: dmtf/redfish-mockup-server:1.1.8
     network_mode: service:xpu-bmc-ssh
 
-  xpu-bmc:
-    build:
-      context: xpu-bmc
-    volumes_from:
-      - xpu-bmc-ssh:rw
-    network_mode: service:xpu-bmc-ssh
-    command: ['/bin/sh', '-c', 'sleep infinity']
-    healthcheck:
-      test: cat /proc/1/status || exit 1
-      interval: 6s
-      retries: 5
-      start_period: 20s
-      timeout: 10s
-
   gateway:
     build:
       context: gateway

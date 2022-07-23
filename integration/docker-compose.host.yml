@@ -67,20 +67,6 @@ services:
     image: dmtf/redfish-mockup-server:1.1.8
     network_mode: service:host-bmc-ssh
 
-  host-bmc:
-    build:
-      context: host-bmc
-    volumes_from:
-      - host-bmc-ssh:rw
-    network_mode: service:host-bmc-ssh
-    command: ['/bin/sh', '-c', 'sleep infinity']
-    healthcheck:
-      test: cat /proc/1/status || exit 1
-      interval: 6s
-      retries: 5
-      start_period: 20s
-      timeout: 10s
-
 networks:
   high-speed-external:
     external: true
