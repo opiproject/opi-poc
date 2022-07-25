@@ -16,27 +16,45 @@
 #
 
 usage() {
-	echo "Usage: poc.sh [start|stop]"
+	echo "Usage: poc.sh [start|stop|tests|logs]"
 }
 
-start_poc() {
-	# Bringup the containers
-	docker compose up -d
-
-	# Verify things work
-	ping -c 3 192.168.55.2
-	ping -c 3 192.168.65.2
+tests_poc() {
+	docker-compose ps -a
+    for i in $(seq 1 20)
+    do
+        echo "$i"
+        if [[ "$(curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{"id": 1, "method": "spdk_get_version"}' http://127.0.0.1:9009)" ]]
+        then
+            break
+        else
+            sleep 1
+        fi
+    done
+    curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{"id": 1, "method": "bdev_get_bdevs"}' http://127.0.0.1:9009
+	docker-compose ps -a
 }
 
 stop_poc() {
 	# Bring the containers down
-	docker compose down
+	docker-compose down
+}
 
-	# Stop ipdk-plugin
-	sudo killall ipdk-plugin
+start_poc() {
+    docker-compose down
+    docker network prune --force
+    docker-compose up -d
+}
 
-	# Stop IPDK container
-	ipdk stop
+logs_poc() {
+    docker-compose ps -a
+    docker-compose logs || true
+    netstat -an || true
+    ifconfig -a || true
+}
+
+stop_containers() {
+    bash -c "${DC} down --volumes"
 }
 
 case ${1} in
@@ -47,6 +65,14 @@ case ${1} in
 	stop)
 		echo "Stopping PoC"
 		stop_poc
+		;;
+	tests)
+		echo "Testing PoC"
+		tests_poc
+		;;
+	logs)
+		echo "Logs PoC"
+		logs_poc
 		;;
 	*)
 		usage
