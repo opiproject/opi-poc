@@ -4,7 +4,7 @@ ARG TAG=v22.05
 ARG ARCH=x86_64
 
 WORKDIR /root
-RUN dnf install -y git rpm-build diffutils procps-ng && dnf clean all
+RUN dnf install -y git rpm-build diffutils procps-ng pip && dnf clean all
 
 # hadolint ignore=DL3003
 RUN git clone https://github.com/spdk/spdk --branch ${TAG} --depth 1 && \
