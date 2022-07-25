@@ -6,7 +6,14 @@
 
 ## Prereqs
 
-Install docker-compose
+Install docker-compose <https://docs.docker.com/compose/install/>
+
+Minimal supported version is:
+
+```bash
+ $ docker-compose -v
+docker-compose version 1.29.2, build unknown
+```
 
 ### Prereqs - Red Hat
 
@@ -18,6 +25,14 @@ sudo dnf install -y podman podman-docker docker-compose
 sudo systemctl enable podman.socket --now
 # TODO volume mounts need adjustments for SELinux, disable for now
 sudo setenforce 0
+```
+
+### Prereqs - PIP
+
+one can also install latest docker-compose via PIP
+
+```bash
+sudo python3 -m pip install --upgrade docker-compose
 ```
 
 ## Start
