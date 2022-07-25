@@ -1,6 +1,8 @@
 syntax = "proto3";
 package opiapistorage;
 
+option go_package = "./opiapistorage";
+
 import "google/protobuf/timestamp.proto";
 
 message FrontEnd {

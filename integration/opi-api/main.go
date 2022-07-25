@@ -6,6 +6,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -18,6 +19,11 @@ import (
 )
 
 func main() {
+	// Command line arguments
+	apiPort := flag.Int("port", 8877, "Port to listen for gRPC messages")
+
+	flag.Parse()
+
 	// We don't want to see the plugin logs.
 	log.SetOutput(ioutil.Discard)
 
@@ -55,6 +61,22 @@ func main() {
 	 *       these southbound calls.
 	 */
 	opiapi := raw.(shared.OPIAPI)
+
+	/*
+	 * Start up the gRPC server on the northbound side.
+	 */
+	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *port))
+	if err != nil {
+		fmt.Println("Error:", err.Error())
+		os.Exit(1)
+	}
+
+	var opts []grpc.ServerOption
+
+	grpcServer := grpc.NewServer(opts...)
+	pb.RegisterRouteGuideServer(grpcServer, newServer())
+	grpcServer.Serve(lis)
+
 	os.Args = os.Args[1:]
 	switch os.Args[0] {
 	case "GetNetwork":

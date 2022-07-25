@@ -1,8 +1,21 @@
 # Copyright (C) 2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-proto/opiapi.pb.go: opi-api/opiproto.proto
-	protoc --go_out=plugins=grpc:. --go_opt=paths=source_relative proto/opiapi.proto
+all: proto/opiapi.pb.go api/storage/storage.pb.go
 
-api/storage.pb.go: api/storage.proto
-	protoc --go_out=plugins=grpc:. --go_opt=paths=source_relative api/storage.proto
+proto/opiapi.pb.go: proto/opiapi.proto
+	protoc proto/opiapi.proto \
+            --go_out=. \
+            --go_opt=paths=source_relative \
+            --go-grpc_out=. \
+            --go-grpc_opt=paths=source_relative \
+            --proto_path=.
+
+api/storage/storage.pb.go: api/storage/storage.proto
+	protoc api/storage/storage.proto \
+            --go_out=. \
+            --go_opt=paths=source_relative \
+            --go-grpc_out=. \
+            --go-grpc_opt=paths=source_relative \
+            --proto_path=.
+
