@@ -1,0 +1,219 @@
+syntax = "proto3";
+package opi.storage.v1;
+
+// Front End (host-facing) APIs.
+
+// NVMe/PCIe emulation
+
+service NVMeSubsystem {
+    rpc NVMeSubsystemCreate (NVMeSubsystemCreateRequest) returns (NVMeSubsystemCreateResponse) {}
+    rpc NVMeSubsystemDelete (NVMeSubsystemDeleteRequest) returns (NVMeSubsystemDeleteResponse) {}
+    rpc NVMeSubsystemUpdate (NVMeSubsystemUpdateRequest) returns (NVMeSubsystemUpdateResponse) {}
+    rpc NVMeSubsystemList   (NVMeSubsystemListRequest)   returns (NVMeSubsystemListResponse)   {}
+    rpc NVMeSubsystemGet    (NVMeSubsystemGetRequest)    returns (NVMeSubsystemGetResponse)    {}
+    rpc NVMeSubsystemStats  (NVMeSubsystemStatsRequest)  returns (NVMeSubsystemStatsResponse)  {}
+}
+
+service NVMeController {
+    rpc NVMeControllerCreate (NVMeControllerCreateRequest) returns (NVMeControllerCreateResponse) {}
+    rpc NVMeControllerDelete (NVMeControllerDeleteRequest) returns (NVMeControllerDeleteResponse) {}
+    rpc NVMeControllerUpdate (NVMeControllerUpdateRequest) returns (NVMeControllerUpdateResponse) {}
+    rpc NVMeControllerList   (NVMeControllerListRequest)   returns (NVMeControllerListResponse)   {}
+    rpc NVMeControllerGet    (NVMeControllerGetRequest)    returns (NVMeControllerGetResponse)    {}
+    rpc NVMeControllerStats  (NVMeControllerStatsRequest)  returns (NVMeControllerStatsResponse)  {}
+}
+
+service NVMeNamespace {
+    rpc NVMeNamespaceCreate (NVMeNamespaceCreateRequest) returns (NVMeNamespaceCreateResponse) {}
+    rpc NVMeNamespaceDelete (NVMeNamespaceDeleteRequest) returns (NVMeNamespaceDeleteResponse) {}
+    rpc NVMeNamespaceUpdate (NVMeNamespaceUpdateRequest) returns (NVMeNamespaceUpdateResponse) {}
+    rpc NVMeNamespaceList   (NVMeNamespaceListRequest)   returns (NVMeNamespaceListResponse)   {}
+    rpc NVMeNamespaceGet    (NVMeNamespaceGetRequest)    returns (NVMeNamespaceGetResponse)    {}
+    rpc NVMeNamespaceStats  (NVMeNamespaceStatsRequest)  returns (NVMeNamespaceStatsResponse)  {}
+}
+
+// TODO: Virtio-blk
+
+// TODO: Virtio-scsi
+
+// TODO: Virtio-fs
+
+message NVMeSubsystemCreateRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeSubsystemCreateResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeSubsystemDeleteRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeSubsystemDeleteResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeSubsystemUpdateRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeSubsystemUpdateResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeSubsystemListRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeSubsystemListResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeSubsystemGetRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeSubsystemGetResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeSubsystemStatsRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeSubsystemStatsResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeControllerCreateRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeControllerCreateResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeControllerDeleteRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeControllerDeleteResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeControllerUpdateRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeControllerUpdateResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeControllerListRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeControllerListResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeControllerGetRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeControllerGetResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeControllerStatsRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeControllerStatsResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeNamespaceCreateRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeNamespaceCreateResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeNamespaceDeleteRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeNamespaceDeleteResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeNamespaceUpdateRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeNamespaceUpdateResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeNamespaceListRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeNamespaceListResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeNamespaceGetRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeNamespaceGetResponse {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeNamespaceStatsRequest {
+    string name = 1;
+    int64 id = 2;
+}
+
+message NVMeNamespaceStatsResponse {
+    string name = 1;
+    int64 id = 2;
+}

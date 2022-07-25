@@ -1,0 +1,6 @@
+syntax = "proto3";
+package opi.storage.v1;
+
+// Middle End (Storage Services) APIs.
+
+// TODO: encryption, compression, raid, QoS, multipath, ...
