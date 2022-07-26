@@ -8,7 +8,7 @@ import (
 	"net"
 
 	"google.golang.org/grpc"
-	pb "opi.storage.v1"
+	pb "opi.storage.v1/proto"
 )
 
 var (
@@ -24,52 +24,52 @@ type server struct {
 
 func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCreateRequest) (*pb.NVMeSubsystemCreateResponse, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.NVMeSubsystemCreateResponse{Message: "Hello " + in.GetName()}, nil
+	return &pb.NVMeSubsystemCreateResponse{Name: "Hello " + in.GetName()}, nil
 }
 
 func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDeleteRequest) (*pb.NVMeSubsystemDeleteResponse, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.NVMeSubsystemDeleteResponse{Message: "Hello " + in.GetName()}, nil
+	return &pb.NVMeSubsystemDeleteResponse{Name: "Hello " + in.GetName()}, nil
 }
 
 func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRequest) (*pb.NVMeSubsystemGetResponse, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.NVMeSubsystemGetResponse{Message: "Hello " + in.GetName()}, nil
+	return &pb.NVMeSubsystemGetResponse{Name: "Hello " + in.GetName()}, nil
 }
 
 func (s *server) NVMeControllerCreate(ctx context.Context, in *pb.NVMeControllerCreateRequest) (*pb.NVMeControllerCreateResponse, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.NVMeControllerCreateResponse{Message: "Hello " + in.GetName()}, nil
+	return &pb.NVMeControllerCreateResponse{Name: "Hello " + in.GetName()}, nil
 }
 
 func (s *server) NVMeControllerDelete(ctx context.Context, in *pb.NVMeControllerDeleteRequest) (*pb.NVMeControllerDeleteResponse, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.NVMeControllerDeleteResponse{Message: "Hello " + in.GetName()}, nil
+	return &pb.NVMeControllerDeleteResponse{Name: "Hello " + in.GetName()}, nil
 }
 
 func (s *server) NVMeControllerGet(ctx context.Context, in *pb.NVMeControllerGetRequest) (*pb.NVMeControllerGetResponse, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.NVMeControllerGetResponse{Message: "Hello " + in.GetName()}, nil
+	return &pb.NVMeControllerGetResponse{Name: "Hello " + in.GetName()}, nil
 }
 
 func (s *server) NVMeNamespaceCreate(ctx context.Context, in *pb.NVMeNamespaceCreateRequest) (*pb.NVMeNamespaceCreateResponse, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.NVMeNamespaceCreateResponse{Message: "Hello " + in.GetName()}, nil
+	return &pb.NVMeNamespaceCreateResponse{Name: "Hello " + in.GetName()}, nil
 }
 
 func (s *server) NVMeNamespaceDelete(ctx context.Context, in *pb.NVMeNamespaceDeleteRequest) (*pb.NVMeNamespaceDeleteResponse, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.NVMeNamespaceDeleteResponse{Message: "Hello " + in.GetName()}, nil
+	return &pb.NVMeNamespaceDeleteResponse{Name: "Hello " + in.GetName()}, nil
 }
 
 func (s *server) NVMeNamespaceGet(ctx context.Context, in *pb.NVMeNamespaceGetRequest) (*pb.NVMeNamespaceGetResponse, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.NVMeNamespaceGetResponse{Message: "Hello " + in.GetName()}, nil
+	return &pb.NVMeNamespaceGetResponse{Name: "Hello " + in.GetName()}, nil
 }
 
 func (s *server) NVMfRemoteControllerDisconnect(ctx context.Context, in *pb.NVMfRemoteControllerDisconnectRequest) (*pb.NVMfRemoteControllerDisconnectResponse, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.NVMfRemoteControllerDisconnectResponse{Message: "Hello " + in.GetName()}, nil
+	return &pb.NVMfRemoteControllerDisconnectResponse{Name: "Hello " + in.GetName()}, nil
 }
 
 func main() {

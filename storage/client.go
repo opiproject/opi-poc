@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	pb "opi.storage.v1"
+	pb "opi.storage.v1/proto"
 )
 
 var (
@@ -29,71 +29,71 @@ func main() {
 	defer cancel()
 
 	// NVMeSubsystem
-	c := pb.nVMeSubsystemClient(conn)
-	r, err := c.NVMeSubsystemCreate(ctx, &pb.NVMeSubsystemCreateRequest{Name: *name})
+	c1 := pb.NewNVMeSubsystemClient(conn)
+	r1, err := c1.NVMeSubsystemCreate(ctx, &pb.NVMeSubsystemCreateRequest{Name: "OPI-Nvme"})
 	if err != nil {
 		log.Fatalf("could not create NVMe subsystem: %v", err)
 	}
-	log.Printf("Added: %s", r.GetMessage())
+	log.Printf("Added: %s", r1.Name)
 
-	r, err := c.NVMeSubsystemDelete(ctx, &pb.NVMeSubsystemDeleteRequest{Name: *name})
+	r2, err := c1.NVMeSubsystemDelete(ctx, &pb.NVMeSubsystemDeleteRequest{Name: "OPI-Nvme"})
 	if err != nil {
 		log.Fatalf("could not delete NVMe subsystem: %v", err)
 	}
-	log.Printf("Deleted: %s", r.GetMessage())
+	log.Printf("Deleted: %s", r2.Name)
 
-	r, err := c.NVMeSubsystemGet(ctx, &pb.NVMeSubsystemGetRequest{Name: *name})
+	r3, err := c1.NVMeSubsystemGet(ctx, &pb.NVMeSubsystemGetRequest{Name: "OPI-Nvme"})
 	if err != nil {
 		log.Fatalf("could not get NVMe subsystem: %v", err)
 	}
-	log.Printf("Got: %s", r.GetMessage())
+	log.Printf("Got: %s", r3.Name)
 
 	// NVMeController
-	c := pb.NVMeControllerClient(conn)
-	r, err := c.NVMeControllerCreate(ctx, &pb.NVMeControllerCreateRequest{Name: *name})
+	c2 := pb.NewNVMeControllerClient(conn)
+	r4, err := c2.NVMeControllerCreate(ctx, &pb.NVMeControllerCreateRequest{Name: "OPI-Nvme"})
 	if err != nil {
 		log.Fatalf("could not create NVMe subsystem: %v", err)
 	}
-	log.Printf("Added: %s", r.GetMessage())
+	log.Printf("Added: %s", r4.Name)
 
-	r, err := c.NVMeControllerDelete(ctx, &pb.NVMeControllerDeleteRequest{Name: *name})
+	r5, err := c2.NVMeControllerDelete(ctx, &pb.NVMeControllerDeleteRequest{Name: "OPI-Nvme"})
 	if err != nil {
 		log.Fatalf("could not delete NVMe subsystem: %v", err)
 	}
-	log.Printf("Deleted: %s", r.GetMessage())
+	log.Printf("Deleted: %s", r5.Name)
 
-	r, err := c.NVMeControllerGet(ctx, &pb.NVMeControllerGetRequest{Name: *name})
+	r6, err := c2.NVMeControllerGet(ctx, &pb.NVMeControllerGetRequest{Name: "OPI-Nvme"})
 	if err != nil {
 		log.Fatalf("could not get NVMe subsystem: %v", err)
 	}
-	log.Printf("Got: %s", r.GetMessage())
+	log.Printf("Got: %s", r6.Name)
 
 	// NVMeNamespace
-	c := pb.NVMeNamespaceClient(conn)
-	r, err := c.NVMeNamespaceCreate(ctx, &pb.NVMeNamespaceCreateRequest{Name: *name})
+	c3 := pb.NewNVMeNamespaceClient(conn)
+	r7, err := c3.NVMeNamespaceCreate(ctx, &pb.NVMeNamespaceCreateRequest{Name: "OPI-Nvme"})
 	if err != nil {
 		log.Fatalf("could not create NVMe subsystem: %v", err)
 	}
-	log.Printf("Added: %s", r.GetMessage())
+	log.Printf("Added: %s", r7.Name)
 
-	r, err := c.NVMeNamespaceDelete(ctx, &pb.NVMeNamespaceDeleteRequest{Name: *name})
+	r8, err := c3.NVMeNamespaceDelete(ctx, &pb.NVMeNamespaceDeleteRequest{Name: "OPI-Nvme"})
 	if err != nil {
 		log.Fatalf("could not delete NVMe subsystem: %v", err)
 	}
-	log.Printf("Deleted: %s", r.GetMessage())
+	log.Printf("Deleted: %s", r8.Name)
 
-	r, err := c.NVMeNamespaceGet(ctx, &pb.NVMeNamespaceGetRequest{Name: *name})
+	r9, err := c3.NVMeNamespaceGet(ctx, &pb.NVMeNamespaceGetRequest{Name: "OPI-Nvme"})
 	if err != nil {
 		log.Fatalf("could not get NVMe subsystem: %v", err)
 	}
-	log.Printf("Got: %s", r.GetMessage())
+	log.Printf("Got: %s", r9.Name)
 
 	// NVMfRemoteController
-	c := pb.NVMfRemoteControllerClient(conn)
-	r, err := c.NVMfRemoteControllerDisconnect(ctx, &pb.NVMfRemoteControllerDisconnectRequest{Name: *name})
+	c4 := pb.NewNVMfRemoteControllerClient(conn)
+	r0, err := c4.NVMfRemoteControllerDisconnect(ctx, &pb.NVMfRemoteControllerDisconnectRequest{Name: "OPI-Nvme"})
 	if err != nil {
 		log.Fatalf("could not disconnect from Remote NVMf controller: %v", err)
 	}
-	log.Printf("Disconnected: %s", r.GetMessage())
+	log.Printf("Disconnected: %s", r0.Name)
 
 }
