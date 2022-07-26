@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	pb "opi.storage.v1/proto"
+	pb "github.com/opiproject/opi-api/storage/proto"
 )
 
 var (
