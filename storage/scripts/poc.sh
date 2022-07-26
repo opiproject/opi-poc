@@ -30,6 +30,7 @@ tests_poc() {
         fi
     done
     curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{"id": 1, "method": "bdev_get_bdevs"}' http://127.0.0.1:9009
+    $DC up opi-spdk-client
     $DC ps -a
 }
 

@@ -33,6 +33,27 @@ services:
       start_period: 20s
       timeout: 10s
 
+  opi-spdk-server:
+    image: golang:alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+    ports:
+      - '50051:50051'
+    networks:
+      - opi
+    command: go run server.go
+
+  opi-spdk-client:
+    image: golang:alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+    network_mode: host
+    command: go run client.go
+    depends_on:
+      - opi-spdk-server
+
 networks:
   opi:
 

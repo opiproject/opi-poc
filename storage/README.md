@@ -38,3 +38,9 @@ Run example client (not for production)
 ```bash
    docker run --net=host --rm -it -v  `pwd`:`pwd` -w `pwd` golang:alpine go run client.go
 ```
+
+Run both examples client and server via compose (not for production)
+
+```bash
+   docker-compose up opi-spdk-client
+```
