@@ -30,13 +30,13 @@ Compile protobufs
 Run example server (not for production)
 
 ```bash
-   docker run --rm -it -v `pwd`:`pwd` -w `pwd` -p 50051:50051 golang:alpine go run server.go
+   docker run --rm -it -v `pwd`:/app -w /app -p 50051:50051 golang:alpine go run server.go
 ```
 
 Run example client (not for production)
 
 ```bash
-   docker run --net=host --rm -it -v  `pwd`:`pwd` -w `pwd` golang:alpine go run client.go
+   docker run --net=host --rm -it -v  `pwd`:/app -w /app golang:alpine go run client.go
 ```
 
 Run both examples client and server via compose (not for production)

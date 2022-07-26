@@ -11,6 +11,7 @@ services:
       - /dev/hugepages:/dev/hugepages
       - /dev/shm:/dev/shm
       - /proc:/proc
+      - /var/tmp
     ports:
       - "9009:9009"
     privileged: true
@@ -36,6 +37,8 @@ services:
   opi-spdk-server:
     image: golang:alpine
     working_dir: /app
+    volumes_from:
+      - spdk:rw
     volumes:
       - ./:/app
     ports:

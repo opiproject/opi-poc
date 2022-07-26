@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"context"
 	"flag"
 	"fmt"
@@ -13,6 +15,7 @@ import (
 
 var (
 	port = flag.Int("port", 50051, "The server port")
+	rpc_sock = flag.String("rpc_sock", "/var/tmp/spdk.sock", "Path to SPDK JSON RPC socket")
 )
 
 type server struct {
@@ -22,9 +25,39 @@ type server struct {
 	pb.UnimplementedNVMfRemoteControllerServer
 }
 
+func spdkCommunicate(buf []byte) ([]byte, error) {
+	// TODO: use rpc_sock variable
+	conn, err := net.Dial("unix", *rpc_sock)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = conn.Write(buf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = conn.(*net.UnixConn).CloseWrite()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	reply, err := ioutil.ReadAll(conn)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(string(reply))
+
+	return reply, err
+}
+
 func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCreateRequest) (*pb.NVMeSubsystemCreateResponse, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.NVMeSubsystemCreateResponse{Name: "Hello " + in.GetName()}, nil
+	// send NVMeSubsystemCreate to SPDK via json rpc unix socket
+	values := map[string]string{"jsonrpc": "2.0", "id": "1", "method": "bdev_get_bdevs"}
+	jsonValue, _ := json.Marshal(values)
+	jsonReply, _ := spdkCommunicate(jsonValue)
+	return &pb.NVMeSubsystemCreateResponse{Name: "Hello " + in.GetName() + " got " + string(jsonReply)}, nil
 }
 
 func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDeleteRequest) (*pb.NVMeSubsystemDeleteResponse, error) {
