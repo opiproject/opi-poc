@@ -27,6 +27,13 @@ Compile protobufs
    docker run -v $PWD:/defs namely/protoc-all -d proto -l go -o ./proto/  --go-source-relative
 ```
 
+Download modules
+
+```bash
+docker run --rm -it -v `pwd`:/app -w /app golang:alpine go get all
+docker run --rm -it -v `pwd`:/app -w /app golang:alpine go get github.com/opiproject/opi-api/storage/proto
+```
+
 Run example server (not for production)
 
 ```bash

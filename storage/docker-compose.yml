@@ -52,8 +52,9 @@ services:
     working_dir: /app
     volumes:
       - ./:/app
-    network_mode: host
-    command: go run client.go
+    networks:
+      - opi
+    command: go run client.go -addr=opi-spdk-server:50051
     depends_on:
       - opi-spdk-server
 
