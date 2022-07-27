@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2022 Dell Inc, or its subsidiaries.
+
 version: "3.7"
 
 services:
@@ -45,7 +48,7 @@ services:
       - '50051:50051'
     networks:
       - opi
-    command: go run jsonrpc.go server.go
+    command: go run jsonrpc.go frontend.go backend.go middleend.go server.go
 
   opi-spdk-client:
     image: golang:alpine
