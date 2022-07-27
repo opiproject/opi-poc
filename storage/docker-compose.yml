@@ -45,7 +45,7 @@ services:
       - '50051:50051'
     networks:
       - opi
-    command: go run server.go
+    command: go run jsonrpc.go server.go
 
   opi-spdk-client:
     image: golang:alpine

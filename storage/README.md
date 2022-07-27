@@ -13,7 +13,7 @@ This is a simple spdk based storage PoC
 
 Run `docker-compose up -d`
 
-## SPDK RPC proxy
+## Test SPDK is up
 
 ```bash
 curl -k --user spdkuser:spdkpass -X POST -H "Content-Type: application/json" -d '{"id": 1, "method": "bdev_get_bdevs", "params": {"name": "Malloc0"}}' http://127.0.0.1:9009/
@@ -21,26 +21,20 @@ curl -k --user spdkuser:spdkpass -X POST -H "Content-Type: application/json" -d 
 
 ## SPDK gRPC example
 
-Compile protobufs
-
-```bash
-   docker run -v $PWD:/defs namely/protoc-all -d proto -l go -o ./proto/  --go-source-relative
-```
-
-Download modules
+Optionally if you need to download modules
 
 ```bash
 docker run --rm -it -v `pwd`:/app -w /app golang:alpine go get all
 docker run --rm -it -v `pwd`:/app -w /app golang:alpine go get github.com/opiproject/opi-api/storage/proto
 ```
 
-Run example server (not for production)
+Run example server (not for production) manually
 
 ```bash
-   docker run --rm -it -v `pwd`:/app -w /app -p 50051:50051 golang:alpine go run server.go
+   docker run --rm -it -v `pwd`:/app -w /app -p 50051:50051 golang:alpine go run jsonrpc.go server.go
 ```
 
-Run example client (not for production)
+Run example client (not for production) manually
 
 ```bash
    docker run --net=host --rm -it -v  `pwd`:/app -w /app golang:alpine go run client.go
