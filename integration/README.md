@@ -2,7 +2,7 @@
 
 ## Diagram
 
-![DPU SW Components](xPU-Integration-Blocks.png)
+![DPU SW Components](../doc/images/xPU-Integration-Blocks.png)
 
 ## Prereqs
 
