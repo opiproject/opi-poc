@@ -23,7 +23,7 @@ jobs:
     steps:
       - run: 'echo "No storage shellcheck test run required"'
 
-  run_storage_poc:
+  docker-build:
     needs: storage-shellcheck
     runs-on: ubuntu-latest
     steps:
