@@ -44,8 +44,6 @@ services:
       - spdk:rw
     volumes:
       - ./:/app
-    ports:
-      - '50051:50051'
     networks:
       - opi
     command: go run jsonrpc.go frontend.go backend.go middleend.go server.go
