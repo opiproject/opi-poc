@@ -98,6 +98,20 @@ services:
       start_period: 20s
       timeout: 10s
 
+  strongswan:
+    image: strongx509/strongswan:5.9.6
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_MODULE
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./strongswan/server:/etc/swanctl
+      - ./strongswan/strongswan.conf:/etc/strongswan.conf
+    network_mode: service:xpu-cpu-ssh
+    command: './charon'
+
   xpu-bmc-ssh:
     image: linuxserver/openssh-server:8.8_p1-r1-ls84
     hostname: xpu-bmc
