@@ -37,7 +37,7 @@ Run example server (not for production) manually
 Run example client (not for production) manually
 
 ```bash
-   docker run --net=host --rm -it -v  `pwd`:/app -w /app/client golang:alpine go run client.go
+   docker run --net=host --rm -it -v  `pwd`:/app -w /app/client golang:alpine go run frontend.go backend.go middleend.go client.go
 ```
 
 Run both examples client and server via compose (not for production)

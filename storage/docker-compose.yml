@@ -55,7 +55,7 @@ services:
       - ./:/app
     networks:
       - opi
-    command: go run client.go -addr=opi-spdk-server:50051
+    command: go run frontend.go backend.go middleend.go client.go -addr=opi-spdk-server:50051
     depends_on:
       - opi-spdk-server
 
