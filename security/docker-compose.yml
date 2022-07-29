@@ -1,0 +1,63 @@
+version: '3.7'
+
+services:
+  strongswan:
+    image: strongx509/strongswan:5.9.6
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_MODULE
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./conf/server:/etc/swanctl
+      - ./conf/strongswan-server.conf:/etc/strongswan.conf
+      - /var/run
+    networks:
+      internet:
+        ipv4_address: 192.168.0.2
+      intranet:
+        ipv4_address: 10.1.0.2
+    command: './charon'
+
+  vpn-client:
+    image: strongx509/strongswan:5.9.6
+    depends_on:
+      - strongswan
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_MODULE
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./conf/client:/etc/swanctl
+      - ./conf/strongswan-client.conf:/etc/strongswan.conf
+    networks:
+      internet:
+        ipv4_address: 192.168.0.3
+
+  opi-security-server:
+    image: golang:alpine
+    working_dir: /app
+    volumes_from:
+      - strongswan:rw
+    volumes:
+      - ./:/app
+    ports:
+      - '50151:50151'
+    networks:
+      - internet
+    command: sleep infinity
+
+networks:
+  internet:
+    ipam:
+      driver: default 
+      config:
+        - subnet: 192.168.0.0/24
+  intranet:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.1.0.0/16

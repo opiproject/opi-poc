@@ -1,0 +1,30 @@
+name: 'OPI Security PoC CI'
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'security/**'
+      - '.github/workflows/poc-security.yml'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'security/**'
+      - '.github/workflows/poc-security.yml'
+
+concurrency:
+  # if workflow for PR or push is already running stop it, and start new one
+  group: poc-security-skip-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security-shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No security shellcheck test run required"'
+
+  security-ci:
+    needs: security-shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No security POC test run required"'
