@@ -193,6 +193,11 @@ services:
     network_mode: host
     command: ['go', 'run', './greeter_client/main.go']
 
+  opi-api-conglomerate:
+    build:
+      context: opi-api
+    network_mode: service:xpu-cpu-ssh
+
 networks:
   xpu-cpu:
     external: true
