@@ -15,7 +15,6 @@ import (
 
 var (
 	port = flag.Int("port", 50051, "The server port")
-	rpc_sock = flag.String("rpc_sock", "/var/tmp/spdk.sock", "Path to SPDK JSON RPC socket")
 )
 
 type server struct {

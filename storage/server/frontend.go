@@ -4,7 +4,6 @@
 package main
 
 import (
-	"encoding/json"
 	"context"
 	"fmt"
 	"log"
@@ -16,10 +15,10 @@ import (
 
 func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCreateRequest) (*pb.NVMeSubsystemCreateResponse, error) {
 	log.Printf("Received: %v", in.GetSubsystem())
-	values := map[string]string{"jsonrpc": "2.0", "id": "1", "method": "bdev_get_bdevs"}
-	jsonValue, _ := json.Marshal(values)
-	jsonReply, _ := spdkCommunicate(jsonValue)
-	fmt.Println(string(jsonReply))
+	params := struct {Name string `json:"name"`}{ Name: "Malloc0"}
+	var Result string
+	call("bdev_get_bdevs", &params, &Result)
+	fmt.Println(Result)
 	return &pb.NVMeSubsystemCreateResponse{}, nil
 }
 
@@ -30,10 +29,10 @@ func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDe
 
 func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUpdateRequest) (*pb.NVMeSubsystemUpdateResponse, error) {
 	log.Printf("Received: %v", in.GetSubsystem())
-	values := map[string]string{"jsonrpc": "2.0", "id": "1", "method": "bdev_get_bdevs"}
-	jsonValue, _ := json.Marshal(values)
-	jsonReply, _ := spdkCommunicate(jsonValue)
-	fmt.Println(string(jsonReply))
+	params := struct {Name string `json:"name"`}{ Name: "Malloc0"}
+	var Result string
+	call("bdev_get_bdevs", &params, &Result)
+	fmt.Println(Result)
 	return &pb.NVMeSubsystemUpdateResponse{}, nil
 }
 
@@ -45,10 +44,11 @@ func (s *server) NVMeSubsystemList(ctx context.Context, in *pb.NVMeSubsystemList
 
 func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRequest) (*pb.NVMeSubsystemGetResponse, error) {
 	log.Printf("Received: %v", in.GetId())
-	values := map[string]string{"jsonrpc": "2.0", "id": "1", "method": "bdev_get_bdevs"}
-	jsonValue, _ := json.Marshal(values)
-	jsonReply, _ := spdkCommunicate(jsonValue)
-	return &pb.NVMeSubsystemGetResponse{Subsystem: &pb.NVMeSubsystem{NQN: "Hello " + string(in.GetId()) + " got " + string(jsonReply)}}, nil
+	params := struct {Name string `json:"name"`}{ Name: "Malloc0"}
+	var Result string
+	call("bdev_get_bdevs", &params, &Result)
+	fmt.Println(Result)
+	return &pb.NVMeSubsystemGetResponse{Subsystem: &pb.NVMeSubsystem{NQN: "Hello " + string(in.GetId()) + " got " + string(Result)}}, nil
 }
 
 func (s *server) NVMeSubsystemStats(ctx context.Context, in *pb.NVMeSubsystemStatsRequest) (*pb.NVMeSubsystemStatsResponse, error) {
