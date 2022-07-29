@@ -31,13 +31,13 @@ docker run --rm -it -v `pwd`:/app -w /app golang:alpine go get github.com/opipro
 Run example server (not for production) manually
 
 ```bash
-   docker run --rm -it -v `pwd`:/app -w /app -p 50051:50051 golang:alpine go run jsonrpc.go frontend.go backend.go middleend.go server.go
+   docker run --rm -it -v `pwd`:/app -w /app/server -p 50051:50051 golang:alpine go run jsonrpc.go frontend.go backend.go middleend.go server.go
 ```
 
 Run example client (not for production) manually
 
 ```bash
-   docker run --net=host --rm -it -v  `pwd`:/app -w /app golang:alpine go run client.go
+   docker run --net=host --rm -it -v  `pwd`:/app -w /app/client golang:alpine go run client.go
 ```
 
 Run both examples client and server via compose (not for production)

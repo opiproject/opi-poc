@@ -39,7 +39,7 @@ services:
 
   opi-spdk-server:
     image: golang:alpine
-    working_dir: /app
+    working_dir: /app/server
     volumes_from:
       - spdk:rw
     volumes:
@@ -50,7 +50,7 @@ services:
 
   opi-spdk-client:
     image: golang:alpine
-    working_dir: /app
+    working_dir: /app/client
     volumes:
       - ./:/app
     networks:
