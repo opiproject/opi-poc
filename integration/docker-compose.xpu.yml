@@ -107,8 +107,8 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./strongswan/server:/etc/swanctl
-      - ./strongswan/strongswan.conf:/etc/strongswan.conf
+      - ./strongswan/server:/etc/swanctl:z
+      - ./strongswan/strongswan.conf:/etc/strongswan.conf:z
     network_mode: service:xpu-cpu-ssh
     command: './charon'
 
