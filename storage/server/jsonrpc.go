@@ -8,7 +8,6 @@ import (
 	"io"
 	"flag"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -16,8 +15,6 @@ import (
 )
 
 var (
-	ErrJSONNoSpaceLeft  = errors.New("json: No space left")
-	ErrJSONNoSuchDevice = errors.New("json: No such device")
 
 	rpcID      int32 // json request message ID, auto incremented
 	rpc_sock = flag.String("rpc_sock", "/var/tmp/spdk.sock", "Path to SPDK JSON RPC socket")

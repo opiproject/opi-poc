@@ -15,9 +15,14 @@ import (
 
 func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCreateRequest) (*pb.NVMeSubsystemCreateResponse, error) {
 	log.Printf("Received: %v", in.GetSubsystem())
-	params := struct {Name string `json:"name"`}{ Name: "Malloc0"}
+	params := struct {
+		Name string `json:"name"`
+	}{Name: "Malloc0"}
 	var Result string
-	call("bdev_get_bdevs", &params, &Result)
+	err := call("bdev_get_bdevs", &params, &Result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
 	fmt.Println(Result)
 	return &pb.NVMeSubsystemCreateResponse{}, nil
 }
@@ -29,9 +34,14 @@ func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDe
 
 func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUpdateRequest) (*pb.NVMeSubsystemUpdateResponse, error) {
 	log.Printf("Received: %v", in.GetSubsystem())
-	params := struct {Name string `json:"name"`}{ Name: "Malloc0"}
+	params := struct {
+		Name string `json:"name"`
+	}{Name: "Malloc0"}
 	var Result string
-	call("bdev_get_bdevs", &params, &Result)
+	err := call("bdev_get_bdevs", &params, &Result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
 	fmt.Println(Result)
 	return &pb.NVMeSubsystemUpdateResponse{}, nil
 }
@@ -44,11 +54,16 @@ func (s *server) NVMeSubsystemList(ctx context.Context, in *pb.NVMeSubsystemList
 
 func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRequest) (*pb.NVMeSubsystemGetResponse, error) {
 	log.Printf("Received: %v", in.GetId())
-	params := struct {Name string `json:"name"`}{ Name: "Malloc0"}
+	params := struct {
+		Name string `json:"name"`
+	}{Name: "Malloc0"}
 	var Result string
-	call("bdev_get_bdevs", &params, &Result)
+	err := call("bdev_get_bdevs", &params, &Result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
 	fmt.Println(Result)
-	return &pb.NVMeSubsystemGetResponse{Subsystem: &pb.NVMeSubsystem{NQN: "Hello " + string(in.GetId()) + " got " + string(Result)}}, nil
+	return &pb.NVMeSubsystemGetResponse{Subsystem: &pb.NVMeSubsystem{NQN: "Hello " + fmt.Sprint(in.GetId()) + " got " + string(Result)}}, nil
 }
 
 func (s *server) NVMeSubsystemStats(ctx context.Context, in *pb.NVMeSubsystemStatsRequest) (*pb.NVMeSubsystemStatsResponse, error) {
@@ -81,7 +96,7 @@ func (s *server) NVMeControllerList(ctx context.Context, in *pb.NVMeControllerLi
 
 func (s *server) NVMeControllerGet(ctx context.Context, in *pb.NVMeControllerGetRequest) (*pb.NVMeControllerGetResponse, error) {
 	log.Printf("Received: %v", in.GetControllerId())
-	return &pb.NVMeControllerGetResponse{Controller: &pb.NVMeController{Name: "Hello " + string(in.GetControllerId())}}, nil
+	return &pb.NVMeControllerGetResponse{Controller: &pb.NVMeController{Name: "Hello " + fmt.Sprint(in.GetControllerId())}}, nil
 }
 
 func (s *server) NVMeControllerStats(ctx context.Context, in *pb.NVMeControllerStatsRequest) (*pb.NVMeControllerStatsResponse, error) {
@@ -114,7 +129,7 @@ func (s *server) NVMeNamespaceList(ctx context.Context, in *pb.NVMeNamespaceList
 
 func (s *server) NVMeNamespaceGet(ctx context.Context, in *pb.NVMeNamespaceGetRequest) (*pb.NVMeNamespaceGetResponse, error) {
 	log.Printf("Received: %v", in.GetNamespaceId())
-	return &pb.NVMeNamespaceGetResponse{Namespace: &pb.NVMeNamespace{Name: "Hello " + string(in.GetNamespaceId())}}, nil
+	return &pb.NVMeNamespaceGetResponse{Namespace: &pb.NVMeNamespace{Name: "Hello " + fmt.Sprint(in.GetNamespaceId())}}, nil
 }
 
 func (s *server) NVMeNamespaceStats(ctx context.Context, in *pb.NVMeNamespaceStatsRequest) (*pb.NVMeNamespaceStatsResponse, error) {
