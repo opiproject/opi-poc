@@ -35,7 +35,7 @@ services:
     ports:
       - 8082:8082
     volumes:
-      - ./pxe/grubx64.efi:/var/lib/tftpboot/grubx64.efi:ro
+      - ./pxe/grubx64.efi:/var/lib/tftpboot/grubx64.efi:z,ro
     networks:
       xpu-cpu:
         ipv4_address: 10.127.127.16
