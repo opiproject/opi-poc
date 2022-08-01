@@ -3,6 +3,7 @@ module opi.storage.v1
 go 1.18
 
 require (
+	github.com/google/uuid v1.1.2
 	github.com/opiproject/opi-api v0.0.0-20220728193327-dec583dae36f
 	google.golang.org/grpc v1.48.0
 )

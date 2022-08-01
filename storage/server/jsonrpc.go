@@ -54,7 +54,7 @@ func call(method string, args, result interface{}) error {
 		return fmt.Errorf("%s: %s", method, err)
 	}
 
-	fmt.Println(string(data))
+	log.Printf("Sending to SPDK: %s", data)
 
 	// TODO: add also web option: resp, _ = webSocketCom(rpcClient, data)
 	resp, _ := unixSocketCom(*rpc_sock, data)
@@ -69,9 +69,8 @@ func call(method string, args, result interface{}) error {
 	}{
 		Result: result,
 	}
-
 	err = json.NewDecoder(resp).Decode(&response)
-	fmt.Println(response)
+	log.Printf("Received from SPDK: %v", response)
 	if err != nil {
 		return fmt.Errorf("%s: %s", method, err)
 	}
