@@ -4,7 +4,7 @@
 [![OPI Networking PoC CI](https://github.com/opiproject/opi-poc/actions/workflows/poc-networking.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-networking.yml)
 [![OPI Storage PoC CI](https://github.com/opiproject/opi-poc/actions/workflows/poc-storage.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-storage.yml)
 [![OPI Security PoC CI](https://github.com/opiproject/opi-poc/actions/workflows/poc-security.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-security.yml)
-[![MarkdownLint](https://github.com/opiproject/opi-poc/actions/workflows/markdown.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/markdown.yml)
+[![Linters](https://github.com/opiproject/opi-poc/actions/workflows/linters.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/linters.yml)
 
 This repo hosts OPI proofs of concept.  These PoCs are used to demonstrate that
 the OPI project can work for some set of use cases.
