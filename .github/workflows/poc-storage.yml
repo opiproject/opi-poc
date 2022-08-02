@@ -78,6 +78,8 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         outputs: type=docker,dest=/tmp/myimage.tar
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
     - name: Load docker image locally
       run: docker image load < /tmp/myimage.tar
@@ -126,3 +128,5 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
