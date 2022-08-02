@@ -26,6 +26,7 @@ Optionally if you need to download modules
 ```bash
 docker run --rm -it -v `pwd`:/app -w /app golang:alpine go get all
 docker run --rm -it -v `pwd`:/app -w /app golang:alpine go get github.com/opiproject/opi-api/storage/proto
+docker run --rm -it -v `pwd`:/app -w /app golang:alpine go mod tidy
 ```
 
 Run example server (not for production) manually

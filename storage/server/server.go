@@ -22,6 +22,7 @@ type server struct {
 	pb.UnimplementedNVMeControllerServiceServer
 	pb.UnimplementedNVMeNamespaceServiceServer
 	pb.UnimplementedNVMfRemoteControllerServiceServer
+	pb.UnimplementedVirtioBlkServiceServer
 }
 
 func main() {
@@ -36,6 +37,7 @@ func main() {
 	pb.RegisterNVMeControllerServiceServer(s, &server{})
 	pb.RegisterNVMeNamespaceServiceServer(s, &server{})
 	pb.RegisterNVMfRemoteControllerServiceServer(s, &server{})
+	pb.RegisterVirtioBlkServiceServer(s, &server{})
 
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {

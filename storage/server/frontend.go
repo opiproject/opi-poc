@@ -236,3 +236,36 @@ func (s *server) NVMeNamespaceStats(ctx context.Context, in *pb.NVMeNamespaceSta
 	log.Printf("Received from client: %v", in.GetNamespaceId())
 	return &pb.NVMeNamespaceStatsResponse{}, nil
 }
+
+//////////////////////////////////////////////////////////
+
+func (s *server) VirtioBlkCreate(ctx context.Context, in *pb.VirtioBlkCreateRequest) (*pb.VirtioBlkCreateResponse, error) {
+	log.Printf("Received from client: %v", in)
+	return &pb.VirtioBlkCreateResponse{}, nil
+}
+
+func (s *server) VirtioBlkDelete(ctx context.Context, in *pb.VirtioBlkDeleteRequest) (*pb.VirtioBlkDeleteResponse, error) {
+	log.Printf("Received from client: %v", in)
+	return &pb.VirtioBlkDeleteResponse{}, nil
+}
+
+func (s *server) VirtioBlkUpdate(ctx context.Context, in *pb.VirtioBlkUpdateRequest) (*pb.VirtioBlkUpdateResponse, error) {
+	log.Printf("Received from client: %v", in)
+	return &pb.VirtioBlkUpdateResponse{}, nil
+}
+
+func (s *server) VirtioBlkList(ctx context.Context, in *pb.VirtioBlkListRequest) (*pb.VirtioBlkListResponse, error) {
+	log.Printf("Received from client: %v", in)
+	Blobarray := make([]*pb.VirtioBlk, 3)
+	return &pb.VirtioBlkListResponse{Controller: Blobarray}, nil
+}
+
+func (s *server) VirtioBlkGet(ctx context.Context, in *pb.VirtioBlkGetRequest) (*pb.VirtioBlkGetResponse, error) {
+	log.Printf("Received from client: %v", in)
+	return &pb.VirtioBlkGetResponse{Controller: &pb.VirtioBlk{Name: "Hello " + fmt.Sprint(in.GetControllerId())}}, nil
+}
+
+func (s *server) VirtioBlkStats(ctx context.Context, in *pb.VirtioBlkStatsRequest) (*pb.VirtioBlkStatsResponse, error) {
+	log.Printf("Received from client: %v", in)
+	return &pb.VirtioBlkStatsResponse{}, nil
+}

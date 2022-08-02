@@ -108,4 +108,37 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 		log.Fatalf("could not stats NVMe subsystem: %v", err)
 	}
 	log.Printf("Stats: %v", rn6.Stats)
+
+	// VirtioBlk
+	c4 := pb.NewVirtioBlkServiceClient(conn)
+	rv1, err := c4.VirtioBlkCreate(ctx, &pb.VirtioBlkCreateRequest{Controller: &pb.VirtioBlk{Name: "OPI-Nvme"}})
+	if err != nil {
+		log.Fatalf("could not create VirtioBlk Controller: %v", err)
+	}
+	log.Printf("Added: %v", rv1)
+	rv2, err := c4.VirtioBlkDelete(ctx, &pb.VirtioBlkDeleteRequest{ControllerId: 8})
+	if err != nil {
+		log.Fatalf("could not delete VirtioBlk Controller: %v", err)
+	}
+	log.Printf("Deleted: %v", rv2)
+	rv3, err := c4.VirtioBlkUpdate(ctx, &pb.VirtioBlkUpdateRequest{Controller: &pb.VirtioBlk{Name: "OPI-Nvme"}})
+	if err != nil {
+		log.Fatalf("could not update VirtioBlk Controller: %v", err)
+	}
+	log.Printf("Updated: %v", rv3)
+	rv4, err := c4.VirtioBlkList(ctx, &pb.VirtioBlkListRequest{SubsystemId: 8})
+	if err != nil {
+		log.Fatalf("could not list VirtioBlk Controller: %v", err)
+	}
+	log.Printf("Listed: %v", rv4)
+	rv5, err := c4.VirtioBlkGet(ctx, &pb.VirtioBlkGetRequest{ControllerId: 8})
+	if err != nil {
+		log.Fatalf("could not get VirtioBlk Controller: %v", err)
+	}
+	log.Printf("Got: %v", rv5.Controller.Name)
+	rv6, err := c4.VirtioBlkStats(ctx, &pb.VirtioBlkStatsRequest{ControllerId: 8})
+	if err != nil {
+		log.Fatalf("could not stats VirtioBlk Controller: %v", err)
+	}
+	log.Printf("Stats: %v", rv6.Stats)
 }

@@ -3,16 +3,16 @@ module opi.storage.v1
 go 1.18
 
 require (
-	github.com/google/uuid v1.1.2
-	github.com/opiproject/opi-api v0.0.0-20220802161744-de0dcf18f402
+	github.com/google/uuid v1.3.0
+	github.com/opiproject/opi-api v0.0.0-20220802195735-62e6516ca4ac
 	google.golang.org/grpc v1.48.0
 )
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect
-	golang.org/x/net v0.0.0-20220726230323-06994584191e // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
+	golang.org/x/net v0.0.0-20220728211354-c7608f3a8462 // indirect
+	golang.org/x/sys v0.0.0-20220731174439-a90be440212d // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/genproto v0.0.0-20220725144611-272f38e5d71b // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
+	google.golang.org/genproto v0.0.0-20220802133213-ce4fa296bf78 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 )
