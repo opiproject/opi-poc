@@ -18,13 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  networking-shellcheck:
-    runs-on: ubuntu-latest
-    steps:
-      - run: 'echo "No networking shellcheck test run required"'
-
   run_networking_poc:
-    needs: networking-shellcheck
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "No networking POC test run required"'

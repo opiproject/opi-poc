@@ -20,18 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  integration-shellcheck:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: integration shellcheck
-      run: |
-        make -C integration shellcheck
-
   run_integration_poc:
-    needs: integration-shellcheck
     runs-on: ubuntu-latest
     steps:
     - name: configure HUGE pages

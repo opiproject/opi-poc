@@ -26,18 +26,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  security-shellcheck:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: security shellcheck
-      run: |
-        make -C security shellcheck
-
   security-ci:
-    needs: security-shellcheck
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository

@@ -18,13 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  storage-shellcheck:
-    runs-on: ubuntu-latest
-    steps:
-      - run: 'echo "No storage shellcheck test run required"'
-
   docker-build:
-    needs: storage-shellcheck
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "No storage POC test run required"'

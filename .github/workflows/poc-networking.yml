@@ -20,18 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  networking-shellcheck:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: networking shellcheck
-      run: |
-        make -C networking shellcheck
-
   run_networking_poc:
-    needs: networking-shellcheck
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository

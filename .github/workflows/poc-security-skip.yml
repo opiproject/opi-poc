@@ -18,13 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  security-shellcheck:
-    runs-on: ubuntu-latest
-    steps:
-      - run: 'echo "No security shellcheck test run required"'
-
   security-ci:
-    needs: security-shellcheck
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "No security POC test run required"'

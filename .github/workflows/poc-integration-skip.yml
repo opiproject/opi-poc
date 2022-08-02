@@ -19,13 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  integration-shellcheck:
-    runs-on: ubuntu-latest
-    steps:
-      - run: 'echo "No integration shellcheck test run required"'
-
   run_integration_poc:
-    needs: integration-shellcheck
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "No integration test run required"'
