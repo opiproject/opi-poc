@@ -14,11 +14,11 @@ import (
 //////////////////////////////////////////////////////////
 
 func (s *server) NVMfRemoteControllerConnect(ctx context.Context, in *pb.NVMfRemoteControllerConnectRequest) (*pb.NVMfRemoteControllerConnectResponse, error) {
-	log.Printf("NVMfRemoteControllerConnect: Received from client: %v", in.GetController())
+	log.Printf("NVMfRemoteControllerConnect: Received from client: %v", in)
 	params := struct {
 		Name string `json:"name"`
 	}{
-		Name: 		fmt.Sprint("Malloc", in.GetController().GetId()),
+		Name: 		fmt.Sprint("Malloc", in.GetCtrl().GetId()),
 	}
 	var result []struct {
 		Name        string `json:"name"`

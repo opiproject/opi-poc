@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/google/uuid v1.1.2
-	github.com/opiproject/opi-api v0.0.0-20220728193327-dec583dae36f
+	github.com/opiproject/opi-api v0.0.0-20220802161744-de0dcf18f402
 	google.golang.org/grpc v1.48.0
 )
 

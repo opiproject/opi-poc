@@ -22,7 +22,7 @@ func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCr
 		NumBlocks   int64  `json:"num_blocks"`
 		Uuid        string `json:"uuid"`
 	}{
-		Name:       in.GetSubsystem().GetNQN(),
+		Name:       in.GetSubsystem().GetNqn(),
 		BlockSize:  512,
 		NumBlocks:  64,
 		Uuid:      uuid.New().String(),
@@ -60,7 +60,7 @@ func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUp
 	params1 := struct {
 		Name        string `json:"name"`
 	}{
-		Name:       in.GetSubsystem().GetNQN(),
+		Name:       in.GetSubsystem().GetNqn(),
 	}
 	var result1 bool
 	err1 := call("bdev_malloc_delete", &params1, &result1)
@@ -77,7 +77,7 @@ func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUp
 		NumBlocks   int64  `json:"num_blocks"`
 		Uuid        string `json:"uuid"`
 	}{
-		Name:       in.GetSubsystem().GetNQN(),
+		Name:       in.GetSubsystem().GetNqn(),
 		BlockSize:  512,
 		NumBlocks:  64,
 		Uuid:      uuid.New().String(),
@@ -107,7 +107,7 @@ func (s *server) NVMeSubsystemList(ctx context.Context, in *pb.NVMeSubsystemList
 	Blobarray := make([]*pb.NVMeSubsystem, len(result))
 	for i := range result {
 		r := &result[i]
-		Blobarray[i] = &pb.NVMeSubsystem{NQN: r.Name}
+		Blobarray[i] = &pb.NVMeSubsystem{Nqn: r.Name}
 	}
 	return &pb.NVMeSubsystemListResponse{Subsystem: Blobarray}, nil
 }
@@ -133,7 +133,7 @@ func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRe
 	if (len(result) != 1) {
 		log.Printf("expecting exactly 1 result")
 	}
-	return &pb.NVMeSubsystemGetResponse{Subsystem: &pb.NVMeSubsystem{NQN: result[0].Name}}, nil
+	return &pb.NVMeSubsystemGetResponse{Subsystem: &pb.NVMeSubsystem{Nqn: result[0].Name}}, nil
 }
 
 func (s *server) NVMeSubsystemStats(ctx context.Context, in *pb.NVMeSubsystemStatsRequest) (*pb.NVMeSubsystemStatsResponse, error) {

@@ -12,7 +12,7 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 
 	// NVMeSubsystem
 	c1 := pb.NewNVMeSubsystemServiceClient(conn)
-	rs1, err := c1.NVMeSubsystemCreate(ctx, &pb.NVMeSubsystemCreateRequest{Subsystem: &pb.NVMeSubsystem{NQN: "Malloc7"}})
+	rs1, err := c1.NVMeSubsystemCreate(ctx, &pb.NVMeSubsystemCreateRequest{Subsystem: &pb.NVMeSubsystem{Nqn: "Malloc7"}})
 	if err != nil {
 		log.Fatalf("could not create NVMe subsystem: %v", err)
 	}
@@ -22,7 +22,7 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 		log.Fatalf("could not delete NVMe subsystem: %v", err)
 	}
 	log.Printf("Deleted: %v", rs2)
-	rs3, err := c1.NVMeSubsystemUpdate(ctx, &pb.NVMeSubsystemUpdateRequest{Subsystem: &pb.NVMeSubsystem{NQN: "Malloc1"}})
+	rs3, err := c1.NVMeSubsystemUpdate(ctx, &pb.NVMeSubsystemUpdateRequest{Subsystem: &pb.NVMeSubsystem{Nqn: "Malloc1"}})
 	if err != nil {
 		log.Fatalf("could not update NVMe subsystem: %v", err)
 	}
@@ -36,7 +36,7 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 	if err != nil {
 		log.Fatalf("could not get NVMe subsystem: %v", err)
 	}
-	log.Printf("Got: %s", rs5.Subsystem.NQN)
+	log.Printf("Got: %s", rs5.Subsystem.Nqn)
 	rs6, err := c1.NVMeSubsystemStats(ctx, &pb.NVMeSubsystemStatsRequest{Id: 1})
 	if err != nil {
 		log.Fatalf("could not stats NVMe subsystem: %v", err)

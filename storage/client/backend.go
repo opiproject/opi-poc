@@ -11,7 +11,7 @@ import (
 func do_backend(conn grpc.ClientConnInterface, ctx context.Context) {
 	// NVMfRemoteController
 	c4 := pb.NewNVMfRemoteControllerServiceClient(conn)
-	rr0, err := c4.NVMfRemoteControllerConnect(ctx, &pb.NVMfRemoteControllerConnectRequest{Controller: &pb.NVMfRemoteController{Id: 1}})
+	rr0, err := c4.NVMfRemoteControllerConnect(ctx, &pb.NVMfRemoteControllerConnectRequest{Ctrl: &pb.NVMfRemoteController{Id: 1}})
 	if err != nil {
 		log.Fatalf("could not connect to Remote NVMf controller: %v", err)
 	}
