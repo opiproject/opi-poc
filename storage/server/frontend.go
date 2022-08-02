@@ -240,12 +240,42 @@ func (s *server) NVMeNamespaceStats(ctx context.Context, in *pb.NVMeNamespaceSta
 //////////////////////////////////////////////////////////
 
 func (s *server) VirtioBlkCreate(ctx context.Context, in *pb.VirtioBlkCreateRequest) (*pb.VirtioBlkCreateResponse, error) {
-	log.Printf("Received from client: %v", in)
+	log.Printf("VirtioBlkCreate: Received from client: %v", in)
+	params := struct {
+		Name      string `json:"ctrlr"`
+		Bdev      string `json:"dev_name"`
+	}{
+		Name:       in.GetController().GetName(),
+		Bdev:       in.GetController().GetBdev(),
+	}
+	var result bool
+	err := call("vhost_create_blk_controller", &params, &result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if (!result) {
+		log.Printf("Could not create: %v", in)
+	}
 	return &pb.VirtioBlkCreateResponse{}, nil
 }
 
 func (s *server) VirtioBlkDelete(ctx context.Context, in *pb.VirtioBlkDeleteRequest) (*pb.VirtioBlkDeleteResponse, error) {
-	log.Printf("Received from client: %v", in)
+	log.Printf("VirtioBlkDelete: Received from client: %v", in)
+	params := struct {
+		Name        string `json:"ctrlr"`
+	}{
+		Name:       fmt.Sprint("VhostNvme", in.GetControllerId()),
+	}
+	var result bool
+	err := call("vhost_delete_controller", &params, &result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if (!result) {
+		log.Printf("Could not delete: %v", in)
+	}
 	return &pb.VirtioBlkDeleteResponse{}, nil
 }
 
@@ -255,14 +285,50 @@ func (s *server) VirtioBlkUpdate(ctx context.Context, in *pb.VirtioBlkUpdateRequ
 }
 
 func (s *server) VirtioBlkList(ctx context.Context, in *pb.VirtioBlkListRequest) (*pb.VirtioBlkListResponse, error) {
-	log.Printf("Received from client: %v", in)
-	Blobarray := make([]*pb.VirtioBlk, 3)
+	log.Printf("VirtioBlkList: Received from client: %v", in)
+	var result []struct {
+		Ctrlr           string `json:"ctrlr"`
+		Cpumask         string `json:"cpumask"`
+		DelayBaseUs     int    `json:"delay_base_us"`
+		IopsThreshold   int    `json:"iops_threshold"`
+		Socket          string `json:"socket"`
+	}
+	err := call("vhost_get_controllers", nil, &result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	log.Printf("Received from SPDK: %v", result)
+	Blobarray := make([]*pb.VirtioBlk, len(result))
+	for i := range result {
+		r := &result[i]
+		Blobarray[i] = &pb.VirtioBlk{Name: r.Ctrlr}
+	}
 	return &pb.VirtioBlkListResponse{Controller: Blobarray}, nil
 }
 
 func (s *server) VirtioBlkGet(ctx context.Context, in *pb.VirtioBlkGetRequest) (*pb.VirtioBlkGetResponse, error) {
-	log.Printf("Received from client: %v", in)
-	return &pb.VirtioBlkGetResponse{Controller: &pb.VirtioBlk{Name: "Hello " + fmt.Sprint(in.GetControllerId())}}, nil
+	log.Printf("VirtioBlkGet: Received from client: %v", in)
+	params := struct {
+		Name string `json:"name"`
+	}{
+		Name:       fmt.Sprint("VirtioBlk", in.GetControllerId()),
+	}
+	var result []struct {
+		Ctrlr           string `json:"ctrlr"`
+		Cpumask         string `json:"cpumask"`
+		DelayBaseUs     int    `json:"delay_base_us"`
+		IopsThreshold   int    `json:"iops_threshold"`
+		Socket          string `json:"socket"`
+	}
+	err := call("vhost_get_controllers", &params, &result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if (len(result) != 1) {
+		log.Printf("expecting exactly 1 result")
+	}
+	return &pb.VirtioBlkGetResponse{Controller: &pb.VirtioBlk{Name: result[0].Ctrlr}}, nil
 }
 
 func (s *server) VirtioBlkStats(ctx context.Context, in *pb.VirtioBlkStatsRequest) (*pb.VirtioBlkStatsResponse, error) {

@@ -111,7 +111,7 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 
 	// VirtioBlk
 	c4 := pb.NewVirtioBlkServiceClient(conn)
-	rv1, err := c4.VirtioBlkCreate(ctx, &pb.VirtioBlkCreateRequest{Controller: &pb.VirtioBlk{Name: "OPI-Nvme"}})
+	rv1, err := c4.VirtioBlkCreate(ctx, &pb.VirtioBlkCreateRequest{Controller: &pb.VirtioBlk{Name: "VhostNvme8", Bdev:"Malloc1"}})
 	if err != nil {
 		log.Fatalf("could not create VirtioBlk Controller: %v", err)
 	}
