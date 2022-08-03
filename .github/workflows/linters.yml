@@ -39,7 +39,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+      - uses: golangci/golangci-lint-action@v3
         with:
-          working-directory: storage
+          working-directory: storage/server
+      - uses: golangci/golangci-lint-action@v3
+        with:
+          working-directory: storage/client
