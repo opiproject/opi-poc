@@ -3,6 +3,8 @@ version: '3.7'
 services:
   strongswan:
     image: strongx509/strongswan:5.9.6
+    depends_on:
+      - vpn-client
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
@@ -22,8 +24,6 @@ services:
 
   vpn-client:
     image: strongx509/strongswan:5.9.6
-    depends_on:
-      - strongswan
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
