@@ -38,26 +38,22 @@ services:
       timeout: 10s
 
   opi-spdk-server:
-    image: golang:alpine
-    working_dir: /app/server
+    build:
+      context: server
     volumes_from:
       - spdk:rw
-    volumes:
-      - ./:/app:z
     networks:
       - opi
-    command: go run jsonrpc.go frontend.go backend.go middleend.go server.go
+    command: /opi-spdk-bridge -port=50051
 
   opi-spdk-client:
-    image: golang:alpine
-    working_dir: /app/client
-    volumes:
-      - ./:/app:z
+    build:
+      context: client
     networks:
       - opi
-    command: go run frontend.go backend.go middleend.go client.go -addr=opi-spdk-server:50051
     depends_on:
       - opi-spdk-server
+    command: /opi-storage-client -addr=opi-spdk-server:50051
 
 networks:
   opi:

@@ -38,28 +38,22 @@ services:
         ipv4_address: 192.168.0.3
 
   opi-security-server:
-    image: golang:alpine
-    working_dir: /app/server
+    build:
+      context: server
     volumes_from:
       - strongswan:rw
-    volumes:
-      - ./:/app
-    ports:
-      - '50151:50151'
     networks:
       - internet
-    command: go run server.go ipsec.go ipsec_messages.go
+    command: /opi-vici-bridge -port=50051
 
   opi-security-client:
-    image: golang:alpine
-    working_dir: /app/client
-    volumes:
-      - ./:/app
+    build:
+      context: client
     networks:
       - internet
-    command: go run client.go ipsec.go -addr=opi-security-server:50151
     depends_on:
       - opi-security-server
+    command: /opi-security-client -addr=opi-security-server:50051
 
 networks:
   internet:
