@@ -44,7 +44,9 @@ jobs:
       working-directory: security
 
     - name: Run Tests
-      run: docker-compose ps
+      run: |
+        docker-compose ps
+        docker-compose run opi-security-client
       working-directory: security
 
     - name: Logs
