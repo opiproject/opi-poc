@@ -10,29 +10,29 @@ package main
 //	pb "github.com/opiproject/opi-api/security/proto"
 //)
 
-type childSA struct {
-	LocalTrafficSelectors []string `vici:"local_ts"`
-	Updown                string   `vici:"updown"`
-	ESPProposals          []string `vici:"esp_proposals"`
-}
+// type childSA struct {
+// 	LocalTrafficSelectors []string `vici:"local_ts"`
+// 	Updown                string   `vici:"updown"`
+// 	ESPProposals          []string `vici:"esp_proposals"`
+// }
 
-type localOpts struct {
-	Auth  string   `vici:"auth"`
-	Certs []string `vici:"certs"`
-	ID    string   `vici:"id"`
-}
+// type localOpts struct {
+// 	Auth  string   `vici:"auth"`
+// 	Certs []string `vici:"certs"`
+// 	ID    string   `vici:"id"`
+// }
 
-type remoteOpts struct {
-	Auth string `vici:"auth"`
-}
+// type remoteOpts struct {
+// 	Auth string `vici:"auth"`
+// }
 
-type connection struct {
-	Name string // This field will NOT be marshaled!
+// type connection struct {
+// 	Name string // This field will NOT be marshaled!
 
-	LocalAddrs []string            `vici:"local_addrs"`
-	Local      *localOpts          `vici:"local"`
-	Remote     *remoteOpts         `vici:"remote"`
-	Children   map[string]*childSA `vici:"children"`
-	Version    int                 `vici:"version"`
-	Proposals  []string            `vici:"proposals"`
-}
+// 	LocalAddrs []string            `vici:"local_addrs"`
+// 	Local      *localOpts          `vici:"local"`
+// 	Remote     *remoteOpts         `vici:"remote"`
+// 	Children   map[string]*childSA `vici:"children"`
+// 	Version    int                 `vici:"version"`
+// 	Proposals  []string            `vici:"proposals"`
+// }
