@@ -43,7 +43,7 @@ services:
     volumes_from:
       - spdk:rw
     volumes:
-      - ./:/app
+      - ./:/app:z
     networks:
       - opi
     command: go run jsonrpc.go frontend.go backend.go middleend.go server.go
@@ -52,7 +52,7 @@ services:
     image: golang:alpine
     working_dir: /app/client
     volumes:
-      - ./:/app
+      - ./:/app:z
     networks:
       - opi
     command: go run frontend.go backend.go middleend.go client.go -addr=opi-spdk-server:50051

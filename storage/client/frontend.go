@@ -111,16 +111,11 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 
 	// VirtioBlk
 	c4 := pb.NewVirtioBlkServiceClient(conn)
-	rv1, err := c4.VirtioBlkCreate(ctx, &pb.VirtioBlkCreateRequest{Controller: &pb.VirtioBlk{Name: "VhostNvme8", Bdev:"Malloc1"}})
+	rv1, err := c4.VirtioBlkCreate(ctx, &pb.VirtioBlkCreateRequest{Controller: &pb.VirtioBlk{Name: "VirtioBlk8", Bdev:"Malloc1"}})
 	if err != nil {
 		log.Fatalf("could not create VirtioBlk Controller: %v", err)
 	}
 	log.Printf("Added: %v", rv1)
-	rv2, err := c4.VirtioBlkDelete(ctx, &pb.VirtioBlkDeleteRequest{ControllerId: 8})
-	if err != nil {
-		log.Fatalf("could not delete VirtioBlk Controller: %v", err)
-	}
-	log.Printf("Deleted: %v", rv2)
 	rv3, err := c4.VirtioBlkUpdate(ctx, &pb.VirtioBlkUpdateRequest{Controller: &pb.VirtioBlk{Name: "OPI-Nvme"}})
 	if err != nil {
 		log.Fatalf("could not update VirtioBlk Controller: %v", err)
@@ -141,4 +136,9 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 		log.Fatalf("could not stats VirtioBlk Controller: %v", err)
 	}
 	log.Printf("Stats: %v", rv6.Stats)
+	rv2, err := c4.VirtioBlkDelete(ctx, &pb.VirtioBlkDeleteRequest{ControllerId: 8})
+	if err != nil {
+		log.Fatalf("could not delete VirtioBlk Controller: %v", err)
+	}
+	log.Printf("Deleted: %v", rv2)
 }
