@@ -92,7 +92,7 @@ jobs:
       working-directory: storage
 
     - name: Run Tests
-      run: ./scripts/poc.sh tests
+      run: SPDK_TAG=sha-$(git rev-parse --short ${{ github.sha }}) ./scripts/poc.sh tests
       working-directory: storage
 
     - name: Logs
