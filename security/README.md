@@ -7,7 +7,7 @@ the [govici](https://github.com/strongswan/govici) library.
 
 ## Diagram
 
-Todo: _please add a picture_
+![OPI Security PoC Components](opi-security-poc.drawio.png)
 
 ## Getting started
 
@@ -107,3 +107,37 @@ Server log
 ```bash
 opi-security-server_1  | 2022/08/05 17:19:18 IPsecDelete: Received: value:"bla"
 ```
+
+## Architecture
+
+The architecture of the PoC includes the following components:
+
+* strongSwan server container
+* strongSwan client container
+* OPI Security API server container
+* OPI Security API client container
+* Redis node
+
+![OPI Security PoC Components](opi-security-poc.drawio.png)
+
+### Create
+
+On creation of a new IPsec tunnel, the OPI API Security server will do the
+following:
+
+* Receive the API call on the northbound side
+* Write a strongSwan configuration file to disk
+* Using the vici API
+  * Reload strongSwan configuration
+  * Trigger the connection
+
+### Delete
+
+On deletion of an IPsec tunnel, the OPI API Security server will do the
+following:
+
+* Receive the API call on the northbound side
+* Delete the local configuration file on disk
+* Using the vici API:
+  * Down the connection
+  * Reload strongSwan configuration

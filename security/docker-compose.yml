@@ -1,10 +1,8 @@
 version: '3.7'
 
 services:
-  strongswan:
-    image: strongx509/strongswan:5.9.6
-    depends_on:
-      - vpn-client
+  vpn-server:
+    image: strongx509/strongswan:5.9.7
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
@@ -23,7 +21,9 @@ services:
     command: './charon'
 
   vpn-client:
-    image: strongx509/strongswan:5.9.6
+    image: strongx509/strongswan:5.9.7
+    depends_on:
+      - vpn-server
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
@@ -37,14 +37,26 @@ services:
       internet:
         ipv4_address: 192.168.0.3
 
+  redis:
+    image: redis:bullseye
+    depends_on:
+      - vpn-server
+      - vpn-client
+    networks:
+      - internet
+      - intranet
+
   opi-security-server:
     build:
       context: server
+    depends_on:
+      - redis
     volumes_from:
-      - strongswan:rw
+      - vpn-server:rw
     networks:
       - internet
-    command: /opi-vici-bridge -port=50051
+      - intranet
+    command: /opi-vici-bridge -port=50151
 
   opi-security-client:
     build:
@@ -53,7 +65,7 @@ services:
       - internet
     depends_on:
       - opi-security-server
-    command: /opi-security-client -addr=opi-security-server:50051
+    command: /opi-security-client -addr=opi-security-server:50151
 
 networks:
   internet:
