@@ -6,7 +6,7 @@ FROM fedora:36 as build
 ARG TAG=v22.05
 # Pick an arch that has at least sse 4.2 but does not require newer avx
 # See https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
-ARG ARCH=skylake
+ARG ARCH_OVERRIDE
 
 WORKDIR /root
 RUN dnf install -y git rpm-build diffutils procps-ng pip && dnf clean all
@@ -15,8 +15,13 @@ RUN dnf install -y git rpm-build diffutils procps-ng pip && dnf clean all
 RUN git clone https://github.com/spdk/spdk --branch ${TAG} --depth 1 && \
     cd spdk && git submodule update --init --depth 1 && scripts/pkgdep.sh --rdma
 
+ARG TARGETPLATFORM
 # hadolint ignore=DL3003
-RUN cd spdk && ./rpmbuild/rpm.sh --target-arch=${ARCH} --without-uring --without-crypto \
+RUN case ${TARGETPLATFORM} in \
+         "linux/amd64")  SPDK_ARCH=skylake ;; \
+         "linux/arm64")  SPDK_ARCH=native  ;; \
+    esac && \
+    cd spdk && ./rpmbuild/rpm.sh --target-arch=${ARCH_OVERRIDE:-$SPDK_ARCH} --without-uring --without-crypto \
     --without-fio --with-raid5 --with-vhost --without-pmdk --without-rbd \
     --with-rdma --with-shared --with-iscsi-initiator --without-vtune --without-isal
 

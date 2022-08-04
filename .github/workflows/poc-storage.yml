@@ -112,6 +112,7 @@ jobs:
       uses: docker/build-push-action@1cb9d22b932e4832bb29793b7777ec860fc1cde0
       with:
         context: storage
+        platforms: linux/amd64,linux/arm64
         push: false
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
@@ -163,6 +164,7 @@ jobs:
       if: github.event_name != 'pull_request'
       with:
         context: storage
+        platforms: linux/amd64,linux/arm64
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
