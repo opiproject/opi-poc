@@ -41,7 +41,7 @@ func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDe
 	params := struct {
 		Name        string `json:"name"`
 	}{
-		Name:       fmt.Sprint("Malloc", in.GetId()),
+		Name:       fmt.Sprint("OpiMalloc", in.GetId()),
 	}
 	var result bool
 	err := call("bdev_malloc_delete", &params, &result)
@@ -117,7 +117,7 @@ func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRe
 	params := struct {
 		Name string `json:"name"`
 	}{
-		Name:       fmt.Sprint("Malloc", in.GetId()),
+		Name:       fmt.Sprint("OpiMalloc", in.GetId()),
 	}
 	var result []struct {
 		Name        string `json:"name"`
@@ -141,7 +141,7 @@ func (s *server) NVMeSubsystemStats(ctx context.Context, in *pb.NVMeSubsystemSta
 	params := struct {
 		Name string `json:"name"`
 	}{
-		Name:     fmt.Sprint("Malloc", in.GetId()),
+		Name:     fmt.Sprint("OpiMalloc", in.GetId()),
 	}
 	// See https://mholt.github.io/json-to-go/
 	var result struct {
