@@ -18,6 +18,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  storage-push:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No storage POC test run required"'
+
   docker-build:
     runs-on: ubuntu-latest
     steps:
