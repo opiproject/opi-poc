@@ -18,6 +18,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  security-push:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No security POC test run required"'
+
   security-ci:
     runs-on: ubuntu-latest
     steps:
