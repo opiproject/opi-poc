@@ -11,6 +11,7 @@ import (
 
 	"google.golang.org/grpc"
 	pb "github.com/opiproject/opi-api/storage/proto"
+	"google.golang.org/grpc/reflection"
 )
 
 var (
@@ -38,6 +39,8 @@ func main() {
 	pb.RegisterNVMeNamespaceServiceServer(s, &server{})
 	pb.RegisterNVMfRemoteControllerServiceServer(s, &server{})
 	pb.RegisterVirtioBlkServiceServer(s, &server{})
+
+	reflection.Register(s)
 
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
