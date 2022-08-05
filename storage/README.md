@@ -46,3 +46,82 @@ Run both examples client and server via compose (not for production)
 ```bash
    docker-compose up opi-spdk-client
 ```
+
+## gRPC CLI
+
+From <https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md>
+
+Alias
+
+```bash
+alias grpc_cli='docker run --network=storage_opi --rm -it namely/grpc-cli'
+```
+
+See services
+
+```bash
+$ grpc_cli ls opi-spdk-server:50051
+grpc.reflection.v1alpha.ServerReflection
+opi.storage.v1.NVMeControllerService
+opi.storage.v1.NVMeNamespaceService
+opi.storage.v1.NVMeSubsystemService
+opi.storage.v1.NVMfRemoteControllerService
+opi.storage.v1.VirtioBlkService
+```
+
+See commands
+
+```bash
+ $ grpc_cli ls opi-spdk-server:50051 opi.storage.v1.NVMeControllerService -l
+filename: frontend.proto
+package: opi.storage.v1;
+service NVMeControllerService {
+  rpc NVMeControllerCreate(opi.storage.v1.NVMeControllerCreateRequest) returns (opi.storage.v1.NVMeControllerCreateResponse) {}
+  rpc NVMeControllerDelete(opi.storage.v1.NVMeControllerDeleteRequest) returns (opi.storage.v1.NVMeControllerDeleteResponse) {}
+  rpc NVMeControllerUpdate(opi.storage.v1.NVMeControllerUpdateRequest) returns (opi.storage.v1.NVMeControllerUpdateResponse) {}
+  rpc NVMeControllerList(opi.storage.v1.NVMeControllerListRequest) returns (opi.storage.v1.NVMeControllerListResponse) {}
+  rpc NVMeControllerGet(opi.storage.v1.NVMeControllerGetRequest) returns (opi.storage.v1.NVMeControllerGetResponse) {}
+  rpc NVMeControllerStats(opi.storage.v1.NVMeControllerStatsRequest) returns (opi.storage.v1.NVMeControllerStatsResponse) {}
+}
+```
+
+See methods
+
+```bash
+grpc_cli ls opi-spdk-server:50051 opi.storage.v1.NVMeControllerService.NVMeControllerCreate -l
+  rpc NVMeControllerCreate(opi.storage.v1.NVMeControllerCreateRequest) returns (opi.storage.v1.NVMeControllerCreateResponse) {}
+```
+
+See messages
+
+```bash
+$ grpc_cli type opi-spdk-server:50051 opi.storage.v1.NVMeController
+message NVMeController {
+  int64 id = 1 [json_name = "id"];
+  string name = 2 [json_name = "name"];
+  string subsystem_id = 3 [json_name = "subsystemId"];
+  string pcie_id = 4 [json_name = "pcieId"];
+  int64 max_io_qps = 5 [json_name = "maxIoQps"];
+  int64 max_ns = 6 [json_name = "maxNs"];
+}
+```
+
+Call remote method
+
+```bash
+$ grpc_cli call opi-spdk-server:50051 NVMeSubsystemDelete "id: 8"
+connecting to opi-spdk-server:50051
+Rpc succeeded with OK status
+```
+
+Server log
+
+```bash
+opi-spdk-server_1  | 2022/08/05 14:31:14 server listening at [::]:50051
+opi-spdk-server_1  | 2022/08/05 14:39:40 NVMeSubsystemDelete: Received from client: id:8
+opi-spdk-server_1  | 2022/08/05 14:39:40 Sending to SPDK: {"jsonrpc":"2.0","id":1,"method":"bdev_malloc_delete","params":{"name":"OpiMalloc8"}}
+opi-spdk-server_1  | 2022/08/05 14:39:40 Received from SPDK: {1 {-19 No such device} 0xc000029f4e}
+opi-spdk-server_1  | 2022/08/05 14:39:40 error: bdev_malloc_delete: json response error: No such device
+opi-spdk-server_1  | 2022/08/05 14:39:40 Received from SPDK: false
+opi-spdk-server_1  | 2022/08/05 14:39:40 Could not delete: id:8
+```
