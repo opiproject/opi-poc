@@ -5,6 +5,8 @@
 
 set -euxo pipefail
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 # DOCKER_COMPOSE setup
 DC=docker-compose
 
@@ -18,6 +20,10 @@ usage() {
 }
 
 tests_poc() {
+    if [ "$(uname -m)" == "x86_64" ]; then
+        # Show x86-64-v level.
+        "${SCRIPT_DIR}"/x86v.sh
+    fi
     $DC ps -a
     for i in $(seq 1 20)
     do

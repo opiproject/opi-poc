@@ -6,7 +6,7 @@ FROM fedora:36 as build
 ARG TAG=v22.05
 # Pick an arch that has at least sse 4.2 but does not require newer avx
 # See https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
-ARG ARCH=skylake
+ARG ARCH=x86-64-v2
 
 WORKDIR /root
 RUN dnf install -y git rpm-build diffutils procps-ng pip && dnf clean all
