@@ -8,8 +8,7 @@ services:
   spdk:
     image: "ghcr.io/opiproject/opi-spdk:${SPDK_TAG-main}"
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: spdk
     volumes:
       - /dev/hugepages:/dev/hugepages
       - /dev/shm:/dev/shm

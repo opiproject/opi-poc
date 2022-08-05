@@ -55,7 +55,7 @@ services:
   xpu-spdk:
     image: ghcr.io/opiproject/opi-spdk:main
     build:
-      context: ../storage
+      context: ../storage/spdk
     volumes:
       - /dev/hugepages:/dev/hugepages
       - /dev/shm:/dev/shm
