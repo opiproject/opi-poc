@@ -11,7 +11,16 @@ networks:
       config:
         - subnet: "10.127.127.0/24"
           gateway: "10.127.127.1"
-
+  host-ncsi:
+    ipam:
+      config:
+        - subnet: "10.130.130.0/24"
+          gateway: "10.130.130.1"
+  xpu-ncsi:
+    ipam:
+      config:
+        - subnet: "10.131.131.0/24"
+          gateway: "10.131.131.1"
   high-speed-external:
     ipam:
       config:

@@ -22,6 +22,8 @@ services:
         ipv4_address: 10.127.127.7
       high-speed-external:
         ipv4_address: 10.129.129.7
+      xpu-ncsi:
+        ipv4_address: 10.131.131.7
     healthcheck:
       test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/2222'"]
       interval: 6s
@@ -128,6 +130,8 @@ services:
     networks:
       bmc:
         ipv4_address: 10.128.128.9
+      xpu-ncsi:
+        ipv4_address: 10.131.131.9
     healthcheck:
       test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/2222'"]
       interval: 6s
