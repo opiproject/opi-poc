@@ -86,6 +86,7 @@ jobs:
         docker-compose run opi-security-client
         grpc_cli=(docker run --network=security_internet --rm namely/grpc-cli)
         "${grpc_cli[@]}" ls opi-security-server:50151
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec -l
       working-directory: security
 
     - name: Logs
