@@ -2,7 +2,7 @@
 
 # Alpine is chosen for its small footprint
 # compared to Ubuntu
-FROM docker.io/library/golang:1.18-alpine
+FROM docker.io/library/golang:1.19.0-alpine
 
 WORKDIR /app
 
