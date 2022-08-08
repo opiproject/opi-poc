@@ -9,6 +9,22 @@ This is a simple spdk based storage PoC
 * [SPDK CSI](https://github.com/spdk/spdk-csi/blob/master/deploy/spdk/Dockerfile)
 * [CSI Spec](https://github.com/container-storage-interface/spec/blob/master/spec.md)
 
+## Huge pages
+
+SPDK requires huge pages, this is how you can configure this manually.
+
+FYI `docker-compose` will do this for you.
+
+```bash
+sync
+echo 1 | sudo tee /proc/sys/vm/drop_caches
+sudo mkdir -p /mnt/huge
+grep hugetlbfs /proc/mounts || sudo mount -t hugetlbfs nodev /mnt/huge
+echo 1024 | sudo tee /proc/sys/vm/nr_hugepages
+echo "Check and fail if not enough"
+grep 1024 /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+```
+
 ## Getting started
 
 Run `docker-compose up -d`
