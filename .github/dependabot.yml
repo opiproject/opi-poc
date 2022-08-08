@@ -1,16 +1,14 @@
 ---
 version: 2
 updates:
+# actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+# integration
   - package-ecosystem: "docker"
-    directory: "/storage"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "docker"
-    directory: "/integration/host-bmc"
+    directory: "/integration/gateway"
     schedule:
       interval: "weekly"
   - package-ecosystem: "docker"
@@ -18,7 +16,7 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "docker"
-    directory: "/integration/xpu-bmc"
+    directory: "/integration/otel"
     schedule:
       interval: "weekly"
   - package-ecosystem: "docker"
@@ -31,5 +29,47 @@ updates:
       interval: "weekly"
   - package-ecosystem: "docker"
     directory: "/integration/spdk"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/integration/strongswan"
+    schedule:
+      interval: "weekly"
+# storage
+  - package-ecosystem: "gomod"
+    directory: "/storage/server"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod"
+    directory: "/storage/client"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/storage/server"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/storage/client"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/storage/spdk"
+    schedule:
+      interval: "weekly"
+# security
+  - package-ecosystem: "gomod"
+    directory: "/security/server"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod"
+    directory: "/security/client"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/security/server"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/security/client"
     schedule:
       interval: "weekly"
