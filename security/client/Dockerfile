@@ -2,7 +2,7 @@
 
 # Alpine is chosen for its small footprint
 # compared to Ubuntu
-FROM golang:1.18-alpine
+FROM golang:1.19.0-alpine
 
 WORKDIR /app
 
