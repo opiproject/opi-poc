@@ -22,6 +22,8 @@ services:
     working_dir: /usr/libexec/spdk/scripts
     command: |
       sh -x -c 'sync; echo 1 > /proc/sys/vm/drop_caches  && \
+            mkdir -p /mnt/huge && \
+            grep hugetlbfs /proc/mounts || mount -t hugetlbfs nodev /mnt/huge && \
             echo 1024 > /proc/sys/vm/nr_hugepages && \
             grep "" /sys/kernel/mm/hugepages/hugepages-*/nr_hugepages && \
             /usr/local/bin/spdk_tgt -m 0x1 -s 512 --no-pci 2>&1 & \

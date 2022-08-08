@@ -67,6 +67,16 @@ jobs:
   docker-build:
     runs-on: ubuntu-latest
     steps:
+    - name: configure HUGE pages
+      run: |
+        sync
+        echo 1 | sudo tee /proc/sys/vm/drop_caches
+        sudo mkdir -p /mnt/huge
+        grep hugetlbfs /proc/mounts || sudo mount -t hugetlbfs nodev /mnt/huge
+        echo 1024 | sudo tee /proc/sys/vm/nr_hugepages
+        echo "Check and fail if not enough"
+        grep 1024 /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+
     - name: Checkout repository
       uses: actions/checkout@v3
 
