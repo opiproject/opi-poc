@@ -9,6 +9,10 @@ This is a simple spdk based storage PoC
 * [SPDK CSI](https://github.com/spdk/spdk-csi/blob/master/deploy/spdk/Dockerfile)
 * [CSI Spec](https://github.com/container-storage-interface/spec/blob/master/spec.md)
 
+## Diagram
+
+![OPI Storage PoC Components](OPI-Storage-Layers-Detailed.png)
+
 ## Huge pages
 
 SPDK requires huge pages, this is how you can configure this manually.
