@@ -20,6 +20,11 @@ concurrency:
 jobs:
   storage-push:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - server
+          - client
     steps:
       - run: 'echo "No storage POC test run required"'
 

@@ -20,6 +20,11 @@ concurrency:
 jobs:
   security-push:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - server
+          - client
     steps:
       - run: 'echo "No security POC test run required"'
 
