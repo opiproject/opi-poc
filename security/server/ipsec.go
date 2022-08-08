@@ -132,10 +132,30 @@ func (s *server) IPsecGet(ctx context.Context, in *pb.IPsecGetRequest) (*pb.IPse
 	reqId := in.GetId().GetValue()
 	log.Printf("IPsecGet: Received: %v", reqId)
 
+	// Retreive from Redis
+	val, err := rdb.Get(ctx, reqId).Result()
+	if err != nil {
+		panic(err)
+	}
+	p_blob, err := base64.StdEncoding.DecodeString(val)
+	if err != nil {
+		log.Fatal("Cannot decode data")
+	}
+	ipsec_req := &pb.IPsecCreateRequest{}
+	err = proto.Unmarshal(p_blob, ipsec_req)
+	if err != nil {
+		log.Fatal("Cannot unmarshal data")
+	}
+
+	log.Printf("Dumping unmarshaled protobuf\n%v\n", ipsec_req)
+
 	ip_ret := pb.IPsecGetResponse {
 		Id: &pb.Uuid {
 			Value: in.GetId().GetValue(),
 		},
+		Tunnel: ipsec_req.Tunnel,
+		Policy: ipsec_req.Policy,
+		Sa: ipsec_req.Sa,
 	}
 
 	return &ip_ret, nil
