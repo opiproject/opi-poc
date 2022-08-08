@@ -81,8 +81,11 @@ jobs:
 
     - name: Run Tests
       run: |
+        set -x
         docker-compose ps
         docker-compose run opi-security-client
+        grpc_cli=(docker run --network=security_internet --rm namely/grpc-cli)
+        "${grpc_cli[@]}" ls opi-security-server:50151
       working-directory: security
 
     - name: Logs
