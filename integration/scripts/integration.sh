@@ -41,6 +41,10 @@ start_containers() {
 
 run_integration_tests() {
     bash -c "${DC} ps"
+    # shellcheck disable=SC2046
+    uniq -c <<< "$(sort <<< "$(docker inspect --format='{{json .State.Health.Status}}' $(${DC} ps -q))")"
+
+    # TODO: replace sleep with timeouted-wait for all services to become healthy
     echo wait 5s... && sleep 5s
     curl --fail http://127.0.0.1:8001/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8002/redfish/v1/Systems/437XR1138R2
@@ -98,6 +102,13 @@ run_integration_tests() {
     fi
     bash -c "${DC} exec -T strongswan swanctl --stats"
     bash -c "${DC} exec -T strongswan swanctl --list-sas"
+
+
+
+    # This should be last
+    bash -c "${DC} ps"
+    # shellcheck disable=SC2046
+    uniq -c <<< "$(sort <<< "$(docker inspect --format='{{json .State.Health.Status}}' $(${DC} ps -q))")"
 }
 
 acquire_logs() {
