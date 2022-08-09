@@ -56,37 +56,6 @@ func load_connection(command string, conn *pb.IPsecCreateRequest) error {
 	var sb strings.Builder
 	var tstr string
 
-	/*
-rw {
-   pools = rw_pool
-
-   local {
-      auth = pubkey
-      certs = serverCert.pem
-      id = server.strongswan.org
-   }
-   remote {
-      auth = pubkey
-      cacerts = caCert.pem
-   }
-   children {
-      net {
-         local_ts = 10.1.0.0/24
-
-         esp_proposals = aes256gcm128-chacha20poly1305-x25519
-         dpd_action = clear
-      }
-      host {
-         esp_proposals = aes256gcm128-chacha20poly1305-x25519
-         dpd_action = clear
-      }
-   }
-   version = 2
-   proposals = aes256-sha256-x25519
-   dpd_delay = 60s
-}
-*/
-
 	// What has to happen here is:
 	// 1. Write charon config file for connection
 	// 2. Send vici command to reload-configuration
@@ -144,7 +113,21 @@ rw {
 	tstr = "            remote_ts = 10.1.0.0/16\n"
 	sb.WriteString(tstr)
 
-	tstr = "            esp_proposals = aes256gcm128-chacha20poly1305-x25519\n"
+	tstr = "            esp_proposals = "
+	sb.WriteString(tstr)
+
+	for i := 0; i < len(conn.Tunnel.Tunnels); i++ {
+		sb.WriteString(strings.ToLower(conn.Tunnel.Tunnels[i].GetCryptoAlg().String()))
+		tstr = "-"
+		sb.WriteString(tstr)
+		sb.WriteString(strings.ToLower(conn.Tunnel.Tunnels[i].GetIntegAlg().String()))
+		if (i+1) < len(conn.Tunnel.Tunnels) {
+			tstr = "-"
+			sb.WriteString(tstr)
+		}
+	}
+
+	tstr = "\n"
 	sb.WriteString(tstr)
 
 	tstr = "            dpd_action = trap\n"
@@ -156,7 +139,21 @@ rw {
 	tstr = "        host {\n"
 	sb.WriteString(tstr)
 
-	tstr = "            esp_proposals = aes256gcm128-chacha20poly1305-x25519\n"
+	tstr = "            esp_proposals = "
+	sb.WriteString(tstr)
+
+	for i := 0; i < len(conn.Tunnel.Tunnels); i++ {
+		sb.WriteString(strings.ToLower(conn.Tunnel.Tunnels[i].GetCryptoAlg().String()))
+		tstr = "-"
+		sb.WriteString(tstr)
+		sb.WriteString(strings.ToLower(conn.Tunnel.Tunnels[i].GetIntegAlg().String()))
+		if (i+1) < len(conn.Tunnel.Tunnels) {
+			tstr = "-"
+			sb.WriteString(tstr)
+		}
+	}
+
+	tstr = "\n"
 	sb.WriteString(tstr)
 
 	tstr = "            dpd_action = trap\n"
@@ -171,7 +168,21 @@ rw {
 	tstr = "    version = 2\n"
 	sb.WriteString(tstr)
 
-	tstr = "    proposals = aes256-sha256-x25519\n"
+	tstr = "    proposals = "
+	sb.WriteString(tstr)
+
+	for i := 0; i < len(conn.Sa.Sas); i++ {
+		sb.WriteString(strings.ReplaceAll(strings.ToLower(conn.Sa.Sas[i].GetCryptoAlg().String()), "_", ""))
+		tstr = "-"
+		sb.WriteString(tstr)
+		sb.WriteString(strings.ReplaceAll(strings.ToLower(conn.Sa.Sas[i].GetIntegAlg().String()), "_", ""))
+		if (i+1) < len(conn.Tunnel.Tunnels) {
+			tstr = "-"
+			sb.WriteString(tstr)
+		}
+	}
+
+	tstr = "\n"
 	sb.WriteString(tstr)
 
 	tstr = "    dpd_delay = 60s\n"
