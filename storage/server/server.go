@@ -24,6 +24,8 @@ type server struct {
 	pb.UnimplementedNVMeNamespaceServiceServer
 	pb.UnimplementedNVMfRemoteControllerServiceServer
 	pb.UnimplementedVirtioBlkServiceServer
+	pb.UnimplementedVirtioScsiControllerServiceServer
+	pb.UnimplementedVirtioScsiLunServiceServer
 }
 
 func main() {
@@ -39,6 +41,8 @@ func main() {
 	pb.RegisterNVMeNamespaceServiceServer(s, &server{})
 	pb.RegisterNVMfRemoteControllerServiceServer(s, &server{})
 	pb.RegisterVirtioBlkServiceServer(s, &server{})
+	pb.RegisterVirtioScsiControllerServiceServer(s, &server{})
+	pb.RegisterVirtioScsiLunServiceServer(s, &server{})
 
 	reflection.Register(s)
 

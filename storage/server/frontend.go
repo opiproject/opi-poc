@@ -303,7 +303,8 @@ func (s *server) VirtioBlkList(ctx context.Context, in *pb.VirtioBlkListRequest)
 		r := &result[i]
 		Blobarray[i] = &pb.VirtioBlk{Name: r.Ctrlr}
 	}
-	return &pb.VirtioBlkListResponse{Controller: Blobarray}, nil
+	// return &pb.VirtioBlkListResponse{Controller: Blobarray}, nil
+	return &pb.VirtioBlkListResponse{}, nil
 }
 
 func (s *server) VirtioBlkGet(ctx context.Context, in *pb.VirtioBlkGetRequest) (*pb.VirtioBlkGetResponse, error) {
@@ -334,4 +335,201 @@ func (s *server) VirtioBlkGet(ctx context.Context, in *pb.VirtioBlkGetRequest) (
 func (s *server) VirtioBlkStats(ctx context.Context, in *pb.VirtioBlkStatsRequest) (*pb.VirtioBlkStatsResponse, error) {
 	log.Printf("Received from client: %v", in)
 	return &pb.VirtioBlkStatsResponse{}, nil
+}
+
+//////////////////////////////////////////////////////////
+
+func (s *server) VirtioScsiControllerCreate(ctx context.Context, in *pb.VirtioScsiControllerCreateRequest) (*pb.VirtioScsiControllerCreateResponse, error) {
+	log.Printf("VirtioScsiControllerCreate: Received from client: %v", in)
+	params := struct {
+		Name      string `json:"ctrlr"`
+	}{
+		Name:       in.GetController().GetName(),
+	}
+	var result bool
+	err := call("vhost_create_scsi_controller", &params, &result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if (!result) {
+		log.Printf("Could not create: %v", in)
+	}
+	return &pb.VirtioScsiControllerCreateResponse{}, nil
+}
+
+func (s *server) VirtioScsiControllerDelete(ctx context.Context, in *pb.VirtioScsiControllerDeleteRequest) (*pb.VirtioScsiControllerDeleteResponse, error) {
+	log.Printf("VirtioScsiControllerDelete: Received from client: %v", in)
+	params := struct {
+		Name        string `json:"ctrlr"`
+	}{
+		Name:       fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
+	}
+	var result bool
+	err := call("vhost_delete_controller", &params, &result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if (!result) {
+		log.Printf("Could not delete: %v", in)
+	}
+	return &pb.VirtioScsiControllerDeleteResponse{}, nil
+}
+
+func (s *server) VirtioScsiControllerUpdate(ctx context.Context, in *pb.VirtioScsiControllerUpdateRequest) (*pb.VirtioScsiControllerUpdateResponse, error) {
+	log.Printf("Received from client: %v", in)
+	return &pb.VirtioScsiControllerUpdateResponse{}, nil
+}
+
+func (s *server) VirtioScsiControllerList(ctx context.Context, in *pb.VirtioScsiControllerListRequest) (*pb.VirtioScsiControllerListResponse, error) {
+	log.Printf("VirtioScsiControllerList: Received from client: %v", in)
+	var result []struct {
+		Ctrlr           string `json:"ctrlr"`
+		Cpumask         string `json:"cpumask"`
+		DelayBaseUs     int    `json:"delay_base_us"`
+		IopsThreshold   int    `json:"iops_threshold"`
+		Socket          string `json:"socket"`
+	}
+	err := call("vhost_get_controllers", nil, &result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	log.Printf("Received from SPDK: %v", result)
+	Blobarray := make([]*pb.VirtioScsiController, len(result))
+	for i := range result {
+		r := &result[i]
+		Blobarray[i] = &pb.VirtioScsiController{Name: r.Ctrlr}
+	}
+	return &pb.VirtioScsiControllerListResponse{Controller: Blobarray}, nil
+}
+
+func (s *server) VirtioScsiControllerGet(ctx context.Context, in *pb.VirtioScsiControllerGetRequest) (*pb.VirtioScsiControllerGetResponse, error) {
+	log.Printf("VirtioScsiControllerGet: Received from client: %v", in)
+	params := struct {
+		Name string `json:"name"`
+	}{
+		Name:       fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
+	}
+	var result []struct {
+		Ctrlr           string `json:"ctrlr"`
+		Cpumask         string `json:"cpumask"`
+		DelayBaseUs     int    `json:"delay_base_us"`
+		IopsThreshold   int    `json:"iops_threshold"`
+		Socket          string `json:"socket"`
+	}
+	err := call("vhost_get_controllers", &params, &result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if (len(result) != 1) {
+		log.Printf("expecting exactly 1 result")
+	}
+	return &pb.VirtioScsiControllerGetResponse{Controller: &pb.VirtioScsiController{Name: result[0].Ctrlr}}, nil
+}
+
+func (s *server) VirtioScsiControllerStats(ctx context.Context, in *pb.VirtioScsiControllerStatsRequest) (*pb.VirtioScsiControllerStatsResponse, error) {
+	log.Printf("Received from client: %v", in)
+	return &pb.VirtioScsiControllerStatsResponse{}, nil
+}
+
+//////////////////////////////////////////////////////////
+
+func (s *server) VirtioScsiLunCreate(ctx context.Context, in *pb.VirtioScsiLunCreateRequest) (*pb.VirtioScsiLunCreateResponse, error) {
+	log.Printf("VirtioScsiLunCreate: Received from client: %v", in)
+	params := struct {
+		Name      string `json:"ctrlr"`
+		Num       int    `json:"scsi_target_num"`
+		Bdev      string `json:"bdev_name"`
+	}{
+		Name:       fmt.Sprint("OPI-VirtioScsi", in.GetLun().GetControllerId()),
+		Num:        5,
+		Bdev:       in.GetLun().GetBdev(),
+	}
+	var result int
+	err := call("vhost_scsi_controller_add_target", &params, &result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	log.Printf("Received from SPDK: %v", result)
+	return &pb.VirtioScsiLunCreateResponse{}, nil
+}
+
+func (s *server) VirtioScsiLunDelete(ctx context.Context, in *pb.VirtioScsiLunDeleteRequest) (*pb.VirtioScsiLunDeleteResponse, error) {
+	log.Printf("VirtioScsiLunDelete: Received from client: %v", in)
+	params := struct {
+		Name        string `json:"ctrlr"`
+		Num         int    `json:"scsi_target_num"`
+	}{
+		Name:       fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
+		Num:        5,
+	}
+	var result bool
+	err := call("vhost_scsi_controller_remove_target", &params, &result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if (!result) {
+		log.Printf("Could not delete: %v", in)
+	}
+	return &pb.VirtioScsiLunDeleteResponse{}, nil
+}
+
+func (s *server) VirtioScsiLunUpdate(ctx context.Context, in *pb.VirtioScsiLunUpdateRequest) (*pb.VirtioScsiLunUpdateResponse, error) {
+	log.Printf("Received from client: %v", in)
+	return &pb.VirtioScsiLunUpdateResponse{}, nil
+}
+
+func (s *server) VirtioScsiLunList(ctx context.Context, in *pb.VirtioScsiLunListRequest) (*pb.VirtioScsiLunListResponse, error) {
+	log.Printf("VirtioScsiLunList: Received from client: %v", in)
+	var result []struct {
+		Ctrlr           string `json:"ctrlr"`
+		Cpumask         string `json:"cpumask"`
+		DelayBaseUs     int    `json:"delay_base_us"`
+		IopsThreshold   int    `json:"iops_threshold"`
+		Socket          string `json:"socket"`
+	}
+	err := call("vhost_get_controllers", nil, &result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	log.Printf("Received from SPDK: %v", result)
+	Blobarray := make([]*pb.VirtioScsiLun, len(result))
+	for i := range result {
+		r := &result[i]
+		Blobarray[i] = &pb.VirtioScsiLun{Bdev: r.Ctrlr}
+	}
+	return &pb.VirtioScsiLunListResponse{Lun: Blobarray}, nil
+}
+
+func (s *server) VirtioScsiLunGet(ctx context.Context, in *pb.VirtioScsiLunGetRequest) (*pb.VirtioScsiLunGetResponse, error) {
+	log.Printf("VirtioScsiLunGet: Received from client: %v", in)
+	params := struct {
+		Name string `json:"name"`
+	}{
+		Name:       fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
+	}
+	var result []struct {
+		Ctrlr           string `json:"ctrlr"`
+		Cpumask         string `json:"cpumask"`
+		DelayBaseUs     int    `json:"delay_base_us"`
+		IopsThreshold   int    `json:"iops_threshold"`
+		Socket          string `json:"socket"`
+	}
+	err := call("vhost_get_controllers", &params, &result)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if (len(result) != 1) {
+		log.Printf("expecting exactly 1 result")
+	}
+	return &pb.VirtioScsiLunGetResponse{Lun: &pb.VirtioScsiLun{Bdev: result[0].Ctrlr}}, nil
+}
+
+func (s *server) VirtioScsiLunStats(ctx context.Context, in *pb.VirtioScsiLunStatsRequest) (*pb.VirtioScsiLunStatsResponse, error) {
+	log.Printf("Received from client: %v", in)
+	return &pb.VirtioScsiLunStatsResponse{}, nil
 }

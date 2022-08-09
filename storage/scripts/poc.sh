@@ -46,6 +46,8 @@ tests_poc() {
     "${grpc_cli[@]}" ls opi-spdk-server:50051 opi.storage.v1.NVMeSubsystemService -l
     "${grpc_cli[@]}" ls opi-spdk-server:50051 opi.storage.v1.NVMfRemoteControllerService -l
     "${grpc_cli[@]}" ls opi-spdk-server:50051 opi.storage.v1.VirtioBlkService -l
+    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi.storage.v1.VirtioScsiControllerService -l
+    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi.storage.v1.VirtioScsiLunService -l
 
     # this is last line
     $DC ps -a

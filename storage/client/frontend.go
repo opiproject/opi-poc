@@ -141,4 +141,72 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 		log.Fatalf("could not delete VirtioBlk Controller: %v", err)
 	}
 	log.Printf("Deleted: %v", rv2)
+
+	// VirtioScsiController
+	c5 := pb.NewVirtioScsiControllerServiceClient(conn)
+	rss1, err := c5.VirtioScsiControllerCreate(ctx, &pb.VirtioScsiControllerCreateRequest{Controller: &pb.VirtioScsiController{Name: "OPI-VirtioScsi8"}})
+	if err != nil {
+		log.Fatalf("could not create VirtioScsi subsystem: %v", err)
+	}
+	log.Printf("Added: %v", rss1)
+	rss3, err := c5.VirtioScsiControllerUpdate(ctx, &pb.VirtioScsiControllerUpdateRequest{Controller: &pb.VirtioScsiController{Name: "OPI-VirtioScsi8"}})
+	if err != nil {
+		log.Fatalf("could not update VirtioScsi subsystem: %v", err)
+	}
+	log.Printf("Updated: %v", rss3)
+	rss4, err := c5.VirtioScsiControllerList(ctx, &pb.VirtioScsiControllerListRequest{})
+	if err != nil {
+		log.Fatalf("could not list VirtioScsi subsystem: %v", err)
+	}
+	log.Printf("Listed: %s", rss4)
+	rss5, err := c5.VirtioScsiControllerGet(ctx, &pb.VirtioScsiControllerGetRequest{ControllerId: 8})
+	if err != nil {
+		log.Fatalf("could not get VirtioScsi subsystem: %v", err)
+	}
+	log.Printf("Got: %s", rss5.Controller.Name)
+	rss6, err := c5.VirtioScsiControllerStats(ctx, &pb.VirtioScsiControllerStatsRequest{ControllerId: 8})
+	if err != nil {
+		log.Fatalf("could not stats VirtioScsi subsystem: %v", err)
+	}
+	log.Printf("Stats: %s", rss6.Stats)
+
+	// VirtioScsiLun
+	c6 := pb.NewVirtioScsiLunServiceClient(conn)
+	rl1, err := c6.VirtioScsiLunCreate(ctx, &pb.VirtioScsiLunCreateRequest{Lun: &pb.VirtioScsiLun{ControllerId: 8, Bdev: "Malloc1"}})
+	if err != nil {
+		log.Fatalf("could not create VirtioScsi subsystem: %v", err)
+	}
+	log.Printf("Added: %v", rl1)
+	rl3, err := c6.VirtioScsiLunUpdate(ctx, &pb.VirtioScsiLunUpdateRequest{Lun: &pb.VirtioScsiLun{ControllerId: 8, Bdev: "Malloc1"}})
+	if err != nil {
+		log.Fatalf("could not update VirtioScsi subsystem: %v", err)
+	}
+	log.Printf("Updated: %v", rl3)
+	rl4, err := c6.VirtioScsiLunList(ctx, &pb.VirtioScsiLunListRequest{ControllerId: 8})
+	if err != nil {
+		log.Fatalf("could not list VirtioScsi subsystem: %v", err)
+	}
+	log.Printf("Listed: %v", rl4)
+	rl5, err := c6.VirtioScsiLunGet(ctx, &pb.VirtioScsiLunGetRequest{ControllerId: 8})
+	if err != nil {
+		log.Fatalf("could not get VirtioScsi subsystem: %v", err)
+	}
+	log.Printf("Got: %v", rl5.Lun.Bdev)
+	rl6, err := c6.VirtioScsiLunStats(ctx, &pb.VirtioScsiLunStatsRequest{ControllerId: 8})
+	if err != nil {
+		log.Fatalf("could not stats VirtioScsi subsystem: %v", err)
+	}
+	log.Printf("Stats: %v", rl6.Stats)
+	rl2, err := c6.VirtioScsiLunDelete(ctx, &pb.VirtioScsiLunDeleteRequest{ControllerId: 8})
+	if err != nil {
+		log.Fatalf("could not delete VirtioScsi subsystem: %v", err)
+	}
+	log.Printf("Deleted: %v", rl2)
+
+	rss2, err := c5.VirtioScsiControllerDelete(ctx, &pb.VirtioScsiControllerDeleteRequest{ControllerId: 8})
+	if err != nil {
+		log.Fatalf("could not delete VirtioScsi subsystem: %v", err)
+	}
+	log.Printf("Deleted: %v", rss2)
+
 }
