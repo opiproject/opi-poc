@@ -144,3 +144,108 @@ vda  252:0    0  64M  0 disk
 4+0 records out
 16384 bytes (16 kB, 16 KiB) copied, 0.00232535 s, 7.0 MB/s
 ```
+
+## Run qemu with HOT PLUG
+
+Start without virtio-blk now but adding QMP management
+
+```bash
+taskset -c 2,3 /usr/libexec/qemu-kvm \
+  -cpu host -smp 2 \
+  -cdrom init.iso \
+  -m 1G -object memory-backend-file,id=mem0,size=1G,mem-path=/dev/hugepages,share=on -numa node,memdev=mem0 \
+  -drive file=guest_os_image.qcow2,if=none,id=disk \
+  -device ide-hd,drive=disk,bootindex=0 \
+  -qmp tcp:localhost:4444,server,wait=off \
+  --nographic
+```
+
+Login using fedora/fedora and verify no virtio-blk devices present
+
+```bash
+[fedora@fed21 ~]$ lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+sda      8:0    0    5G  0 disk
+├─sda1   8:1    0    1M  0 part
+├─sda2   8:2    0 1000M  0 part /boot
+├─sda3   8:3    0  100M  0 part /boot/efi
+├─sda4   8:4    0    4M  0 part
+└─sda5   8:5    0  3.9G  0 part /home
+                                /
+sr0     11:0    1  366K  0 rom
+zram0  252:0    0  962M  0 disk [SWAP]
+[fedora@fed21 ~]$ dmesg | tail
+[    3.894735] fbcon: bochs-drmdrmfb (fb0) is primary device
+[    3.898381] Console: switching to colour frame buffer device 128x48
+[    3.901540] bochs-drm 0000:00:02.0: [drm] fb0: bochs-drmdrmfb frame buffer device
+[    3.941718] RAPL PMU: API unit is 2^-32 Joules, 0 fixed counters, 10737418240 ms ovfl timer
+[    3.975023] e1000 0000:00:03.0 eth0: (PCI:33MHz:32-bit) 52:54:00:12:34:56
+[    3.975825] e1000 0000:00:03.0 eth0: Intel(R) PRO/1000 Network Connection
+[    5.241498] ISO 9660 Extensions: Microsoft Joliet Level 3
+[    5.241897] ISO 9660 Extensions: RRIP_1991A
+[    5.542201] e1000: eth0 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: RX
+[    5.543632] IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+[fedora@fed21 ~]$
+```
+
+Hotplug add new virtio-blk device
+
+```bash
+[root@Client-3-3Z78MH3 ~]# telnet localhost 4444
+Trying ::1...
+Connected to localhost.
+Escape character is '^]'.
+{"QMP": {"version": {"qemu": {"micro": 0, "minor": 2, "major": 6}, "package": "qemu-kvm-6.2.0-11.module+el8.6.0+14707+5aa4b42d"}, "capabilities": ["oob"]}}
+
+{ "execute": "qmp_capabilities" }
+{"return": {}}
+
+{ "execute": "query-commands" }
+{"return": [{"name": "device_add"}, {"name": "query-pci"}, {"name": "query-acpi-ospm-status"}, {"name": "query-sgx-capabilities"}, {"name": "query-sgx"}, {"n}
+
+{ "execute": "query-pci" }
+{"return": [{"bus": 0, "devices": [{"irq_pin": 0, "bus": 0, "qdev_id": "", "slot": 0, "class_info": {"class": 1536, "desc": "Host bridge"}, "id": {"device": }
+
+{"execute": "chardev-add", "id": 3, "arguments": {"id": "spdk_vhost_blk0", "backend": {"type": "socket", "data":{ "addr": {"type": "unix", "data": {"path": "/var/tmp/vhost.1"} } , "server": false } } }}
+{"return": {}, "id": 3}
+
+
+{"execute": "device_add", "id": 4, "arguments": { "driver": "vhost-user-blk-pci", "chardev": "spdk_vhost_blk0"  } }
+{"return": {}, "id": 4}
+```
+
+See the devices now magically appear
+
+```bash
+[   85.303925] pci 0000:00:04.0: [1af4:1001] type 00 class 0x010000
+[   85.304701] pci 0000:00:04.0: reg 0x10: [io  0x0000-0x007f]
+[   85.305380] pci 0000:00:04.0: reg 0x14: [mem 0x00000000-0x00000fff]
+[   85.306221] pci 0000:00:04.0: reg 0x20: [mem 0x00000000-0x00003fff 64bit pref]
+[   85.307944] pci 0000:00:04.0: BAR 4: assigned [mem 0x100000000-0x100003fff 64bit pref]
+[   85.308898] pci 0000:00:04.0: BAR 1: assigned [mem 0x40000000-0x40000fff]
+[   85.309683] pci 0000:00:04.0: BAR 0: assigned [io  0x1000-0x107f]
+[   85.310494] virtio-pci 0000:00:04.0: enabling device (0000 -> 0003)
+[   85.334818] ACPI: \_SB_.LNKD: Enabled at IRQ 10
+[   85.340987] virtio_blk virtio0: [vda] 131072 512-byte logical blocks (67.1 MB/64.0 MiB)
+```
+
+Run same tests again
+
+```bash
+[fedora@fed21 ~]$ ls -l /sys/class/block | grep virtio
+lrwxrwxrwx. 1 root root 0 Aug 10 09:15 vda -> ../../devices/pci0000:00/0000:00:04.0/virtio0/block/vda
+
+[fedora@fed21 ~]$ lsblk /dev/vda
+NAME MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+vda  251:0    0  64M  0 disk
+
+[fedora@fed21 ~]$ sudo dd of=/dev/null if=/dev/vda bs=4096 count=4
+4+0 records in
+4+0 records out
+16384 bytes (16 kB, 16 KiB) copied, 0.00100402 s, 16.3 MB/s
+
+[fedora@fed21 ~]$ sudo dd if=/dev/urandom of=/dev/vda bs=4096 count=4
+4+0 records in
+4+0 records out
+16384 bytes (16 kB, 16 KiB) copied, 0.0034683 s, 4.7 MB/s
+```
