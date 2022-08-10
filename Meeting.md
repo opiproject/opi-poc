@@ -306,3 +306,12 @@ Attendees: Steven Royer, Kyle Mestery, Boris Glimcher, Timothy Worsley, Dan Daly
 * Boris presented the current state of the developer platform
 * Dan to work with IPDK group for how to merge storage test
   * Need IPDK/SPDK to publish SPDK container image
+
+## 7/27/2022
+
+* Boris presented the current state of the developer platform
+
+## 8/10/2022
+
+* Decided to end the regularly scheduled meetings for this group.  We will use
+  github and slack (#poc-dev-platform) for further discussions.
