@@ -41,6 +41,8 @@ sudo apt install wget
 
 ### qemu
 
+From <https://www.qemu.org/download/>
+
 ```bash
 sudo dnf install qemu-kvm
 ```
@@ -75,14 +77,6 @@ echo 4096 | sudo tee /proc/sys/vm/nr_hugepages
 ./spdk/build/bin/spdk_tgt  -S /var/tmp -s 1024 -m 0x3
 ```
 
-## Configure SPDK virtio-blk
-
-```bash
-./spdk/scripts/rpc.py spdk_get_version
-./spdk/scripts/rpc.py bdev_malloc_create 64 512 -b Malloc1
-./spdk/scripts/rpc.py vhost_create_blk_controller --cpumask 0x2 vhost.1 Malloc1
-```
-
 ## Download guest image
 
 ```bash
@@ -107,7 +101,17 @@ EOF
 genisoimage -output init.iso -volid cidata -joliet -rock user-data meta-data
 ```
 
-## Run qemu
+## virtio-blk
+
+### Configure SPDK virtio-blk
+
+```bash
+./spdk/scripts/rpc.py spdk_get_version
+./spdk/scripts/rpc.py bdev_malloc_create 64 512 -b Malloc1
+./spdk/scripts/rpc.py vhost_create_blk_controller --cpumask 0x2 vhost.1 Malloc1
+```
+
+### Run qemu with predefined virtio-blk device
 
 ```bash
 taskset -c 2,3 /usr/libexec/qemu-kvm \
@@ -145,7 +149,7 @@ vda  252:0    0  64M  0 disk
 16384 bytes (16 kB, 16 KiB) copied, 0.00232535 s, 7.0 MB/s
 ```
 
-## Run qemu with HOT PLUG
+### Run qemu with HOT PLUG virtio-blk
 
 Start without virtio-blk now but adding QMP management
 
@@ -209,7 +213,6 @@ Escape character is '^]'.
 {"execute": "chardev-add", "id": 3, "arguments": {"id": "spdk_vhost_blk0", "backend": {"type": "socket", "data":{ "addr": {"type": "unix", "data": {"path": "/var/tmp/vhost.1"} } , "server": false } } }}
 {"return": {}, "id": 3}
 
-
 {"execute": "device_add", "id": 4, "arguments": { "driver": "vhost-user-blk-pci", "chardev": "spdk_vhost_blk0"  } }
 {"return": {}, "id": 4}
 ```
@@ -249,3 +252,79 @@ vda  251:0    0  64M  0 disk
 4+0 records out
 16384 bytes (16 kB, 16 KiB) copied, 0.0034683 s, 4.7 MB/s
 ```
+
+## virtio-scsi
+
+### Configure SPDK virtio-scsi
+
+```bash
+./spdk/scripts/rpc.py spdk_get_version
+./spdk/scripts/rpc.py bdev_malloc_create 64 512 -b Malloc2
+./spdk/scripts/rpc.py bdev_malloc_create 64 512 -b Malloc3
+./spdk/scripts/rpc.py vhost_create_scsi_controller --cpumask 0x1 vhost.0
+./spdk/scripts/rpc.py vhost_scsi_controller_add_target vhost.0 0 Malloc2
+./spdk/scripts/rpc.py vhost_scsi_controller_add_target vhost.0 1 Malloc3
+```
+
+### Run qemu with predefined virtio-scsi device
+
+```bash
+taskset -c 2,3 /usr/libexec/qemu-kvm \
+  -cpu host -smp 2 \
+  -cdrom init.iso \
+  -m 1G -object memory-backend-file,id=mem0,size=1G,mem-path=/dev/hugepages,share=on -numa node,memdev=mem0 \
+  -drive file=guest_os_image.qcow2,if=none,id=disk \
+  -device ide-hd,drive=disk,bootindex=0 \
+  -chardev socket,id=spdk_vhost_scsi0,path=/var/tmp/vhost.0 \
+  -device vhost-user-scsi-pci,id=scsi0,chardev=spdk_vhost_scsi0,num_queues=2 \
+  --nographic
+```
+
+Login using fedora/fedora and run few tests
+
+```bash
+[fedora@fed21 ~]$ dmesg | grep -i scsi
+[    0.314135] SCSI subsystem initialized
+[    0.672208] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 244)
+[    0.709481] scsi host0: ata_piix
+[    0.710172] scsi host1: ata_piix
+[    0.874637] scsi 1:0:0:0: CD-ROM            QEMU     QEMU DVD-ROM     2.5+ PQ: 0 ANSI: 5
+[    0.876720] sr 1:0:0:0: [sr0] scsi3-mmc drive: 4x/4x cd/rw xa/form2 tray
+[    0.894639] sr 1:0:0:0: Attached scsi CD-ROM sr0
+[    0.894861] sr 1:0:0:0: Attached scsi generic sg0 type 5
+[    0.899092] scsi 1:0:1:0: Direct-Access     ATA      QEMU HARDDISK    2.5+ PQ: 0 ANSI: 5
+[    0.903908] sd 1:0:1:0: Attached scsi generic sg1 type 0
+[    0.915100] sd 1:0:1:0: [sda] Attached SCSI disk
+[    1.473297] scsi host2: Virtio SCSI HBA
+[    1.482949] scsi 2:0:0:0: Direct-Access     INTEL    Malloc disk      0001 PQ: 0 ANSI: 5
+[    1.484331] scsi 2:0:1:0: Direct-Access     INTEL    Malloc disk      0001 PQ: 0 ANSI: 5
+[    1.497173] sd 2:0:0:0: Attached scsi generic sg2 type 0
+[    1.499692] sd 2:0:1:0: Attached scsi generic sg3 type 0
+[    1.511162] sd 2:0:0:0: [sdb] Attached SCSI disk
+[    1.517151] sd 2:0:1:0: [sdc] Attached SCSI disk
+
+[fedora@fed21 ~]$ ls -l /sys/class/block | grep virtio
+lrwxrwxrwx. 1 root root 0 Aug 10 15:26 sdb -> ../../devices/pci0000:00/0000:00:04.0/virtio0/host2/target2:0:0/2:0:0:0/block/sdb
+lrwxrwxrwx. 1 root root 0 Aug 10 15:26 sdc -> ../../devices/pci0000:00/0000:00:04.0/virtio0/host2/target2:0:1/2:0:1:0/block/sdc
+
+lsblk --output "NAME,KNAME,MODEL,HCTL,SIZE,VENDOR,SUBSYSTEMS" /dev/sdb /dev/sdc
+
+[fedora@fed21 ~]$ lsblk --output "NAME,KNAME,MODEL,HCTL,SIZE,VENDOR,SUBSYSTEMS" /dev/sdb /dev/sdc
+NAME KNAME MODEL       HCTL       SIZE VENDOR   SUBSYSTEMS
+sdb  sdb   Malloc disk 2:0:0:0     64M INTEL    block:scsi:virtio:pci
+sdc  sdc   Malloc disk 2:0:1:0     64M INTEL    block:scsi:virtio:pci
+
+[fedora@fed21 ~]$ sudo dd of=/dev/null if=/dev/sdc bs=4096 count=4
+4+0 records in
+4+0 records out
+16384 bytes (16 kB, 16 KiB) copied, 0.000636195 s, 25.8 MB/s
+
+[fedora@fed21 ~]$ sudo dd if=/dev/urandom of=/dev/sdc bs=4096 count=4
+4+0 records in
+4+0 records out
+16384 bytes (16 kB, 16 KiB) copied, 0.0131856 s, 1.2 MB/s
+```
+
+### Run qemu with HOT PLUG virtio-scsi
+
+tbd
