@@ -13,6 +13,10 @@ This is a simple spdk based storage PoC
 
 ![OPI Storage PoC Components](OPI-Storage-Layers-Detailed.png)
 
+## QEMU example
+
+[OPI Storage QEMU SPDK Setup](qemu_spdk_setup.md)
+
 ## Huge pages
 
 SPDK requires huge pages, this is how you can configure this manually.
