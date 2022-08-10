@@ -33,9 +33,11 @@ services:
     volumes:
       - ./conf/client:/etc/swanctl
       - ./conf/strongswan-client.conf:/etc/strongswan.conf
+      - /var/run
     networks:
       internet:
         ipv4_address: 192.168.0.3
+    command: './charon'
 
   redis:
     image: redis:bullseye
@@ -52,7 +54,7 @@ services:
     depends_on:
       - redis
     volumes_from:
-      - vpn-server:rw
+      - vpn-client:rw
     networks:
       - internet
       - intranet

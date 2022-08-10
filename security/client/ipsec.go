@@ -18,6 +18,7 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 
 	// Create IPsec Connection
 	local_ipsec := pb.IPsecCreateRequest{
+		Name: "opi-test",
 		Tunnel: &pb.TunnelInterfaces{
 			Tunnels: []*pb.TunnelInterfaces_Tunnel{
 				{
@@ -27,6 +28,7 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 					LocalSpi: rand.Uint32(),
 					CryptoAlg: pb.CryptoAlgorithm_AES256GCM128,
 					IntegAlg: pb.IntegAlgorithm_SHA256_96,
+					Dhgroups: pb.DiffieHellmanGroups_CURVE25519,
 					Mode: pb.IPsecMode_TUNNEL_MODE,
 				},
 			},
@@ -39,6 +41,7 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 					Protocol: pb.SecurityAssociations_Sa_ESP,
 					CryptoAlg: pb.CryptoAlgorithm_AES256GMAC,
 					IntegAlg: pb.IntegAlgorithm_SHA512,
+					Dhgroups: pb.DiffieHellmanGroups_CURVE25519,
 				},
 			},
 		},
