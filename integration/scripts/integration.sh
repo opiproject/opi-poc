@@ -76,11 +76,11 @@ run_integration_tests() {
     sshpass -p 123456 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2208  bmc@127.0.0.1 hostname
     sshpass -p 123456 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2207  xpu@127.0.0.1 hostname
     sshpass -p 123456 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2209  bmc@127.0.0.1 hostname
-    bash -c "${DC} exec -T pxe cat /var/lib/dhcpd/dhcpd.leases"
+    bash -c "${DC} exec -T dhcp cat /var/lib/dhcpd/dhcpd.leases"
     bash -c "${DC} run nmap"
     bash -c "${DC} run nmap" | grep "Server Identifier: 10.127.127.3"
-    bash -c "${DC} exec -T pxe curl --fail http://10.127.127.16:8082/var/lib/tftpboot/"
-    bash -c "${DC} exec -T pxe bash -c 'tftp 10.127.127.3 -v -c get grubx64.efi && diff ./grubx64.efi /var/lib/tftpboot/grubx64.efi'"
+    bash -c "${DC} exec -T tftp curl --fail http://10.127.127.16:8082/var/lib/tftpboot/"
+    bash -c "${DC} exec -T tftp bash -c 'tftp 10.127.127.3 -v -c get grubx64.efi && diff ./grubx64.efi /var/lib/tftpboot/grubx64.efi'"
     bash -c "${DC} exec -T sztp ./run-sztpd-test.sh"
     bash -c "${DC} exec -T spdk-target /usr/local/bin/identify -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'"
     bash -c "${DC} exec -T xpu-spdk /usr/local/bin/identify    -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'"

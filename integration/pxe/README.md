@@ -21,16 +21,10 @@ This a container with DHCP, TFTP and HTTP servers
 docker-compose -f docker-compose.pxe.yml up --build
 ```
 
-## Attach to any container on the same network
-
-```text
-docker-compose -f docker-compose.pxe.yml exec pxe bash
-```
-
 ## Run DHCP discover and get PXE server IP
 
 ```text
-[root@805bc8fcb44f /]# nmap --script broadcast-dhcp-discover
+docker run --rm -it --network integration_xpu-cpu instrumentisto/nmap:7.92 --script broadcast-dhcp-discover
 Starting Nmap 7.80 ( https://nmap.org ) at 2022-07-06 17:55 UTC
 Pre-scan script results:
 | broadcast-dhcp-discover:
@@ -47,7 +41,8 @@ Nmap done: 0 IP addresses (0 hosts up) scanned in 1.20 seconds
 ## Test HTTP web server
 
 ```text
-[root@805bc8fcb44f /]# curl --fail http://10.127.127.103:8082/var/lib/tftpboot/
+docker-compose run web curl --fail http://10.127.127.103:8082/var/lib/tftpboot/
+docker run --rm -it --network integration_xpu-cpu alpine/curl:3.14 --fail http://10.127.127.103:8082/var/lib/tftpboot/
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
@@ -68,7 +63,7 @@ Nmap done: 0 IP addresses (0 hosts up) scanned in 1.20 seconds
 ## Test TFTP web server
 
 ```text
-[root@805bc8fcb44f /]# tftp 10.127.127.103 -v -c get grubx64.efi
+docker-compose run tftp tftp 10.127.127.103 -v -c get grubx64.efi
 Connected to 10.127.127.103 (10.127.127.103), port 69
 getting from 10.127.127.103:grubx64.efi to grubx64.efi [netascii]
 Received 1028622 bytes in 0.1 seconds [154505490 bit/s]

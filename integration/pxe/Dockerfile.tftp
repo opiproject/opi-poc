@@ -1,0 +1,5 @@
+FROM fedora:36
+RUN dnf install -y tftp-server tftp && dnf clean all
+COPY /grubx64.efi /var/lib/tftpboot/grubx64.efi
+HEALTHCHECK CMD tftp localhost -v -c get grubx64.efi || exit 1
+CMD ["/usr/sbin/in.tftpd", "--listen", "--foregroun", "--ipv4", "--secure", "/var/lib/tftpboot"]
