@@ -30,6 +30,12 @@ services:
             /usr/sbin/in.tftpd --listen -4 -s /var/lib/tftpboot  && \
             dhcpd -d & \
             wait'
+
+  nmap:
+    image: instrumentisto/nmap:7.92
+    network_mode: service:pxe
+    command: --script broadcast-dhcp-discover
+
   web:
     image: python:3.9
     ports:
