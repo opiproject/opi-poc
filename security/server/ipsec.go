@@ -54,7 +54,6 @@ func (s *server) IPsecCreate(ctx context.Context, in *pb.IPsecCreateRequest) (*p
 		panic(err)
 	}
 
-	//err = load_connection("load", in)
 	err = loadConn(in)
 	if err != nil {
 		log.Printf("IPsecCreate: Failed with error %v", err)
@@ -92,6 +91,12 @@ func (s *server) IPsecDelete(ctx context.Context, in *pb.IPsecDeleteRequest) (*p
 	}
 
 	log.Printf("Dumping unmarshaled protobuf\n%v\n", ipsec_req)
+
+	err = unloadConn(ipsec_req)
+	if err != nil {
+		log.Printf("IPsecDelete: Failed with error %v", err)
+		return nil, err
+	}
 
 	// Delete from Redis
 	rdb.Del(ctx, reqId)

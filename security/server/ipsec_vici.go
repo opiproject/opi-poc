@@ -34,6 +34,11 @@ type connection struct {
 	Sendcertreq  string                 `vici:"send_certreq"`
 }
 
+type unload_connection struct {
+	//Cname string // This field will NOT be marshaled!
+	Name string `vici:"name"`
+}
+
 func loadConn(connreq *pb.IPsecCreateRequest) error {
 	var ike_prop strings.Builder
 	var esp_prop strings.Builder
@@ -114,6 +119,8 @@ func loadConn(connreq *pb.IPsecCreateRequest) error {
 		return err
 	}
 
+	log.Printf("Marshaled connection request: %v", c)
+
 	m := vici.NewMessage()
 	if err := m.Set(conn.Name, c); err != nil {
 		log.Printf("Failed setting command")
@@ -121,6 +128,36 @@ func loadConn(connreq *pb.IPsecCreateRequest) error {
 	}
 
 	_, err = s.CommandRequest("load-conn", m)
+
+	log.Printf("command error return [%v]", err)
+
+	return err
+}
+
+func unloadConn(connreq *pb.IPsecCreateRequest) error {
+	// Build the connection object
+	conn := &unload_connection {
+		Name: connreq.GetName(),
+	}
+
+	log.Printf("Dumping connection to unload: %v", conn)
+
+	s, err := vici.NewSession()
+	if err != nil {
+		log.Printf("Failed creating vici session")
+		return err
+	}
+	defer s.Close()
+
+	c, err := vici.MarshalMessage(conn)
+	if err != nil {
+		log.Printf("Failed marshalling message")
+		return err
+	}
+
+	log.Printf("Marshaled vici message: %v", c)
+
+	_, err = s.CommandRequest("unload-conn", c)
 
 	log.Printf("command error return [%v]", err)
 
