@@ -38,6 +38,81 @@ WARNING: No targets were specified, so 0 hosts scanned.
 Nmap done: 0 IP addresses (0 hosts up) scanned in 1.20 seconds
 ```
 
+## DHCP discover with custom options
+
+### DHCP Server config
+
+Add new custom option:
+
+- see ipv4 <https://www.iana.org/assignments/bootp-dhcp-parameters/bootp-dhcp-parameters.xml>
+- see ipv6 <https://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xhtml>
+
+```bash
+[root@ae82d8778616 /]# grep sztp /etc/dhcp/dhcpd.conf
+option sztp-redirect-urls code 143  = text;
+    option sztp-redirect-urls "http://192.0.2.1/demo.sh";
+```
+
+### DHCP Client config
+
+```bash
+[root@ae82d8778616 /]# cat <<- EOF > /etc/dhcp/dhclient.conf
+option sztp-redirect-urls code 143  = text;
+request subnet-mask,
+          broadcast-address,
+          routers,
+          domain-name,
+          domain-name-servers,
+          bootfile-name,
+          tftp-server-name,
+          sztp-redirect-urls,
+          host-name;
+EOF
+```
+
+### DHCP Client run
+
+```bash
+[root@ae82d8778616 /]# dhclient -d -v
+Internet Systems Consortium DHCP Client 4.4.3
+Copyright 2004-2022 Internet Systems Consortium.
+All rights reserved.
+For info, please visit https://www.isc.org/software/dhcp/
+
+RTNETLINK answers: Operation not permitted
+Listening on LPF/eth0/02:42:0a:7f:7f:03
+Sending on   LPF/eth0/02:42:0a:7f:7f:03
+Sending on   Socket/fallback
+DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 8 (xid=0x68047a4a)
+DHCPOFFER of 10.127.127.100 from 10.127.127.3
+DHCPREQUEST for 10.127.127.100 on eth0 to 255.255.255.255 port 67 (xid=0x68047a4a)
+DHCPACK of 10.127.127.100 from 10.127.127.3 (xid=0x68047a4a)
+RTNETLINK answers: Operation not permitted
+bound to 10.127.127.100 -- renewal in 298 seconds.
+^C
+```
+
+### DHCP Client results
+
+```bash
+[root@ae82d8778616 /]# cat /var/lib/dhclient/dhclient.leases
+lease {
+  interface "eth0";
+  fixed-address 10.127.127.100;
+  filename "grubx64.efi";
+  option subnet-mask 255.255.255.0;
+  option sztp-redirect-urls "http://192.0.2.1/demo.sh";
+  option dhcp-lease-time 600;
+  option tftp-server-name "w.x.y.z";
+  option bootfile-name "test.cfg";
+  option dhcp-message-type 5;
+  option dhcp-server-identifier 10.127.127.3;
+  renew 1 2022/08/15 17:46:29;
+  rebind 1 2022/08/15 17:50:14;
+  expire 1 2022/08/15 17:51:29;
+}
+```
+
 ## Test HTTP web server
 
 ```text
