@@ -5,7 +5,16 @@ This directory contains the security PoC for OPI. This implements the
 and translates it to [vici](https://docs.strongswan.org/docs/5.9/plugins/vici.html) using
 the [govici](https://github.com/strongswan/govici) library.
 
-## Diagram
+## Architecture Diagram
+
+The following is the example architecture we envision for the OPI Security
+APIs. It utilizes strongSwan to handle IPsec IKE sessions and ESP keys,
+and assumes a vendor plugin in strongSwan for offloading ESP tunnels into
+HW acceleration.
+
+![OPI Security Architcture](sec-architecture.drawio.png)
+
+## PoC Diagram
 
 ![OPI Security PoC Components](opi-security-poc.drawio.png)
 
