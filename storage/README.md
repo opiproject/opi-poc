@@ -13,6 +13,19 @@ This is a simple spdk based storage PoC
 
 ![OPI Storage PoC Components](OPI-Storage-Layers-Detailed.png)
 
+## OPI-SPDK Bridge Diagram
+
+The following is the example architecture we envision for the OPI Storage
+SPDK bridge APIs. It utilizes SPDK to handle storage services,
+and the configuration is handled by standard JSON-RPC based APIs
+see <https://spdk.io/doc/jsonrpc.html>
+
+We recongnise, not all companies use SPDK, so for them only PROTOBUF definitions
+are going to be the OPI conumable product. For those that wish to use SPDK, this
+is a refernce implementation not intended to use in production.
+
+![OPI Storage SPDK bridge/server](OPI-storage-SPDK-bridge.png)
+
 ## QEMU example
 
 [OPI Storage QEMU SPDK Setup](qemu_spdk_setup.md)
