@@ -125,7 +125,6 @@ The architecture of the PoC includes the following components:
 * strongSwan client container
 * OPI Security API server container
 * OPI Security API client container
-* Redis node
 
 ![OPI Security PoC Components](opi-security-poc.drawio.png)
 

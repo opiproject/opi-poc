@@ -34,11 +34,6 @@ func main() {
 
 	reflection.Register(s)
 
-	// Backend configuration
-	if err := init_backend(); err != nil {
-		log.Fatalf("Failed initializing backend")
-	}
-
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

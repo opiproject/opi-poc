@@ -39,20 +39,11 @@ services:
         ipv4_address: 192.168.0.3
     command: './charon'
 
-  redis:
-    image: redis:bullseye
-    depends_on:
-      - vpn-server
-      - vpn-client
-    networks:
-      - internet
-      - intranet
-
   opi-security-server:
     build:
       context: server
     depends_on:
-      - redis
+      - vpn-client
     volumes_from:
       - vpn-client:rw
     networks:
