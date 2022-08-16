@@ -66,6 +66,7 @@ services:
       SZTPD_INIT_PORT: 1080
       SZTPD_INIT_MODE: 1
       SZTPD_ACCEPT_CONTRACT: "Yes"
+      SZTPD_INIT_ADDR: 0.0.0.0
     networks:
       xpu-cpu:
         ipv4_address: 10.127.127.11
