@@ -12,6 +12,27 @@ import (
 	pb "github.com/opiproject/opi-api/security/proto"
 )
 
+type localOpts struct {
+	Auth    string   `vici:"auth"`
+	Certs   []string `vici:"certs"`
+	Id      string   `vici:"id"`
+	EapId   string   `vici:"eap_id"`
+	AaaId   string   `vici:"aaa_id"`
+	XauthId string   `vici:"xauth_id"`
+	PubKeys []string `vici:"pubkeys"`
+}
+
+type remoteOpts struct {
+	Auth       string   `vici:"auth"`
+	Id         string   `vici:"id"`
+	EapId      string   `vici:"eap_id"`
+	Groups     []string `vici:"groups"`
+	CertPolicy []string `vici:"cert_policy"`
+	Certs      []string `vici:"certs"`
+	CaCerts    []string `vici:"certs"`
+	PubKeys []string `vici:"pubkeys"`
+}
+
 type childSA struct {
 	RemoteTrafficSelectors []string  `vici:"remote_ts"`
 	LocalTrafficSelectors  []string   `vici:"local_ts"`
@@ -25,12 +46,13 @@ type connection struct {
 
 	LocalAddrs   []string               `vici:"local_addrs"`
 	RemoteAddrs  []string               `vici:"remote_addrs"`
-	Local        map[string]interface{} `vici:"local"`
-	Remote       map[string]interface{} `vici:"remote"`
+	Local        localOpts              `vici:"local"`
+	Remote       remoteOpts             `vici:"remote"`
 	Children     map[string]childSA     `vici:"children"`
 	Version      int                    `vici:"version"`
 	Proposals    []string               `vici:"proposals"`
 	Sendcertreq  string                 `vici:"send_certreq"`
+	Vips         []string               `vici:"vips"`
 }
 
 type unload_connection struct {
@@ -38,7 +60,6 @@ type unload_connection struct {
 	Name string `vici:"name"`
 }
 
-/*
 type init_connection struct {
 	Child      string `vici:"child"`
 	Ike        string `vici:"ike"`
@@ -56,7 +77,6 @@ type terminate_connection struct {
 	Timeout    int    `vici:"timeout"`
 	LogLevel   string `vici:"loglevel"`
 }
-*/
 
 func loadConn(connreq *pb.IPsecLoadConnReq) error {
 	// Declare the connection variable, as we have to conditionally load it
@@ -73,18 +93,25 @@ func loadConn(connreq *pb.IPsecLoadConnReq) error {
 		conn.Version = 2
 	}
 	if c.GetLocalAuth() != nil {
-		conn.Local = map[string]interface{} {
-			"auth": strings.ToLower(c.GetLocalAuth().String()),
-			"id": c.GetLocalAuth().GetId(),
+		conn.Local = localOpts {
+			Auth: strings.ToLower(c.GetLocalAuth().GetAuth().String()),
+			Id: c.GetLocalAuth().GetId(),
 		}
+
+		log.Printf("DUMPING conn.Local: %v", conn.Local)
 	}
 	if c.GetRemoteAuth() != nil {
-		conn.Remote = map[string]interface{} {
-			"auth": strings.ToLower(c.GetRemoteAuth().String()),
-			"id": c.GetRemoteAuth().GetId(),
+		conn.Remote = remoteOpts {
+			Auth: strings.ToLower(c.GetRemoteAuth().GetAuth().String()),
+			Id: c.GetRemoteAuth().GetId(),
 		}
+
+		log.Printf("DUMPING conn.Remove: %v", conn.Remote)
 	}
 
+	for i := 0; i < len(c.Vips.Vip); i++ {
+		conn.Vips = append(conn.Vips, c.Vips.Vip[i])
+	}
 	for i := 0; i < len(c.LocalAddrs); i++ {
 		conn.LocalAddrs = append(conn.LocalAddrs, c.LocalAddrs[i].GetAddr())
 	}
@@ -157,14 +184,15 @@ func loadConn(connreq *pb.IPsecLoadConnReq) error {
 
 		if c.Children[i].LocalTs != nil {
 			for k := 0; k < len(c.Children[i].LocalTs.Ts); k++ {
-				local_ts = append(local_ts, c.Children[i].LocalTs.Ts[k].String())
+				local_ts = append(local_ts, c.Children[i].LocalTs.Ts[k].GetCidr())
 			}
 		}
 		if c.Children[i].RemoteTs != nil {
 			for k := 0; k < len(c.Children[i].RemoteTs.Ts); k++ {
-				remote_ts = append(remote_ts, c.Children[i].RemoteTs.Ts[k].String())
+				remote_ts = append(remote_ts, c.Children[i].RemoteTs.Ts[k].GetCidr())
 			}
 		}
+		log.Printf("Dumping local_ts [%v] remote_ts [%v]", local_ts, remote_ts)
 		csa := childSA {
 				LocalTrafficSelectors: local_ts,
 				RemoteTrafficSelectors: remote_ts,
@@ -239,4 +267,95 @@ func unloadConn(connreq *pb.IPsecUnloadConnReq) error {
 	log.Printf("command error return [%v]", err)
 
 	return err
+}
+
+func initiateConn(initreq *pb.IPsecInitiateReq) error {
+	init_conn := &init_connection {}
+
+	if initreq.GetChild() != "" {
+		init_conn.Child = initreq.GetChild()
+	}
+	if initreq.GetIke() != "" {
+		init_conn.Ike = initreq.GetIke()
+	}
+	if initreq.GetTimeout() != "" {
+		timeout, _ := strconv.Atoi(initreq.GetTimeout())
+		init_conn.Timeout = timeout
+	}
+	if initreq.GetLoglevel() != "" {
+		init_conn.LogLevel = initreq.GetLoglevel()
+	}
+
+	log.Printf("Dumping connection to initiate: %v", init_conn)
+
+	s, err := vici.NewSession()
+	if err != nil {
+		log.Printf("Failed creating vici session")
+		return err
+	}
+	defer s.Close()
+
+	c, err := vici.MarshalMessage(init_conn)
+	if err != nil {
+		log.Printf("Failed marshalling message")
+		return err
+	}
+
+	log.Printf("Marshaled vici message: %v", c)
+
+	_, err = s.CommandRequest("initiate", c)
+
+	log.Printf("command error return [%v]", err)
+
+	return err
+}
+
+func terminateConn(termreq *pb.IPsecTerminateReq) (uint32, error) {
+	term_conn := &terminate_connection {}
+
+	if termreq.GetChild() != "" {
+		term_conn.Child = termreq.GetChild()
+	}
+	if termreq.GetIke() != "" {
+		term_conn.Ike = termreq.GetIke()
+	}
+	if termreq.GetChildId() != "" {
+		term_conn.ChildId = termreq.GetChildId()
+	}
+	if termreq.GetIkeId() != "" {
+		term_conn.IkeId = termreq.GetIkeId()
+	}
+	if termreq.GetTimeout() != "" {
+		timeout, _ := strconv.Atoi(termreq.GetTimeout())
+		term_conn.Timeout = timeout
+	}
+	if termreq.GetForce() != "" {
+		term_conn.Force = termreq.GetForce()
+	}
+	if termreq.GetLoglevel() != "" {
+		term_conn.LogLevel = termreq.GetLoglevel()
+	}
+
+	log.Printf("Dumping connection to terminate: %v", term_conn)
+
+	s, err := vici.NewSession()
+	if err != nil {
+		log.Printf("Failed creating vici session")
+		return 0, err
+	}
+	defer s.Close()
+
+	c, err := vici.MarshalMessage(term_conn)
+	if err != nil {
+		log.Printf("Failed marshalling message")
+		return 0, err
+	}
+
+	log.Printf("Marshaled vici message: %v", c)
+
+	_, err = s.CommandRequest("terminate", c)
+
+	log.Printf("command error return [%v]", err)
+
+	return 1, err
 }

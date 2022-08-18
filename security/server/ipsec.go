@@ -19,11 +19,35 @@ func (s *server) IPsecStats(ctx context.Context, in *pb.IPsecStatsReq) (*pb.IPse
 }
 
 func (s *server) IPsecInitiate(ctx context.Context, in *pb.IPsecInitiateReq) (*pb.IPsecInitiateResp, error) {
-	return nil, nil
+	log.Printf("IPsecInitiate: Received: %v", in)
+
+	err := initiateConn(in)
+	if err != nil {
+		log.Printf("IPsecInitiate: Failed %v", err)
+		return nil, err
+	}
+
+	ip_ret := pb.IPsecInitiateResp{
+	}
+
+	return &ip_ret, nil
 }
 
 func (s *server) IPsecTerminate(ctx context.Context, in *pb.IPsecTerminateReq) (*pb.IPsecTerminateResp, error) {
-	return nil, nil
+	log.Printf("IPsecTerminate: Received: %v", in)
+
+	matches, err := terminateConn(in)
+	if err != nil {
+		log.Printf("IPsecTerminate: Failed %v", err)
+		return nil, err
+	}
+
+	ip_ret := pb.IPsecTerminateResp {
+		Success: "Yes",
+		Matches: matches,
+	}
+
+	return &ip_ret, nil
 }
 
 func (s *server) IPsecRekey(ctx context.Context, in *pb.IPsecRekeyReq) (*pb.IPsecRekeyResp, error) {
