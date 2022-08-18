@@ -87,6 +87,17 @@ jobs:
         grpc_cli=(docker run --network=security_internet --rm namely/grpc-cli)
         "${grpc_cli[@]}" ls opi-security-server:50151
         "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecVersion -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecStats -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecInitiate -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecTerminate -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecRekey -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecListSas -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecListConns -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecListCerts -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecLoadConn -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecUnloadConn -l
+
       working-directory: security
 
     - name: Logs
