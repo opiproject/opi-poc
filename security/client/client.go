@@ -29,7 +29,7 @@ func main() {
 	defer conn.Close()
 
 	// Contact the server and print out its response.
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	do_ipsec(conn, ctx)

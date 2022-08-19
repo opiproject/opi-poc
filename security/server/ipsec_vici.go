@@ -38,7 +38,17 @@ type childSA struct {
 	LocalTrafficSelectors  []string   `vici:"local_ts"`
 	Updown                 string     `vici:"updown"`
 	ESPProposals           []string   `vici:"esp_proposals"`
+	AgProposals            []string   `vici:"ag_proposals"`
 	RekeyTime              string     `vici:"rekey_time"`
+	LifeTime               string     `vici:"life_time"`
+	RandTime               string     `vici:"rand_time"`
+	Inactivity             uint32     `vici:"inactivity"`
+	MarkIn                 uint32     `vici:"mark_in"`
+	MarkInSa               string     `vici:"mark_in_sa"`
+	MarkOut                uint32     `vici:"mark_out"`
+	SetMarkIn              uint32     `vici:"set_mark_in"`
+	SetMarkOut             uint32     `vici:"set_mark_out"`
+	HwOffload              string     `vici:"hw_offload"`
 }
 
 type connection struct {
@@ -51,8 +61,17 @@ type connection struct {
 	Children     map[string]childSA     `vici:"children"`
 	Version      int                    `vici:"version"`
 	Proposals    []string               `vici:"proposals"`
-	Sendcertreq  string                 `vici:"send_certreq"`
 	Vips         []string               `vici:"vips"`
+	LocalPort    uint32                 `vici:"local_port"`
+	RemotePort   uint32                 `vici:"remote_port"`
+	Dscp         uint64                 `vici:"dscp"`
+	Encap        string                 `vici:"encap"`
+	Mobike       string                 `vici:"mobike"`
+	DpdDelay     uint32                 `vici:"dpd_delay"`
+	DpdTimeout   uint32                 `vici:"dpd_timeout"`
+	ReauthTime   uint32                 `vici:"reauth_time"`
+	RekeyTime    string                 `vici:"rekey_time"`
+	Pools        []string               `vici:"pools"`
 }
 
 type unload_connection struct {
@@ -78,9 +97,78 @@ type terminate_connection struct {
 	LogLevel   string `vici:"loglevel"`
 }
 
+func buildProposal(prop *pb.Proposals) (string, error) {
+	var crypto strings.Builder
+	var integ strings.Builder
+	var prf strings.Builder
+	var dh strings.Builder
+	var compiled_proposal strings.Builder
+	var tstr string
+
+	for k := 0; k < len(prop.CryptoAlg); k++ {
+		crypto.WriteString(strings.ToLower(prop.CryptoAlg[k].String()))
+		if (k+1) < len(prop.CryptoAlg) {
+			tstr = "-"
+			crypto.WriteString(tstr)
+		}
+	}
+	for k := 0; k < len(prop.IntegAlg); k++ {
+		integ.WriteString(strings.ToLower(prop.IntegAlg[k].String()))
+		if (k+1) < len(prop.IntegAlg) {
+			tstr = "-"
+			integ.WriteString(tstr)
+		}
+	}
+	for k := 0; k < len(prop.Prf); k++ {
+		prf.WriteString(strings.ToLower(prop.Prf[k].String()))
+		if (k+1) < len(prop.Prf) {
+			tstr = "-"
+			prf.WriteString(tstr)
+		}
+	}
+	for k := 0; k < len(prop.Dhgroups); k++ {
+		dh.WriteString(strings.ToLower(prop.Dhgroups[k].String()))
+		if (k+1) < len(prop.Dhgroups) {
+			tstr = "-"
+			dh.WriteString(tstr)
+		}
+	}
+
+	if crypto.String() != "" {
+		compiled_proposal.WriteString(crypto.String())
+		if integ.String() != "" || prf.String() != "" || dh.String() != "" {
+			tstr = "-"
+			compiled_proposal.WriteString(tstr)
+		}
+	}
+	if integ.String() != "" {
+		compiled_proposal.WriteString(integ.String())
+		if prf.String() != "" || dh.String() != "" {
+			tstr = "-"
+			compiled_proposal.WriteString(tstr)
+		}
+	}
+	if prf.String() != "" {
+		compiled_proposal.WriteString(prf.String())
+		if dh.String() != "" {
+			tstr = "-"
+			compiled_proposal.WriteString(tstr)
+		}
+	}
+	if dh.String() != "" {
+		compiled_proposal.WriteString(dh.String())
+	}
+
+	return compiled_proposal.String(), nil
+}
+
 func loadConn(connreq *pb.IPsecLoadConnReq) error {
 	// Declare the connection variable, as we have to conditionally load it
-	var conn = &connection {}
+	var conn = &connection {
+		LocalPort: 500,
+		RemotePort: 500,
+		RekeyTime: "4h",
+	}
 	c := connreq.GetConnection()
 
 	if c.GetName() != ""{
@@ -91,6 +179,36 @@ func loadConn(connreq *pb.IPsecLoadConnReq) error {
 		conn.Version = ver
 	} else {
 		conn.Version = 2
+	}
+	if c.GetLocalPort() != 0 {
+		conn.LocalPort = c.GetLocalPort()
+	}
+	if c.GetRemotePort() != 0 {
+		conn.RemotePort = c.GetRemotePort()
+	}
+	log.Printf("Local Port [%d] Remote Port [%d]", conn.LocalPort, conn.RemotePort)
+
+	if c.GetDscp() != 0 {
+		conn.Dscp = c.GetDscp()
+	}
+	if c.GetEncap() != "" {
+		conn.Encap = c.GetEncap()
+	}
+	if c.GetMobike() != "" {
+		conn.Mobike = c.GetMobike()
+	}
+	if c.GetDpdDelay() != 0 {
+		conn.DpdDelay = c.GetDpdDelay()
+	}
+	if c.GetDpdTimeout() != 0 {
+		conn.DpdTimeout = c.GetDpdTimeout()
+	}
+	if c.GetReauthTime() != 0 {
+		conn.ReauthTime = c.GetReauthTime()
+	}
+	if c.GetRekeyTime() != 0 {
+		var s = strconv.FormatUint(uint64(c.GetRekeyTime()), 10)
+		conn.RekeyTime = s + "s"
 	}
 	if c.GetLocalAuth() != nil {
 		conn.Local = localOpts {
@@ -118,69 +236,21 @@ func loadConn(connreq *pb.IPsecLoadConnReq) error {
 	for i := 0; i < len(c.RemoteAddrs); i++ {
 		conn.RemoteAddrs = append(conn.RemoteAddrs, c.RemoteAddrs[i].GetAddr())
 	}
+	if c.Pools != nil {
+		for i := 0; i < len(c.Pools.Pool); i++ {
+			conn.Pools = append(conn.Pools, c.Pools.Pool[i])
+		}
+	}
+
+	if c.Proposals != nil {
+		ike_proposal, _ := buildProposal(c.Proposals)
+		conn.Proposals = []string { ike_proposal }
+		log.Printf("IKE proposal: %v", conn.Proposals)
+	}
 
 	for i := 0; i < len(c.Children); i++ {
-		var esp_crypto strings.Builder
-		var esp_integ strings.Builder
-		var esp_prf strings.Builder
-		var esp_dh strings.Builder
 		var local_ts []string
 		var remote_ts []string
-		var tstr string
-
-		for k := 0; k < len(c.Children[i].EspProposals.CryptoAlg); k++ {
-			esp_crypto.WriteString(strings.ToLower(c.Children[i].EspProposals.CryptoAlg[k].String()))
-			if (k+1) < len(c.Children[i].EspProposals.CryptoAlg) {
-				tstr = "-"
-				esp_crypto.WriteString(tstr)
-			}
-		}
-		for k := 0; k < len(c.Children[i].EspProposals.IntegAlg); k++ {
-			esp_integ.WriteString(strings.ToLower(c.Children[i].EspProposals.IntegAlg[k].String()))
-			if (k+1) < len(c.Children[i].EspProposals.IntegAlg) {
-				tstr = "-"
-				esp_integ.WriteString(tstr)
-			}
-		}
-		for k := 0; k < len(c.Children[i].EspProposals.Prf); k++ {
-			esp_prf.WriteString(strings.ToLower(c.Children[i].EspProposals.Prf[k].String()))
-			if (k+1) < len(c.Children[i].EspProposals.Prf) {
-				tstr = "-"
-				esp_prf.WriteString(tstr)
-			}
-		}
-		for k := 0; k < len(c.Children[i].EspProposals.Dhgroups); k++ {
-			esp_dh.WriteString(strings.ToLower(c.Children[i].EspProposals.Dhgroups[k].String()))
-			if (k+1) < len(c.Children[i].EspProposals.Dhgroups) {
-				tstr = "-"
-				esp_dh.WriteString(tstr)
-			}
-		}
-		var compiled_proposal strings.Builder
-		if esp_crypto.String() != "" {
-			compiled_proposal.WriteString(esp_crypto.String())
-			if esp_integ.String() != "" || esp_prf.String() != "" || esp_dh.String() != "" {
-				tstr = "-"
-				compiled_proposal.WriteString(tstr)
-			}
-		}
-		if esp_integ.String() != "" {
-			compiled_proposal.WriteString(esp_integ.String())
-			if esp_prf.String() != "" || esp_dh.String() != "" {
-				tstr = "-"
-				compiled_proposal.WriteString(tstr)
-			}
-		}
-		if esp_prf.String() != "" {
-			compiled_proposal.WriteString(esp_prf.String())
-			if esp_dh.String() != "" {
-				tstr = "-"
-				compiled_proposal.WriteString(tstr)
-			}
-		}
-		if esp_dh.String() != "" {
-			compiled_proposal.WriteString(esp_dh.String())
-		}
 
 		if c.Children[i].LocalTs != nil {
 			for k := 0; k < len(c.Children[i].LocalTs.Ts); k++ {
@@ -193,20 +263,53 @@ func loadConn(connreq *pb.IPsecLoadConnReq) error {
 			}
 		}
 		log.Printf("Dumping local_ts [%v] remote_ts [%v]", local_ts, remote_ts)
+
 		csa := childSA {
 				LocalTrafficSelectors: local_ts,
 				RemoteTrafficSelectors: remote_ts,
-				ESPProposals: []string { compiled_proposal.String() },
-			}
+				RekeyTime: "1h",
+				LifeTime: "66m",
+				Inactivity: c.Children[i].GetInactivity(),
+				MarkIn: c.Children[i].GetMarkIn(),
+				MarkInSa: "no",
+				MarkOut: c.Children[i].GetMarkOut(),
+				SetMarkIn: c.Children[i].GetSetMarkIn(),
+				SetMarkOut: c.Children[i].GetSetMarkOut(),
+				HwOffload: "no",
+		}
+		if c.Children[i].EspProposals != nil {
+			proposal, _ := buildProposal(c.Children[i].EspProposals)
+			csa.ESPProposals = []string { proposal }
+		}
+		if c.Children[i].AgProposals != nil {
+			ag_proposal, _ := buildProposal(c.Children[i].AgProposals)
+			csa.AgProposals = []string { ag_proposal }
+		}
+
 		if c.Children[i].RekeyTime != 0 {
-			var s = strconv.FormatUint(uint64(c.Children[i].RekeyTime), 10)
+			var s = strconv.FormatUint(uint64(c.Children[i].GetRekeyTime()), 10)
 			csa.RekeyTime = s + "s"
+		}
+		if c.Children[i].LifeTime != 0 {
+			var s = strconv.FormatUint(uint64(c.Children[i].GetLifeTime()), 10)
+			csa.LifeTime = s + "s"
+		}
+		if c.Children[i].RandTime != 0 {
+			var s = strconv.FormatUint(uint64(c.Children[i].GetRandTime()), 10)
+			csa.RandTime = s + "s"
+		}
+		if c.Children[i].GetMarkInSa() != "" {
+			csa.MarkInSa = c.Children[i].GetMarkInSa()
+		}
+		if c.Children[i].GetHwOffload() != "" {
+			csa.HwOffload = c.Children[i].GetHwOffload()
 		}
 
 		conn.Children = make(map[string]childSA)
 		conn.Children[c.Children[i].GetName()] = csa
 
 		log.Printf("Dumping child object: %v", conn.Children[c.Children[i].GetName()])
+		log.Printf("Dumping Proposals: %v", csa.ESPProposals)
 	}
 
 	log.Printf("Dumping connection object: %v", conn)

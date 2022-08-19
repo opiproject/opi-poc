@@ -33,11 +33,6 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 			},
 			LocalAuth: &pb.LocalAuth { Auth: pb.AuthType_PSK, Id: "hacker@strongswan.org" },
 			RemoteAuth: &pb.RemoteAuth { Auth: pb.AuthType_PSK, Id: "server.strongswan.org" },
-			Proposals: &pb.Proposals {
-					CryptoAlg: []pb.CryptoAlgorithm { pb.CryptoAlgorithm_AES256GCM128 },
-					IntegAlg: []pb.IntegAlgorithm { pb.IntegAlgorithm_SHA256_96 },
-					Dhgroups: []pb.DiffieHellmanGroups { pb.DiffieHellmanGroups_CURVE25519 },
-			},
 			Children: []*pb.Child {
 				{
 					Name: "opi-child",
