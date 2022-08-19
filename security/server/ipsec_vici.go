@@ -162,6 +162,38 @@ func buildProposal(prop *pb.Proposals) (string, error) {
 	return compiled_proposal.String(), nil
 }
 
+func ipsecVersion() (*pb.IPsecVersionResp, error) {
+	s, err := vici.NewSession()
+	if err != nil {
+		log.Printf("Failed creating vici session")
+		return nil, err
+	}
+	defer s.Close()
+
+	m, err := s.CommandRequest("version", nil)
+	if err != nil {
+		log.Printf("Failed getting version")
+		return nil, err
+	}
+
+	daemon  := m.Get("daemon").(string)
+	version := m.Get("version").(string)
+	sysname := m.Get("sysname").(string)
+	release := m.Get("release").(string)
+	machine := m.Get("machine").(string)
+
+	// Assemble return value
+	verresp := &pb.IPsecVersionResp {
+		Daemon:  daemon,
+		Version: version,
+		Sysname: sysname,
+		Release: release,
+		Machine: machine,
+	}
+
+	return verresp, err
+}
+
 func loadConn(connreq *pb.IPsecLoadConnReq) error {
 	// Declare the connection variable, as we have to conditionally load it
 	var conn = &connection {

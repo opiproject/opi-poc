@@ -53,6 +53,18 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 		},
 	}
 
+	ver_req := pb.IPsecVersionReq {}
+
+	vresp, err := c1.IPsecVersion(ctx, &ver_req)
+	if err != nil {
+		log.Fatalf("could not get IPsec version")
+	}
+	log.Printf("Daemon  [%v]", vresp.GetDaemon())
+	log.Printf("Version [%v]", vresp.GetVersion())
+	log.Printf("Sysname [%v]", vresp.GetSysname())
+	log.Printf("Release [%v]", vresp.GetRelease())
+	log.Printf("Machine [%v]", vresp.GetMachine())
+
 	rs1, err := c1.IPsecLoadConn(ctx, &local_ipsec)
 	if err != nil {
 		log.Fatalf("could not load IPsec tunnel: %v", err)
