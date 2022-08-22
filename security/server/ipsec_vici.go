@@ -194,6 +194,131 @@ func ipsecVersion() (*pb.IPsecVersionResp, error) {
 	return verresp, err
 }
 
+func ipsecStats() (*pb.IPsecStatsResp, error) {
+	s, err := vici.NewSession()
+	if err != nil {
+		log.Printf("Failed creating vici session")
+		return nil, err
+	}
+	defer s.Close()
+
+	m, err := s.CommandRequest("stats", nil)
+	if err != nil {
+		log.Printf("Failed getting stats")
+		return nil, err
+	}
+
+	var stat_string strings.Builder
+
+	value := m.Get("uptime")
+	field, ok := value.(*vici.Message)
+	if !ok {
+		log.Printf("Embedded map key was not marshaled as a sub-message")
+	} else {
+		running := field.Get("running").(string)
+		since   := field.Get("since").(string)
+		stat_string.WriteString("Running time: " + running + "\n")
+		stat_string.WriteString("Absolute startup time: " + since + "\n")
+	}
+
+	value = m.Get("workers")
+	field, ok = value.(*vici.Message)
+	if ! ok {
+		log.Printf("Cannot find workers in map")
+	} else {
+		total := field.Get("total").(string)
+		idle  := field.Get("idle").(string)
+		stat_string.WriteString("Total # of worker threads: " + total + "\n")
+		stat_string.WriteString("Worker threads currently idle: " + idle + "\n")
+
+		value = field.Get("active")
+		subfield, subok := value.(*vici.Message)
+		if !subok {
+			log.Printf("Cannot find active in map")
+		} else {
+			critical := subfield.Get("critical").(string)
+			high     := subfield.Get("high").(string)
+			medium   := subfield.Get("medium").(string)
+			low      := subfield.Get("low").(string)
+			stat_string.WriteString("Threads processing critical priority jobs: " + critical + "\n")
+			stat_string.WriteString("Threads processing high priority jobs: " + high + "\n")
+			stat_string.WriteString("Threads processing medium priority jobs: " + medium + "\n")
+			stat_string.WriteString("Threads processing low priority jobs: " + low + "\n")
+		}
+	}
+
+	value = m.Get("queues")
+	field, ok = value.(*vici.Message)
+	if !ok {
+		log.Printf("Cannot find queues in map")
+	} else {
+		critical := field.Get("critical").(string)
+		high     := field.Get("high").(string)
+		medium   := field.Get("medium").(string)
+		low      := field.Get("low").(string)
+		stat_string.WriteString("Jobs queued with critical priority: " + critical + "\n")
+		stat_string.WriteString("Jobs queued with high priority: " + high + "\n")
+		stat_string.WriteString("Jobs queued with medium priority: " + medium + "\n")
+		stat_string.WriteString("Jobs queued with low priority: " + low + "\n")
+	}
+
+	scheduled := m.Get("scheduled").(string)
+	stat_string.WriteString("# of jobs scheduled for timed execution: " + scheduled + "\n")
+
+	value = m.Get("ikesas")
+	field, ok = value.(*vici.Message)
+	if !ok {
+		log.Printf("Cannot find ikesas")
+	} else {
+		total     := field.Get("total").(string)
+		half_open := field.Get("half-open").(string)
+		stat_string.WriteString("Total number of IKE_SAs active: " + total + "\n")
+		stat_string.WriteString("Number of IKE_SAs in half-open state: " + half_open + "\n")
+	}
+
+	stat_string.WriteString("Plugins: ")
+	plugins := m.Get("plugins").([]string)
+	for c := 0; c < len(plugins); c++ {
+		stat_string.WriteString(plugins[c] + " ")
+	}
+	stat_string.WriteString("\n")
+
+	value = m.Get("mem")
+	field, ok = value.(*vici.Message)
+	if !ok {
+		log.Printf("Cannot find mem")
+	} else {
+		total  := field.Get("total").(string)
+		allocs := field.Get("allocs").(string)
+		stat_string.WriteString("Total heap memory usage in bytes: " + total + "\n")
+		stat_string.WriteString("Total heap allocation in blocks: " + allocs + "\n")
+
+		// NOTE: Skipping heap-name (Windows only) for now since OPI
+		//       does not run on Windows.
+	}
+
+	value = m.Get("mallinfo")
+	field, ok = value.(*vici.Message)
+	if !ok {
+		log.Printf("Cannot find mallinfo")
+	} else {
+		sbrk := field.Get("sbrk").(string)
+		mmap := field.Get("mmap").(string)
+		used := field.Get("used").(string)
+		free := field.Get("free").(string)
+		stat_string.WriteString("Non-mmap'd space available: " + sbrk + "\n")
+		stat_string.WriteString("Mmap'd space available: " + mmap + "\n")
+		stat_string.WriteString("Total number of bytes used: " + used + "\n")
+		stat_string.WriteString("Available but unsued bytes: " + free + "\n")
+	}
+
+	statsresp := &pb.IPsecStatsResp {
+		Status: stat_string.String(),
+	}
+
+	return statsresp, nil
+}
+
 func loadConn(connreq *pb.IPsecLoadConnReq) error {
 	// Declare the connection variable, as we have to conditionally load it
 	var conn = &connection {

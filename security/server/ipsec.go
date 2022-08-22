@@ -21,7 +21,13 @@ func (s *server) IPsecVersion(ctx context.Context, in *pb.IPsecVersionReq) (*pb.
 }
 
 func (s *server) IPsecStats(ctx context.Context, in *pb.IPsecStatsReq) (*pb.IPsecStatsResp, error) {
-	return nil, nil
+	stats, err := ipsecStats()
+	if err != nil {
+		log.Printf("IPsecStats: Failed %v", err)
+		return nil, err
+	}
+
+	return stats, nil
 }
 
 func (s *server) IPsecInitiate(ctx context.Context, in *pb.IPsecInitiateReq) (*pb.IPsecInitiateResp, error) {

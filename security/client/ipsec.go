@@ -65,6 +65,14 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 	log.Printf("Release [%v]", vresp.GetRelease())
 	log.Printf("Machine [%v]", vresp.GetMachine())
 
+	stats_req := pb.IPsecStatsReq {}
+
+	stats_resp, err := c1.IPsecStats(ctx, &stats_req)
+	if err != nil {
+		log.Fatalf("could not get IPsec stats")
+	}
+	log.Printf("IPsec stats\n%s", stats_resp.GetStatus())
+
 	rs1, err := c1.IPsecLoadConn(ctx, &local_ipsec)
 	if err != nil {
 		log.Fatalf("could not load IPsec tunnel: %v", err)
