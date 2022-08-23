@@ -90,11 +90,19 @@ type init_connection struct {
 type terminate_connection struct {
 	Child      string `vici:"child"`
 	Ike        string `vici:"ike"`
-	ChildId    string `vici:"child"`
-	IkeId      string `vici:"ike"`
+	ChildId    string `vici:"child-id"`
+	IkeId      string `vici:"ike-id"`
 	Force      string `vici:"force"`
 	Timeout    int    `vici:"timeout"`
 	LogLevel   string `vici:"loglevel"`
+}
+
+type rekey_connection struct {
+	Child      string `vici:"child"`
+	Ike        string `vici:"ike"`
+	ChildId    string `vici:"child"`
+	IkeId      string `vici:"ike"`
+	Reauth     bool   `vici:"reauth"`
 }
 
 func buildProposal(prop *pb.Proposals) (string, error) {
@@ -618,4 +626,55 @@ func terminateConn(termreq *pb.IPsecTerminateReq) (uint32, error) {
 	log.Printf("command error return [%v]", err)
 
 	return 1, err
+}
+
+func rekeyConn(rekeyreq *pb.IPsecRekeyReq) (string, uint32, error) {
+	rekey_conn := &rekey_connection {}
+
+	if rekeyreq.GetChild() != "" {
+		rekey_conn.Child = rekeyreq.GetChild()
+	}
+	if rekeyreq.GetIke() != "" {
+		rekey_conn.Ike = rekeyreq.GetIke()
+	}
+	if rekeyreq.GetChildId() != "" {
+		rekey_conn.ChildId = rekeyreq.GetChildId()
+	}
+	if rekeyreq.GetIkeId() != "" {
+		rekey_conn.IkeId = rekeyreq.GetIkeId()
+	}
+	if rekeyreq.GetReauth() == "yes" {
+		rekey_conn.Reauth = true
+	}
+
+	s, err := vici.NewSession()
+	if err != nil {
+		log.Printf("Failed creating vici session")
+		return "", 0, err
+	}
+	defer s.Close()
+
+	c, err := vici.MarshalMessage(rekey_conn)
+	if err != nil {
+		log.Printf("Failed marshalling message")
+		return "", 0, err
+	}
+
+	log.Printf("Marshaled vici message: %v", c)
+
+	m, err := s.CommandRequest("rekey", c)
+	if err != nil {
+		log.Printf("Failed getting stats")
+		return "", 0, err
+	}
+
+	success := m.Get("success").(string)
+	strmatches := m.Get("matches").(string)
+	matches, err := strconv.ParseUint(strmatches, 10, 32)
+	if err != nil {
+		log.Printf("Error converting string %s", strmatches)
+		return "", 0, err
+	}
+
+	return success, uint32(matches), nil
 }

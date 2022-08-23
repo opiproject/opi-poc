@@ -91,17 +91,27 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 	}
 	log.Printf("Initiated: %v", init_ret)
 
+	// Rekey the IKE_SA
+	rekey_conn := pb.IPsecRekeyReq {
+		Ike: "opi-test",
+	}
+
+	rekey_ret, err := c1.IPsecRekey(ctx, &rekey_conn)
+	if err != nil {
+		log.Fatalf("could not rekey IPsec tunnel: %v", err)
+	}
+	log.Printf("Rekeyed IKE_SA %s: %v", "opi-test", rekey_ret)
+
 	// Terminate the connection
 	term_conn := pb.IPsecTerminateReq{
 		Ike: "opi-test",
-		Child: "opi-child",
 	}
 
 	term_ret, err := c1.IPsecTerminate(ctx, &term_conn)
 	if err != nil {
 		log.Fatalf("could not terminate IPsec tunnel: %v", err)
 	}
-	log.Printf("Initiated: %v", term_ret)
+	log.Printf("Terminate: %v", term_ret)
 
 
 	// Unload

@@ -63,7 +63,20 @@ func (s *server) IPsecTerminate(ctx context.Context, in *pb.IPsecTerminateReq) (
 }
 
 func (s *server) IPsecRekey(ctx context.Context, in *pb.IPsecRekeyReq) (*pb.IPsecRekeyResp, error) {
-	return nil, nil
+	log.Printf("IPsecRekey: Received: %v", in)
+
+	success, matches, err := rekeyConn(in)
+	if err != nil {
+		log.Printf("IPsecRekey: Failed: %v", err)
+		return nil, err
+	}
+
+	ip_ret := pb.IPsecRekeyResp {
+		Success: success,
+		Matches: matches,
+	}
+
+	return &ip_ret, nil
 }
 
 func (s *server) IPsecListSas(ctx context.Context, in *pb.IPsecListSasReq) (*pb.IPsecListSasResp, error) {
