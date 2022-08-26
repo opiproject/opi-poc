@@ -91,6 +91,17 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 	}
 	log.Printf("Initiated: %v", init_ret)
 
+	// List the IKE_SAs
+	ike_sas := pb.IPsecListSasReq {
+		Ike: "opi-test",
+	}
+
+	list_sas_ret, err := c1.IPsecListSas(ctx, &ike_sas)
+	if err != nil {
+		log.Fatalf("could not list IKE_SAs: %v", err)
+	}
+	log.Printf("Returned IKE_SAs: %v", list_sas_ret)
+
 	// Rekey the IKE_SA
 	rekey_conn := pb.IPsecRekeyReq {
 		Ike: "opi-test",

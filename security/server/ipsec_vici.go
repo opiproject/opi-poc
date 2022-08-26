@@ -100,9 +100,77 @@ type terminate_connection struct {
 type rekey_connection struct {
 	Child      string `vici:"child"`
 	Ike        string `vici:"ike"`
-	ChildId    string `vici:"child"`
-	IkeId      string `vici:"ike"`
+	ChildId    string `vici:"child-id"`
+	IkeId      string `vici:"ike-id"`
 	Reauth     bool   `vici:"reauth"`
+}
+
+type list_sas struct {
+	Ike        string `vici:"ike"`
+	IkeId      string `vici:"ike-id"`
+	Child      string `vici:"child"`
+	ChildId    string `vici:"child-id"`
+	Noblock    string `vici:"noblock"`
+}
+
+type list_child_sa struct {
+	Protocol      string `vici:"protocol"`
+	Encap         string `vici:"encap"`
+	SpiIn         string `vici:"spi-in"`
+	SpiOut        string `vici:"spi-out"`
+	CpiIn         string `vici:"cpi-in"`
+	CpiOut        string `vici:"cpi-out"`
+	MarkIn        string `vici:"mark-in"`
+	MarkMaskIn    string `vici:"mark-mask-in"`
+	MarkOut       string `vici:"mark-out"`
+	MarkMaskOut   string `vici:"mark-mask-out"`
+	IfIdIn        string `vici:"if-id-in"`
+	IfIdOut       string `vici:"if-id-out"`
+	EncrAlg       string `vici:"encr-alg"`
+	EncKeysize    string `vici:"encr-keysize"`
+	IntegAlg      string `vici:"integ-alg"`
+	IntegKeysize  string `vici:"integ-keysize"`
+	DhGroup       string `vici:"dh-group"`
+	Esn           string `vici:"esn"`
+}
+
+type list_ike_sa struct {
+	UniqueId      string                   `vici:"uniqueid"`
+	Version       string                   `vici:"version"`
+	State         string                   `vici:"state"`
+	LocalHost     string                   `vici:"local-host"`
+	LocalPort     string                   `vici:"local-port"`
+	LocalId       string                   `vici:"local-id"`
+	RemoteHost    string                   `vici:"remote-host"`
+	RemotePort    string                   `vici:"remote-port"`
+	RemoteId      string                   `vici:"remote-id"`
+	RemoteXauthId string                   `vici:"remote-xauth-id"`
+	RemoteEapId   string                   `vici:"remote-eap-id"`
+	Initiator     string                   `vici:"initiator"`
+	InitiatorSpi  string                   `vici:"initiator-spi"`
+	ResponderSpi  string                   `vici:"responder-spi"`
+	NatLocal      string                   `vici:"nat-local"`
+	NatRemote     string                   `vici:"nat-remote"`
+	NatFake       string                   `vici:"nat-fake"`
+	NatAny        string                   `vici:"nat-any"`
+	IfIdIn        string                   `vici:"if-id-in"`
+	IfIdOut       string                   `vici:"if-id-out"`
+	EncrAlg       string                   `vici:"encr-alg"`
+	EncrKeysize   string                   `vici:"encr-keysize"`
+	IntegAlg      string                   `vici:"integ-alg"`
+	IntegKeysize  string                   `vici:"integ-keysize"`
+	PrfAlg        string                   `vici:"prf-alg"`
+	DhGroup       string                   `vici:"dh-group"`
+	Ppk           string                   `vici:"ppk"`
+	Established   string                   `vici:"established"`
+	RekeyTime     string                   `vici:"rekey-time"`
+	ReauthTime    string                   `vici:"reauth-time"`
+	LocalVips     []string                 `vici:"local-vips"`
+	RemoteVips    []string                 `vici:"remote-vips"`
+	TasksQueued   []string                 `vici:"tasks-queued"`
+	TasksActive   []string                 `vici:"tasks-active"`
+	TasksPassive  []string                 `vici:"tasks-passive"`
+	ChildSas      map[string]list_child_sa `vici:"child-sas"`
 }
 
 func buildProposal(prop *pb.Proposals) (string, error) {
@@ -677,4 +745,72 @@ func rekeyConn(rekeyreq *pb.IPsecRekeyReq) (string, uint32, error) {
 	}
 
 	return success, uint32(matches), nil
+}
+
+func listSas(listreq *pb.IPsecListSasReq) (*pb.IPsecListSasResp, error) {
+	listsas_req := &list_sas {}
+
+	if listreq.GetChild() != "" {
+		listsas_req.Child = listreq.GetChild()
+	}
+	if listreq.GetIke() != "" {
+		listsas_req.Ike = listreq.GetIke()
+	}
+	if listreq.GetChildId() != "" {
+		listsas_req.ChildId = listreq.GetChildId()
+	}
+	if listreq.GetIkeId() != "" {
+		listsas_req.IkeId = listreq.GetIkeId()
+	}
+	if listreq.GetNoblock() != "" {
+		listsas_req.Noblock = listreq.GetNoblock()
+	}
+
+	s, err := vici.NewSession()
+	if err != nil {
+		log.Printf("Failed creating vici session")
+		return nil, err
+	}
+	defer s.Close()
+
+	c, err := vici.MarshalMessage(listsas_req)
+	if err != nil {
+		log.Printf("Failed marshalling message")
+		return nil, err
+	}
+
+	log.Printf("Marshaled vici message: %v", c)
+
+	list_messages, err := s.StreamedCommandRequest("list-sas", "list-sa", c)
+	if err != nil {
+		log.Printf("Failed getting stats")
+		return nil, err
+	}
+
+	var sas_reply pb.IPsecListSasResp
+
+	// We stream responses, so build responses now
+	m := list_messages.Messages()
+	for _, mess := range m {
+		for _, k := range mess.Keys() {
+			list_sas := list_ike_sa {}
+			log.Printf("K IS EQUAL TO %v", k)
+			sa := mess.Get(k).(*vici.Message)
+			err := vici.UnmarshalMessage(sa, &list_sas)
+			if err != nil {
+				log.Printf("Failed marshalling message: %v", err)
+				return nil, err
+			}
+			log.Printf("Found message: %v", list_sas)
+
+			ike, err := parse_ike_list_sas(&list_sas, k)
+			if err != nil {
+				log.Printf("Failed parsing IKE_SA: %v", err)
+				return nil, err
+			}
+			sas_reply.Ikesas = append(sas_reply.Ikesas, ike)
+		}
+	}
+
+	return &sas_reply, nil
 }

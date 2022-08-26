@@ -80,7 +80,15 @@ func (s *server) IPsecRekey(ctx context.Context, in *pb.IPsecRekeyReq) (*pb.IPse
 }
 
 func (s *server) IPsecListSas(ctx context.Context, in *pb.IPsecListSasReq) (*pb.IPsecListSasResp, error) {
-	return nil, nil
+	log.Printf("IPsecListSas: Received %v", in)
+
+	ret, err := listSas(in)
+	if err != nil {
+		log.Printf("IPsecListSas: Failed: %v", err)
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 func (s *server) IPsecListConns(ctx context.Context, in *pb.IPsecListConnsReq) (*pb.IPsecListConnsResp, error) {
