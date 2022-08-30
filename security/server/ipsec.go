@@ -92,11 +92,27 @@ func (s *server) IPsecListSas(ctx context.Context, in *pb.IPsecListSasReq) (*pb.
 }
 
 func (s *server) IPsecListConns(ctx context.Context, in *pb.IPsecListConnsReq) (*pb.IPsecListConnsResp, error) {
-	return nil, nil
+	log.Printf("IPsecListConns: Received: %v", in)
+
+	ret, err := listConns(in)
+	if err != nil {
+		log.Printf("IPsecListConns: Failed: %v", err)
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 func (s *server) IPsecListCerts(ctx context.Context, in *pb.IPsecListCertsReq) (*pb.IPsecListCertsResp, error) {
-	return nil, nil
+	log.Printf("IPsecListCerts: Received: %v", in)
+
+	ret, err := listCerts(in)
+	if err != nil {
+		log.Printf("IPsecListConns: Failed: %v", err)
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 func (s *server) IPsecLoadConn(ctx context.Context, in *pb.IPsecLoadConnReq) (*pb.IPsecLoadConnResp, error) {

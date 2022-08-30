@@ -102,6 +102,28 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 	}
 	log.Printf("Returned IKE_SAs: %v", list_sas_ret)
 
+	// List the connections
+	list_conn := pb.IPsecListConnsReq {
+		Ike: "opi-test",
+	}
+
+	list_conns_ret, err := c1.IPsecListConns(ctx, &list_conn)
+	if err != nil {
+		log.Fatalf("could not list connections: %v", err)
+	}
+	log.Printf("Returned connections: %v", list_conns_ret)
+
+	// List the certificats
+	list_certs := pb.IPsecListCertsReq {
+		Type: "any",
+	}
+
+	list_certs_ret, err := c1.IPsecListCerts(ctx, &list_certs)
+	if err != nil {
+		log.Fatalf("could not list certificates: %v", err)
+	}
+	log.Printf("Returned connections: %v", list_certs_ret)
+
 	// Rekey the IKE_SA
 	rekey_conn := pb.IPsecRekeyReq {
 		Ike: "opi-test",

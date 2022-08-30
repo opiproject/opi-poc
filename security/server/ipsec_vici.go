@@ -29,12 +29,12 @@ type remoteOpts struct {
 	Groups     []string `vici:"groups"`
 	CertPolicy []string `vici:"cert_policy"`
 	Certs      []string `vici:"certs"`
-	CaCerts    []string `vici:"certs"`
-	PubKeys []string `vici:"pubkeys"`
+	CaCerts    []string `vici:"cacerts"`
+	PubKeys    []string `vici:"pubkeys"`
 }
 
 type childSA struct {
-	RemoteTrafficSelectors []string  `vici:"remote_ts"`
+	RemoteTrafficSelectors []string   `vici:"remote_ts"`
 	LocalTrafficSelectors  []string   `vici:"local_ts"`
 	Updown                 string     `vici:"updown"`
 	ESPProposals           []string   `vici:"esp_proposals"`
@@ -113,6 +113,16 @@ type list_sas struct {
 	Noblock    string `vici:"noblock"`
 }
 
+type list_conns struct {
+	Ike        string `vici:"ike"`
+}
+
+type list_certs struct {
+	Type       string `vici:"type"`
+	Flag       string `vici:"flag"`
+	Subject    string `vici:"subject"`
+}
+
 type list_child_sa struct {
 	Protocol      string `vici:"protocol"`
 	Encap         string `vici:"encap"`
@@ -171,6 +181,65 @@ type list_ike_sa struct {
 	TasksActive   []string                 `vici:"tasks-active"`
 	TasksPassive  []string                 `vici:"tasks-passive"`
 	ChildSas      map[string]list_child_sa `vici:"child-sas"`
+}
+
+type list_auth struct {
+	Name string // This field will NOT be marshaled!
+	Class      string   `vici:"class"`
+	EapType    string   `vici:"eap-type"`
+	EapVendor  string   `vici:"eap-vendor"`
+	Xauth      string   `vici:"xauth"`
+	Revocation string   `vici:"revocation"`
+	Id         string   `vici:"id"`
+	CaId       string   `vici:"ca_id"`
+	AaaId      string   `vici:"aaa_id"`
+	EapId      string   `vici:"eap_id"`
+	XauthId    string   `vici:"xauth_id"`
+	Groups     []string `vici:"groups"`
+	CertPolicy []string `vici:"cert_policy"`
+	Certs      []string `vici:"certs"`
+	CaCerts    []string `vici:"cacerts"`
+}
+
+type list_child struct {
+	Name string // This field will NOT be marshaled!
+	Mode                   string     `vici:"mode"`
+	Label                  string     `vici:"label"`
+	RekeyTime              uint32     `vici:"rekey_time"`
+	RekeyBytes             uint32     `vici:"rekey_bytes"`
+	RekeyPackets           uint32     `vici:"rekey_packets"`
+	DpdAction              string     `vici:"dpd_action"`
+	CloseAction            string     `vici:"close_action"`
+	RemoteTs               []string   `vici:"remote-ts"` // Used by list-conns so we can overload this struct
+	LocalTs                []string   `vici:"local-ts"`  // Used by list-conns so we can overload this struct
+	Interface              string     `vici:"interface"`
+	Priority               string     `vici:"priority"`
+}
+
+type list_ike struct {
+	LocalAddrs   []string               `vici:"local_addrs"`
+	RemoteAddrs  []string               `vici:"remote_addrs"`
+	Version      string                 `vici:"version"`
+	ReauthTime   uint32                 `vici:"reauth_time"`
+	RekeyTime    uint32                 `vici:"rekey_time"`
+	Unique       string                 `vici:"unique"`
+	DpdDelay     uint32                 `vici:"dpd_delay"`
+	DpdTimeout   uint32                 `vici:"dpd_timeout"`
+	Ppk          string                 `vici:"ppk"`
+	PpkRequired  string                 `vici:"ppk_required"`
+	Local        map[string]list_auth   `vici:"local"`
+	Remote       map[string]list_auth   `vici:"remote"`
+	Children     map[string]list_child  `vici:"children"`
+}
+
+type list_cert struct {
+	Type        string `vici:"type"`
+	Flag        string `vici:"flag"`
+	HasPrivKey  string `vici:"has_privkey"`
+	Data        string `vici:"data"`
+	Subject     string `vici:"subject"`
+	NotBefore   string `vici:"not-before"`
+	NotAfter    string `vici:"not-after"`
 }
 
 func buildProposal(prop *pb.Proposals) (string, error) {
@@ -783,7 +852,7 @@ func listSas(listreq *pb.IPsecListSasReq) (*pb.IPsecListSasResp, error) {
 
 	list_messages, err := s.StreamedCommandRequest("list-sas", "list-sa", c)
 	if err != nil {
-		log.Printf("Failed getting stats")
+		log.Printf("Failed getting sas")
 		return nil, err
 	}
 
@@ -813,4 +882,117 @@ func listSas(listreq *pb.IPsecListSasReq) (*pb.IPsecListSasResp, error) {
 	}
 
 	return &sas_reply, nil
+}
+
+func listConns(listreq *pb.IPsecListConnsReq) (*pb.IPsecListConnsResp, error) {
+	listconns_req := &list_conns {}
+
+	if listreq.GetIke() != "" {
+		listconns_req.Ike = listreq.GetIke()
+	}
+
+	s, err := vici.NewSession()
+	if err != nil {
+		log.Printf("Failed creating vici session")
+		return nil, err
+	}
+	defer s.Close()
+
+	c, err := vici.MarshalMessage(listconns_req)
+	if err != nil {
+		log.Printf("Failed marshalling message")
+		return nil, err
+	}
+
+	log.Printf("Marshaled vici message: %v", c)
+
+	list_messages, err := s.StreamedCommandRequest("list-conns", "list-conn", c)
+	if err != nil {
+		log.Printf("Failed getting conns")
+		return nil, err
+	}
+
+	var conns_reply pb.IPsecListConnsResp
+
+	// We stream responses, so build responses now
+	m := list_messages.Messages()
+	for _, mess := range m {
+		for _, k := range mess.Keys() {
+			conn := list_ike {}
+			log.Printf("K IS EQUAL TO %v", k)
+			sa := mess.Get(k).(*vici.Message)
+			err := vici.UnmarshalMessage(sa, &conn)
+			if err != nil {
+				log.Printf("Failed marshalling message: %v", err)
+				return nil, err
+			}
+			log.Printf("Found message: %v", conn)
+
+			parsed_conn, err := parse_connection(&conn, k)
+			if err != nil {
+				log.Printf("Failed parsing connection: %v", err)
+				return nil, err
+			}
+			conns_reply.Connection = append(conns_reply.Connection, parsed_conn)
+		}
+	}
+
+	return &conns_reply, nil
+}
+
+func listCerts(listreq *pb.IPsecListCertsReq) (*pb.IPsecListCertsResp, error) {
+	listcerts_req := &list_certs {}
+
+	if listreq.GetType() != "" {
+		listcerts_req.Type = listreq.GetType()
+	}
+	if listreq.GetFlag() != "" {
+		listcerts_req.Flag = listreq.GetFlag()
+	}
+	if listreq.GetSubject() != "" {
+		listcerts_req.Subject = listreq.GetSubject()
+	}
+
+	s, err := vici.NewSession()
+	if err != nil {
+		log.Printf("Failed creating vici session")
+		return nil, err
+	}
+	defer s.Close()
+
+	c, err := vici.MarshalMessage(listcerts_req)
+	if err != nil {
+		log.Printf("Failed marshalling message")
+		return nil, err
+	}
+
+	log.Printf("Marshaled vici message: %v", c)
+
+	list_messages, err := s.StreamedCommandRequest("list-certs", "list-cert", c)
+	if err != nil {
+		log.Printf("Failed getting certs")
+		return nil, err
+	}
+
+	var certs_reply pb.IPsecListCertsResp
+
+	// We stream responses, so build responses now
+	m := list_messages.Messages()
+	for _, mess := range m {
+		cert := list_cert {}
+		err := vici.UnmarshalMessage(mess, &cert)
+		if err != nil {
+			log.Printf("Failed marshalling message: %v", err)
+			return nil, err
+		}
+
+		parsed_cert, err := parse_certificate(&cert)
+		if err != nil {
+			log.Printf("Failed parsing certificate: %v", err)
+			return nil, err
+		}
+		certs_reply.Certs = append(certs_reply.Certs, parsed_cert)
+	}
+
+	return &certs_reply, nil
 }
