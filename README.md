@@ -1,9 +1,9 @@
 # OPI Project PoC
 
-[![OPI Integration CI](https://github.com/opiproject/opi-poc/actions/workflows/poc-integration.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-integration.yml)
-[![OPI Networking PoC CI](https://github.com/opiproject/opi-poc/actions/workflows/poc-networking.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-networking.yml)
-[![OPI Storage PoC CI](https://github.com/opiproject/opi-poc/actions/workflows/poc-storage.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-storage.yml)
-[![OPI Security PoC CI](https://github.com/opiproject/opi-poc/actions/workflows/poc-security.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-security.yml)
+[![Integration](https://github.com/opiproject/opi-poc/actions/workflows/poc-integration.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-integration.yml)
+[![Networking](https://github.com/opiproject/opi-poc/actions/workflows/poc-networking.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-networking.yml)
+[![Storage](https://github.com/opiproject/opi-poc/actions/workflows/poc-storage.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-storage.yml)
+[![Security](https://github.com/opiproject/opi-poc/actions/workflows/poc-security.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-security.yml)
 [![Linters](https://github.com/opiproject/opi-poc/actions/workflows/linters.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/linters.yml)
 
 This repo hosts OPI proofs of concept.  These PoCs are used to demonstrate that
