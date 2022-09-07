@@ -9,6 +9,7 @@ import (
 
 	pb "github.com/opiproject/opi-api/security/proto"
 	"google.golang.org/grpc"
+	"github.com/go-ping/ping"
 )
 
 func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
@@ -123,6 +124,23 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 		log.Fatalf("could not list certificates: %v", err)
 	}
 	log.Printf("Returned connections: %v", list_certs_ret)
+
+	// Ping across the tunnel.
+	// .NOTE: The container this test runs in is linked to the appropriate
+	//        strongSwan container.
+	pinger, err := ping.NewPinger(*pingaddr)
+	if err != nil {
+		log.Fatalf("Cannot create Pinger")
+	}
+	pinger.Count = 5
+	// .NOTE: This blocks until it finishes
+	err = pinger.Run()
+	if err != nil {
+		log.Fatalf("Ping command to host 10.3.0.1 failed")
+	}
+	stats := pinger.Statistics() // get send/receive/duplicate/rtt stats
+
+	log.Printf("Ping stats: %v", stats)
 
 	// Rekey the IKE_SA
 	rekey_conn := pb.IPsecRekeyReq {

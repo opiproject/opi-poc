@@ -16,6 +16,7 @@ import (
 
 var (
 	addr = flag.String("addr", "localhost:50151", "the address to connect to")
+	pingaddr = flag.String("pingaddr", "localhost", "the address to ping for testing purposes")
 )
 
 func main() {

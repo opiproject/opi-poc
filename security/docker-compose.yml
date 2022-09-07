@@ -54,11 +54,10 @@ services:
   opi-security-client:
     build:
       context: client
-    networks:
-      - internet
+    network_mode: service:vpn-server
     depends_on:
       - opi-security-server
-    command: /opi-security-client -addr=opi-security-server:50151
+    command: /opi-security-client -addr=opi-security-server:50151 -pingaddr=10.3.0.1
 
 networks:
   internet:
