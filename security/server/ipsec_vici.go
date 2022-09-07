@@ -90,8 +90,8 @@ type init_connection struct {
 type terminate_connection struct {
 	Child      string `vici:"child"`
 	Ike        string `vici:"ike"`
-	ChildId    string `vici:"child-id"`
-	IkeId      string `vici:"ike-id"`
+	ChildId    uint64 `vici:"child-id"`
+	IkeId      uint64 `vici:"ike-id"`
 	Force      string `vici:"force"`
 	Timeout    int    `vici:"timeout"`
 	LogLevel   string `vici:"loglevel"`
@@ -100,16 +100,16 @@ type terminate_connection struct {
 type rekey_connection struct {
 	Child      string `vici:"child"`
 	Ike        string `vici:"ike"`
-	ChildId    string `vici:"child-id"`
-	IkeId      string `vici:"ike-id"`
+	ChildId    uint64 `vici:"child-id"`
+	IkeId      uint64 `vici:"ike-id"`
 	Reauth     bool   `vici:"reauth"`
 }
 
 type list_sas struct {
 	Ike        string `vici:"ike"`
-	IkeId      string `vici:"ike-id"`
+	IkeId      uint64 `vici:"ike-id"`
 	Child      string `vici:"child"`
-	ChildId    string `vici:"child-id"`
+	ChildId    uint64 `vici:"child-id"`
 	Noblock    string `vici:"noblock"`
 }
 
@@ -724,10 +724,10 @@ func terminateConn(termreq *pb.IPsecTerminateReq) (uint32, error) {
 	if termreq.GetIke() != "" {
 		term_conn.Ike = termreq.GetIke()
 	}
-	if termreq.GetChildId() != "" {
+	if termreq.GetChildId() != 0 {
 		term_conn.ChildId = termreq.GetChildId()
 	}
-	if termreq.GetIkeId() != "" {
+	if termreq.GetIkeId() != 0 {
 		term_conn.IkeId = termreq.GetIkeId()
 	}
 	if termreq.GetTimeout() != "" {
@@ -774,10 +774,10 @@ func rekeyConn(rekeyreq *pb.IPsecRekeyReq) (string, uint32, error) {
 	if rekeyreq.GetIke() != "" {
 		rekey_conn.Ike = rekeyreq.GetIke()
 	}
-	if rekeyreq.GetChildId() != "" {
+	if rekeyreq.GetChildId() != 0 {
 		rekey_conn.ChildId = rekeyreq.GetChildId()
 	}
-	if rekeyreq.GetIkeId() != "" {
+	if rekeyreq.GetIkeId() != 0 {
 		rekey_conn.IkeId = rekeyreq.GetIkeId()
 	}
 	if rekeyreq.GetReauth() == "yes" {
@@ -825,10 +825,10 @@ func listSas(listreq *pb.IPsecListSasReq) (*pb.IPsecListSasResp, error) {
 	if listreq.GetIke() != "" {
 		listsas_req.Ike = listreq.GetIke()
 	}
-	if listreq.GetChildId() != "" {
+	if listreq.GetChildId() != 0 {
 		listsas_req.ChildId = listreq.GetChildId()
 	}
-	if listreq.GetIkeId() != "" {
+	if listreq.GetIkeId() != 0 {
 		listsas_req.IkeId = listreq.GetIkeId()
 	}
 	if listreq.GetNoblock() != "" {
