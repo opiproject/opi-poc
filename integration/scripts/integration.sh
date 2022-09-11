@@ -10,13 +10,8 @@ INT_TESTS=tests
 INT_LOGS=logs
 INT_STOP=stop
 
-# DOCKER_COMPOSE setup
-DC=docker-compose
-
-if [ "$(command -v ${DC})" == "" ]
-then
-    DC="docker compose"
-fi
+# docker compose plugin
+command -v docker-compose || { shopt -s expand_aliases && alias docker-compose='docker compose'; }
 
 usage() {
     echo ""
@@ -25,24 +20,24 @@ usage() {
 }
 
 build_containers() {
-    bash -c "${DC} build --parallel"
+    docker-compose build --parallel
 }
 
 start_containers() {
-    bash -c "${DC} down"
+    docker-compose down
     docker network prune --force
-    bash -c "${DC} pull"
+    docker-compose pull
     # Workaround for running on servers without AVX512
     if [ -n "${BUILD_SPDK:-}" ]; then
-        bash -c "${DC} build spdk-target"
+        docker-compose build spdk-target
     fi
-    bash -c "${DC} up -d"
+    docker-compose up -d
 }
 
 run_integration_tests() {
-    bash -c "${DC} ps"
+    docker-compose ps
     # shellcheck disable=SC2046
-    uniq -c <<< "$(sort <<< "$(docker inspect --format='{{json .State.Health.Status}}' $(${DC} ps -q))")"
+    uniq -c <<< "$(sort <<< "$(docker inspect --format='{{json .State.Health.Status}}' $(docker-compose ps -q))")"
 
     # TODO: replace sleep with timeouted-wait for all services to become healthy
     echo wait 5s... && sleep 5s
@@ -76,50 +71,50 @@ run_integration_tests() {
     sshpass -p 123456 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2208  bmc@127.0.0.1 hostname
     sshpass -p 123456 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2207  xpu@127.0.0.1 hostname
     sshpass -p 123456 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2209  bmc@127.0.0.1 hostname
-    bash -c "${DC} exec -T dhcp cat /var/lib/dhcpd/dhcpd.leases"
-    bash -c "${DC} run nmap"
-    bash -c "${DC} run nmap" | grep "Server Identifier: 10.127.127.3"
-    bash -c "${DC} exec -T tftp curl --fail http://10.127.127.16:8082/var/lib/tftpboot/"
-    bash -c "${DC} exec -T tftp bash -c 'tftp 10.127.127.3 -v -c get grubx64.efi && diff ./grubx64.efi /var/lib/tftpboot/grubx64.efi'"
-    bash -c "${DC} exec -T sztp ./run-sztpd-test.sh"
-    bash -c "${DC} exec -T spdk-target /usr/local/bin/identify -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'"
-    bash -c "${DC} exec -T xpu-spdk /usr/local/bin/identify    -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'"
-    bash -c "${DC} exec -T spdk-target /usr/local/bin/perf     -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10"
-    bash -c "${DC} exec -T xpu-spdk /usr/local/bin/perf         -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10"
-    NETWORK_CLIENT_NAME=$(${DC} ps | grep example-network-client | awk '{print $1}')
+    docker-compose exec -T dhcp cat /var/lib/dhcpd/dhcpd.leases
+    docker-compose run nmap
+    docker-compose run nmap | grep "Server Identifier: 10.127.127.3"
+    docker-compose exec -T tftp curl --fail http://10.127.127.16:8082/var/lib/tftpboot/
+    docker-compose exec -T tftp bash -c 'tftp 10.127.127.3 -v -c get grubx64.efi && diff ./grubx64.efi /var/lib/tftpboot/grubx64.efi'
+    docker-compose exec -T sztp ./run-sztpd-test.sh
+    docker-compose exec -T spdk-target /usr/local/bin/identify -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'
+    docker-compose exec -T xpu-spdk /usr/local/bin/identify    -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'
+    docker-compose exec -T spdk-target /usr/local/bin/perf     -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10
+    docker-compose exec -T xpu-spdk /usr/local/bin/perf         -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10
+    NETWORK_CLIENT_NAME=$(docker-compose ps | grep example-network-client | awk '{print $1}')
     NETWORK_CLIENT_RC=$(docker inspect --format '{{.State.ExitCode}}' "${NETWORK_CLIENT_NAME}")
     if [ "${NETWORK_CLIENT_RC}" != "0" ]; then
         echo "example-network-client failed:"
         docker logs "${NETWORK_CLIENT_NAME}"
         exit 1
     fi
-    STORAGE_CLIENT_NAME=$(${DC} ps | grep example-storage-client | awk '{print $1}')
+    STORAGE_CLIENT_NAME=$(docker-compose ps | grep example-storage-client | awk '{print $1}')
     STORAGE_CLIENT_RC=$(docker inspect --format '{{.State.ExitCode}}' "${STORAGE_CLIENT_NAME}")
     if [ "${STORAGE_CLIENT_RC}" != "0" ]; then
         echo "example-storage-client failed:"
         docker logs "${STORAGE_CLIENT_NAME}"
         exit 1
     fi
-    bash -c "${DC} exec -T strongswan swanctl --stats"
-    bash -c "${DC} exec -T strongswan swanctl --list-sas"
+    docker-compose exec -T strongswan swanctl --stats
+    docker-compose exec -T strongswan swanctl --list-sas
 
 
 
     # This should be last
-    bash -c "${DC} ps"
+    docker-compose ps
     # shellcheck disable=SC2046
-    uniq -c <<< "$(sort <<< "$(docker inspect --format='{{json .State.Health.Status}}' $(${DC} ps -q))")"
+    uniq -c <<< "$(sort <<< "$(docker inspect --format='{{json .State.Health.Status}}' $(docker-compose ps -q))")"
 }
 
 acquire_logs() {
-    bash -c "${DC} ps -a"
-    bash -c "${DC} logs" || true
+    docker-compose ps -a
+    docker-compose logs || true
     netstat -an || true
     ifconfig -a || true
 }
 
 stop_containers() {
-    bash -c "${DC} down --volumes"
+    docker-compose down --volumes
 }
 
 if [ "$#" -lt 1 ]
