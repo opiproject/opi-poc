@@ -44,7 +44,7 @@ run_integration_tests() {
     curl --fail http://127.0.0.1:8001/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8002/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8082/var/lib/tftpboot/
-    curl --fail http://127.0.0.1:9091/
+
     for i in $(seq 1 20)
     do
         echo "${i}"
@@ -81,6 +81,13 @@ run_integration_tests() {
     docker-compose exec -T xpu-spdk /usr/local/bin/identify    -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'
     docker-compose exec -T spdk-target /usr/local/bin/perf     -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10
     docker-compose exec -T xpu-spdk /usr/local/bin/perf         -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10
+
+    curl --fail http://127.0.0.1:9091/api/v1/query?query=mem_free | grep mem_free
+    curl --fail http://127.0.0.1:9091/api/v1/query?query=cpu_usage_user | grep cpu_usage_user
+    curl --fail http://127.0.0.1:9091/api/v1/query?query=xpu_num_blocks | grep xpu_num_blocks
+    curl --fail http://127.0.0.1:9091/api/v1/query?query=net_bytes_recv | grep net_bytes_recv
+    curl --fail http://127.0.0.1:9091/api/v1/query?query=redfish_thermal_fans_reading_rpm | grep redfish_thermal_fans_reading_rpm
+
     NETWORK_CLIENT_NAME=$(docker-compose ps | grep example-network-client | awk '{print $1}')
     NETWORK_CLIENT_RC=$(docker inspect --format '{{.State.ExitCode}}' "${NETWORK_CLIENT_NAME}")
     if [ "${NETWORK_CLIENT_RC}" != "0" ]; then
