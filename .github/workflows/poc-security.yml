@@ -108,6 +108,11 @@ jobs:
         "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecListCerts -l
         "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecLoadConn -l
         "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.v1.IPsec.IPsecUnloadConn -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.firewall.v1.SessionTable -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.firewall.v1.SessionTable.AddSession -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.firewall.v1.SessionTable.GetSession -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.firewall.v1.SessionTable.DeleteSession -l
+        "${grpc_cli[@]}" ls opi-security-server:50151 opi.security.firewall.v1.SessionTable.GetAllSession -l
         docker-compose down
       working-directory: security
 
