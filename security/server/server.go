@@ -22,6 +22,10 @@ type server struct {
 	pb.UnimplementedIPsecServer
 }
 
+type session_server struct {
+	pb.UnimplementedSessionTableServer
+}
+
 func main() {
 	flag.Parse()
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
@@ -31,6 +35,7 @@ func main() {
 	s := grpc.NewServer()
 
 	pb.RegisterIPsecServer(s, &server{})
+	pb.RegisterSessionTableServer(s, &session_server{})
 
 	reflection.Register(s)
 
