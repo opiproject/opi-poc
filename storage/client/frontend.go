@@ -12,6 +12,7 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 
 	// NVMeSubsystem
 	c1 := pb.NewNVMeSubsystemServiceClient(conn)
+	log.Printf("Testing NewNVMeSubsystemServiceClient")
 	rs1, err := c1.NVMeSubsystemCreate(ctx, &pb.NVMeSubsystemCreateRequest{Subsystem: &pb.NVMeSubsystem{Nqn: "OpiMalloc7"}})
 	if err != nil {
 		log.Fatalf("could not create NVMe subsystem: %v", err)
@@ -45,6 +46,7 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 
 	// NVMeController
 	c2 := pb.NewNVMeControllerServiceClient(conn)
+	log.Printf("Testing NewNVMeControllerServiceClient")
 	rc1, err := c2.NVMeControllerCreate(ctx, &pb.NVMeControllerCreateRequest{Controller: &pb.NVMeController{Name: "OPI-Nvme"}})
 	if err != nil {
 		log.Fatalf("could not create NVMe subsystem: %v", err)
@@ -78,6 +80,7 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 
 	// NVMeNamespace
 	c3 := pb.NewNVMeNamespaceServiceClient(conn)
+	log.Printf("Testing NewNVMeNamespaceServiceClient")
 	rn1, err := c3.NVMeNamespaceCreate(ctx, &pb.NVMeNamespaceCreateRequest{Namespace: &pb.NVMeNamespace{Name: "OPI-Nvme"}})
 	if err != nil {
 		log.Fatalf("could not create NVMe subsystem: %v", err)
@@ -111,6 +114,7 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 
 	// VirtioBlk
 	c4 := pb.NewVirtioBlkServiceClient(conn)
+	log.Printf("Testing NewVirtioBlkServiceClient")
 	rv1, err := c4.VirtioBlkCreate(ctx, &pb.VirtioBlkCreateRequest{Controller: &pb.VirtioBlk{Name: "VirtioBlk8", Bdev:"Malloc1"}})
 	if err != nil {
 		log.Fatalf("could not create VirtioBlk Controller: %v", err)
@@ -144,6 +148,7 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 
 	// VirtioScsiController
 	c5 := pb.NewVirtioScsiControllerServiceClient(conn)
+	log.Printf("Testing NewVirtioScsiControllerServiceClient")
 	rss1, err := c5.VirtioScsiControllerCreate(ctx, &pb.VirtioScsiControllerCreateRequest{Controller: &pb.VirtioScsiController{Name: "OPI-VirtioScsi8"}})
 	if err != nil {
 		log.Fatalf("could not create VirtioScsi subsystem: %v", err)
@@ -172,6 +177,7 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 
 	// VirtioScsiLun
 	c6 := pb.NewVirtioScsiLunServiceClient(conn)
+	log.Printf("Testing NewVirtioScsiLunServiceClient")
 	rl1, err := c6.VirtioScsiLunCreate(ctx, &pb.VirtioScsiLunCreateRequest{Lun: &pb.VirtioScsiLun{ControllerId: 8, Bdev: "Malloc1"}})
 	if err != nil {
 		log.Fatalf("could not create VirtioScsi subsystem: %v", err)
