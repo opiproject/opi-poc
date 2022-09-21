@@ -146,7 +146,7 @@ message NVMeController {
 Call remote method
 
 ```bash
-$ grpc_cli call opi-spdk-server:50051 NVMeSubsystemDelete "id: 8"
+$ grpc_cli call opi-spdk-server:50051 NVMeControllerDelete "subsystem_id: 8"
 connecting to opi-spdk-server:50051
 Rpc succeeded with OK status
 ```
@@ -161,4 +161,27 @@ opi-spdk-server_1  | 2022/08/05 14:39:40 Received from SPDK: {1 {-19 No such dev
 opi-spdk-server_1  | 2022/08/05 14:39:40 error: bdev_malloc_delete: json response error: No such device
 opi-spdk-server_1  | 2022/08/05 14:39:40 Received from SPDK: false
 opi-spdk-server_1  | 2022/08/05 14:39:40 Could not delete: id:8
+```
+
+Another remote call example
+
+```bash
+$ grpc_cli call opi-spdk-server:50051 NVMeSubsystemList ""
+connecting to opi-spdk-server:50051
+subsystem {
+  nqn: "Malloc0"
+}
+subsystem {
+  nqn: "Malloc1"
+}
+Rpc succeeded with OK status
+```
+
+Another Server log
+
+```bash
+2022/09/21 19:38:26 NVMeSubsystemList: Received from client:
+2022/09/21 19:38:26 Sending to SPDK: {"jsonrpc":"2.0","id":1,"method":"bdev_get_bdevs"}
+2022/09/21 19:38:26 Received from SPDK: {1 {0 } 0x40003de660}
+2022/09/21 19:38:26 Received from SPDK: [{Malloc0 512 131072 08cd0d67-eb57-41c2-957b-585faed7d81a} {Malloc1 512 131072 78c4b40f-dd16-42c1-b057-f95c11db7aaf}]
 ```

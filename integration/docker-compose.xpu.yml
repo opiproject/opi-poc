@@ -13,8 +13,8 @@ services:
       - USER_PASSWORD=123456
       - USER_NAME=xpu
     ports:
-      - '2207:2222'
-      - "9009:9009"
+      - '2207:2222' # ssh
+      - "9009:9009" # spdk
       - "127.0.0.1:8011:8001/tcp"
       - "127.0.0.1:8444:8444/tcp"
     networks:
@@ -129,8 +129,8 @@ services:
       - USER_PASSWORD=123456
       - USER_NAME=bmc
     ports:
-      - '2209:2222'
-      - '8002:8000'
+      - '2209:2222' # ssh
+      - '8002:8000' # redfish
     networks:
       bmc:
         ipv4_address: 10.128.128.9
