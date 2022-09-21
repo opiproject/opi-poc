@@ -9,6 +9,8 @@ import (
 	"log"
 
 	pb "github.com/opiproject/opi-api/storage/proto"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"github.com/google/uuid"
 )
 
@@ -137,7 +139,9 @@ func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRe
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (len(result) != 1) {
-		log.Printf("expecting exactly 1 result")
+		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result))
+		log.Print(msg)
+		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
 	return &pb.NVMeSubsystemGetResponse{Subsystem: &pb.NVMeSubsystem{Nqn: result[0].Name}}, nil
 }
@@ -173,7 +177,9 @@ func (s *server) NVMeSubsystemStats(ctx context.Context, in *pb.NVMeSubsystemSta
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (len(result.Bdevs) != 1) {
-		log.Printf("expecting exactly 1 result")
+		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result.Bdevs))
+		log.Print(msg)
+		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
 	return &pb.NVMeSubsystemStatsResponse{Stats: fmt.Sprint(result.Bdevs[0])}, nil
 }
@@ -338,7 +344,9 @@ func (s *server) VirtioBlkGet(ctx context.Context, in *pb.VirtioBlkGetRequest) (
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (len(result) != 1) {
-		log.Printf("expecting exactly 1 result")
+		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result))
+		log.Print(msg)
+		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
 	return &pb.VirtioBlkGetResponse{Controller: &pb.VirtioBlk{Name: result[0].Ctrlr}}, nil
 }
@@ -439,7 +447,9 @@ func (s *server) VirtioScsiControllerGet(ctx context.Context, in *pb.VirtioScsiC
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (len(result) != 1) {
-		log.Printf("expecting exactly 1 result")
+		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result))
+		log.Print(msg)
+		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
 	return &pb.VirtioScsiControllerGetResponse{Controller: &pb.VirtioScsiController{Name: result[0].Ctrlr}}, nil
 }
@@ -543,7 +553,9 @@ func (s *server) VirtioScsiLunGet(ctx context.Context, in *pb.VirtioScsiLunGetRe
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (len(result) != 1) {
-		log.Printf("expecting exactly 1 result")
+		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result))
+		log.Print(msg)
+		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
 	return &pb.VirtioScsiLunGetResponse{Lun: &pb.VirtioScsiLun{Bdev: result[0].Ctrlr}}, nil
 }
