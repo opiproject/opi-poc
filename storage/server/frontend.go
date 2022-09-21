@@ -31,6 +31,7 @@ func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCr
 	err := call("bdev_malloc_create", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	return &pb.NVMeSubsystemCreateResponse{}, nil
@@ -47,6 +48,7 @@ func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDe
 	err := call("bdev_malloc_delete", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (!result) {
@@ -66,6 +68,7 @@ func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUp
 	err1 := call("bdev_malloc_delete", &params1, &result1)
 	if err1 != nil {
 		log.Printf("error: %v\n", err1)
+		return nil, err1
 	}
 	log.Printf("Received from SPDK: %v", result1)
 	if (!result1) {
@@ -86,6 +89,7 @@ func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUp
 	err2 := call("bdev_malloc_create", &params2, &result2)
 	if err2 != nil {
 		log.Printf("error: %v\n", err2)
+		return nil, err2
 	}
 	log.Printf("Received from SPDK: %v", result2)
 	return &pb.NVMeSubsystemUpdateResponse{}, nil
@@ -102,6 +106,7 @@ func (s *server) NVMeSubsystemList(ctx context.Context, in *pb.NVMeSubsystemList
 	err := call("bdev_get_bdevs", nil, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	Blobarray := make([]*pb.NVMeSubsystem, len(result))
@@ -128,6 +133,7 @@ func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRe
 	err := call("bdev_get_bdevs", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (len(result) != 1) {
@@ -163,6 +169,7 @@ func (s *server) NVMeSubsystemStats(ctx context.Context, in *pb.NVMeSubsystemSta
 	err := call("bdev_get_iostat", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (len(result.Bdevs) != 1) {
@@ -252,6 +259,7 @@ func (s *server) VirtioBlkCreate(ctx context.Context, in *pb.VirtioBlkCreateRequ
 	err := call("vhost_create_blk_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (!result) {
@@ -271,6 +279,7 @@ func (s *server) VirtioBlkDelete(ctx context.Context, in *pb.VirtioBlkDeleteRequ
 	err := call("vhost_delete_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (!result) {
@@ -296,6 +305,7 @@ func (s *server) VirtioBlkList(ctx context.Context, in *pb.VirtioBlkListRequest)
 	err := call("vhost_get_controllers", nil, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	Blobarray := make([]*pb.VirtioBlk, len(result))
@@ -324,6 +334,7 @@ func (s *server) VirtioBlkGet(ctx context.Context, in *pb.VirtioBlkGetRequest) (
 	err := call("vhost_get_controllers", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (len(result) != 1) {
@@ -350,6 +361,7 @@ func (s *server) VirtioScsiControllerCreate(ctx context.Context, in *pb.VirtioSc
 	err := call("vhost_create_scsi_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (!result) {
@@ -369,6 +381,7 @@ func (s *server) VirtioScsiControllerDelete(ctx context.Context, in *pb.VirtioSc
 	err := call("vhost_delete_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (!result) {
@@ -394,6 +407,7 @@ func (s *server) VirtioScsiControllerList(ctx context.Context, in *pb.VirtioScsi
 	err := call("vhost_get_controllers", nil, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	Blobarray := make([]*pb.VirtioScsiController, len(result))
@@ -421,6 +435,7 @@ func (s *server) VirtioScsiControllerGet(ctx context.Context, in *pb.VirtioScsiC
 	err := call("vhost_get_controllers", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (len(result) != 1) {
@@ -451,6 +466,7 @@ func (s *server) VirtioScsiLunCreate(ctx context.Context, in *pb.VirtioScsiLunCr
 	err := call("vhost_scsi_controller_add_target", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	return &pb.VirtioScsiLunCreateResponse{}, nil
@@ -469,6 +485,7 @@ func (s *server) VirtioScsiLunDelete(ctx context.Context, in *pb.VirtioScsiLunDe
 	err := call("vhost_scsi_controller_remove_target", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (!result) {
@@ -494,6 +511,7 @@ func (s *server) VirtioScsiLunList(ctx context.Context, in *pb.VirtioScsiLunList
 	err := call("vhost_get_controllers", nil, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	Blobarray := make([]*pb.VirtioScsiLun, len(result))
@@ -521,6 +539,7 @@ func (s *server) VirtioScsiLunGet(ctx context.Context, in *pb.VirtioScsiLunGetRe
 	err := call("vhost_get_controllers", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (len(result) != 1) {

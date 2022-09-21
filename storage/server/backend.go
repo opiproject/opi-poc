@@ -30,6 +30,7 @@ func (s *server) NVMfRemoteControllerConnect(ctx context.Context, in *pb.NVMfRem
 	err := call("bdev_get_bdevs", &params, &result)
 	if err != nil {
 		log.Printf("error: %v\n", err)
+		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
 	if (len(result) != 1) {
