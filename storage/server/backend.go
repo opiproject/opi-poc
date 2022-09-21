@@ -29,7 +29,7 @@ func (s *server) NVMfRemoteControllerConnect(ctx context.Context, in *pb.NVMfRem
 	// TODO: bdev_nvme_attach_controller -b Nvme0 -t RDMA -a 192.168.100.1 -f IPv4 -s 4420 -n nqn.2016-06.io.spdk:cnode1
 	err := call("bdev_get_bdevs", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)

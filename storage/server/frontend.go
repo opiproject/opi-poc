@@ -30,7 +30,7 @@ func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCr
 	var result string
 	err := call("bdev_malloc_create", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -47,7 +47,7 @@ func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDe
 	var result bool
 	err := call("bdev_malloc_delete", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -67,7 +67,7 @@ func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUp
 	var result1 bool
 	err1 := call("bdev_malloc_delete", &params1, &result1)
 	if err1 != nil {
-		log.Printf("error: %v\n", err1)
+		log.Printf("error: %v", err1)
 		return nil, err1
 	}
 	log.Printf("Received from SPDK: %v", result1)
@@ -88,7 +88,7 @@ func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUp
 	var result2 string
 	err2 := call("bdev_malloc_create", &params2, &result2)
 	if err2 != nil {
-		log.Printf("error: %v\n", err2)
+		log.Printf("error: %v", err2)
 		return nil, err2
 	}
 	log.Printf("Received from SPDK: %v", result2)
@@ -105,7 +105,7 @@ func (s *server) NVMeSubsystemList(ctx context.Context, in *pb.NVMeSubsystemList
 	}
 	err := call("bdev_get_bdevs", nil, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -132,7 +132,7 @@ func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRe
 	}
 	err := call("bdev_get_bdevs", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -168,7 +168,7 @@ func (s *server) NVMeSubsystemStats(ctx context.Context, in *pb.NVMeSubsystemSta
 	}
 	err := call("bdev_get_iostat", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -258,7 +258,7 @@ func (s *server) VirtioBlkCreate(ctx context.Context, in *pb.VirtioBlkCreateRequ
 	var result bool
 	err := call("vhost_create_blk_controller", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -278,7 +278,7 @@ func (s *server) VirtioBlkDelete(ctx context.Context, in *pb.VirtioBlkDeleteRequ
 	var result bool
 	err := call("vhost_delete_controller", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -304,7 +304,7 @@ func (s *server) VirtioBlkList(ctx context.Context, in *pb.VirtioBlkListRequest)
 	}
 	err := call("vhost_get_controllers", nil, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -333,7 +333,7 @@ func (s *server) VirtioBlkGet(ctx context.Context, in *pb.VirtioBlkGetRequest) (
 	}
 	err := call("vhost_get_controllers", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -360,7 +360,7 @@ func (s *server) VirtioScsiControllerCreate(ctx context.Context, in *pb.VirtioSc
 	var result bool
 	err := call("vhost_create_scsi_controller", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -380,7 +380,7 @@ func (s *server) VirtioScsiControllerDelete(ctx context.Context, in *pb.VirtioSc
 	var result bool
 	err := call("vhost_delete_controller", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -406,7 +406,7 @@ func (s *server) VirtioScsiControllerList(ctx context.Context, in *pb.VirtioScsi
 	}
 	err := call("vhost_get_controllers", nil, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -434,7 +434,7 @@ func (s *server) VirtioScsiControllerGet(ctx context.Context, in *pb.VirtioScsiC
 	}
 	err := call("vhost_get_controllers", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -465,7 +465,7 @@ func (s *server) VirtioScsiLunCreate(ctx context.Context, in *pb.VirtioScsiLunCr
 	var result int
 	err := call("vhost_scsi_controller_add_target", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -484,7 +484,7 @@ func (s *server) VirtioScsiLunDelete(ctx context.Context, in *pb.VirtioScsiLunDe
 	var result bool
 	err := call("vhost_scsi_controller_remove_target", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -510,7 +510,7 @@ func (s *server) VirtioScsiLunList(ctx context.Context, in *pb.VirtioScsiLunList
 	}
 	err := call("vhost_get_controllers", nil, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
@@ -538,7 +538,7 @@ func (s *server) VirtioScsiLunGet(ctx context.Context, in *pb.VirtioScsiLunGetRe
 	}
 	err := call("vhost_get_controllers", &params, &result)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
