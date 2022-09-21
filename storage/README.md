@@ -30,6 +30,37 @@ is a refernce implementation not intended to use in production.
 
 [OPI Storage QEMU SPDK Setup](qemu_spdk_setup.md)
 
+## Real DPU/IPU example
+
+on DPU/IPU (i.e. with IP=10.10.10.1) run
+
+```bash
+$ docker run --rm -it -v /var/tmp/:/var/tmp/ -p 50051:50051 ghcr.io/opiproject/opi-storage-server:main
+2022/09/21 21:39:49 server listening at [::]:50051
+```
+
+on X86 management VM run
+
+```bash
+$ docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMeSubsystemList "{}"
+connecting to 10.10.10.1:50051
+{
+ "subsystem": [
+  {
+   "nqn": "Malloc0"
+  },
+  {
+   "nqn": "Malloc1"
+  }
+ ]
+}
+Rpc succeeded with OK status
+
+docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMeSubsystemGet "{'nqn': '8'}"
+connecting to 10.10.10.1:50051
+Rpc failed with status code 2, error message: bdev_get_bdevs: json response error: No such device
+```
+
 ## Huge pages
 
 SPDK requires huge pages, this is how you can configure this manually.
