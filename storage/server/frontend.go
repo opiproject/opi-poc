@@ -273,7 +273,7 @@ func (s *server) VirtioBlkDelete(ctx context.Context, in *pb.VirtioBlkDeleteRequ
 	params := struct {
 		Name        string `json:"ctrlr"`
 	}{
-		Name:       fmt.Sprint("VhostNvme", in.GetControllerId()),
+		Name:       fmt.Sprint("VirtioBlk", in.GetControllerId()),
 	}
 	var result bool
 	err := call("vhost_delete_controller", &params, &result)
