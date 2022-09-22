@@ -56,9 +56,19 @@ connecting to 10.10.10.1:50051
 }
 Rpc succeeded with OK status
 
-docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMeSubsystemGet "{'nqn': '8'}"
+$ docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMeSubsystemCreate "{'subsystem' : {'nqn' : 'OpiMalloc8'} }"
 connecting to 10.10.10.1:50051
-Rpc failed with status code 2, error message: bdev_get_bdevs: json response error: No such device
+{}
+Rpc succeeded with OK status
+
+$ docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMeSubsystemGet "{'nqn': '8'}"
+connecting to 10.10.10.1:50051
+{
+ "subsystem": {
+  "nqn": "OpiMalloc8"
+ }
+}
+Rpc succeeded with OK status
 ```
 
 ## Huge pages
