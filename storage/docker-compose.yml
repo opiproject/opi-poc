@@ -45,6 +45,9 @@ services:
       - spdk:rw
     networks:
       - opi
+    depends_on:
+      spdk:
+        condition: service_healthy
     command: /opi-spdk-bridge -port=50051
 
   opi-spdk-client:
