@@ -11,16 +11,11 @@ import (
 func do_backend(conn grpc.ClientConnInterface, ctx context.Context) {
 	// NVMfRemoteController
 	c4 := pb.NewNVMfRemoteControllerServiceClient(conn)
-	rr0, err := c4.NVMfRemoteControllerConnect(ctx, &pb.NVMfRemoteControllerConnectRequest{Ctrl: &pb.NVMfRemoteController{Id: 1}})
+	rr0, err := c4.NVMfRemoteControllerConnect(ctx, &pb.NVMfRemoteControllerConnectRequest{Ctrl: &pb.NVMfRemoteController{Id: 8, Traddr:"127.0.0.1", Trsvcid:4444, Subnqn:"nqn.2016-06.io.spdk:cnode1"}})
 	if err != nil {
 		log.Fatalf("could not connect to Remote NVMf controller: %v", err)
 	}
 	log.Printf("Connected: %v", rr0)
-	rr1, err := c4.NVMfRemoteControllerDisconnect(ctx, &pb.NVMfRemoteControllerDisconnectRequest{Id: 8})
-	if err != nil {
-		log.Fatalf("could not disconnect from Remote NVMf controller: %v", err)
-	}
-	log.Printf("Disconnected: %v", rr1)
 	rr2, err := c4.NVMfRemoteControllerReset(ctx, &pb.NVMfRemoteControllerResetRequest{Id: 8})
 	if err != nil {
 		log.Fatalf("could not reset Remote NVMf controller: %v", err)
@@ -41,5 +36,10 @@ func do_backend(conn grpc.ClientConnInterface, ctx context.Context) {
 		log.Fatalf("could not stats from Remote NVMf controller: %v", err)
 	}
 	log.Printf("Stats: %v", rr5)
+	rr1, err := c4.NVMfRemoteControllerDisconnect(ctx, &pb.NVMfRemoteControllerDisconnectRequest{Id: 8})
+	if err != nil {
+		log.Fatalf("could not disconnect from Remote NVMf controller: %v", err)
+	}
+	log.Printf("Disconnected: %v", rr1)
 
 }
