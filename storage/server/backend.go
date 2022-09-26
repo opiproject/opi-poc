@@ -32,9 +32,7 @@ func (s *server) NVMfRemoteControllerConnect(ctx context.Context, in *pb.NVMfRem
 		Port: 		fmt.Sprint(in.GetCtrl().GetTrsvcid()),
 		Subsystem: 	in.GetCtrl().GetSubnqn(),
 	}
-	var result []struct {
-		Name        string `json:"name"`
-	}
+	var result []string
 	err := call("bdev_nvme_attach_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
