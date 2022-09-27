@@ -17,14 +17,7 @@ import (
 
 func (s *server) NVMfRemoteControllerConnect(ctx context.Context, in *pb.NVMfRemoteControllerConnectRequest) (*pb.NVMfRemoteControllerConnectResponse, error) {
 	log.Printf("NVMfRemoteControllerConnect: Received from client: %v", in)
-	params := struct {
-		Name        string `json:"name"`
-		Type        string `json:"trtype"`
-		Address     string `json:"traddr"`
-		Family      string `json:"adrfam"`
-		Port        string `json:"trsvcid"`
-		Subsystem   string `json:"subnqn"`
-	}{
+	params := BdevNvmeAttachControllerParams{
 		Name: 		fmt.Sprint("OpiNvme", in.GetCtrl().GetId()),
 		Type: 		"TCP",
 		Address: 	in.GetCtrl().GetTraddr(),
@@ -32,7 +25,7 @@ func (s *server) NVMfRemoteControllerConnect(ctx context.Context, in *pb.NVMfRem
 		Port: 		fmt.Sprint(in.GetCtrl().GetTrsvcid()),
 		Subsystem: 	in.GetCtrl().GetSubnqn(),
 	}
-	var result []string
+	var result[] BdevNvmeAttachControllerResult
 	err := call("bdev_nvme_attach_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -47,12 +40,10 @@ func (s *server) NVMfRemoteControllerConnect(ctx context.Context, in *pb.NVMfRem
 
 func (s *server) NVMfRemoteControllerDisconnect(ctx context.Context, in *pb.NVMfRemoteControllerDisconnectRequest) (*pb.NVMfRemoteControllerDisconnectResponse, error) {
 	log.Printf("NVMfRemoteControllerDisconnect: Received from client: %v", in)
-	params := struct {
-		Name string `json:"name"`
-	}{
+	params := BdevNvmeDettachControllerParams{
 		Name: 		fmt.Sprint("OpiNvme", in.GetId()),
 	}
-	var result bool
+	var result BdevNvmeDettachControllerResult
 	err := call("bdev_nvme_detach_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -69,25 +60,7 @@ func (s *server) NVMfRemoteControllerReset(ctx context.Context, in *pb.NVMfRemot
 
 func (s *server) NVMfRemoteControllerList(ctx context.Context, in *pb.NVMfRemoteControllerListRequest) (*pb.NVMfRemoteControllerListResponse, error) {
 	log.Printf("NVMfRemoteControllerList: Received from client: %v", in)
-	var result []struct {
-		Name   string `json:"name"`
-		Ctrlrs []struct {
-			State string `json:"state"`
-			Trid  struct {
-				Trtype  string `json:"trtype"`
-				Adrfam  string `json:"adrfam"`
-				Traddr  string `json:"traddr"`
-				Trsvcid string `json:"trsvcid"`
-				Subnqn  string `json:"subnqn"`
-			} `json:"trid"`
-			Cntlid int `json:"cntlid"`
-			Host   struct {
-				Nqn   string `json:"nqn"`
-				Addr  string `json:"addr"`
-				Svcid string `json:"svcid"`
-			} `json:"host"`
-		} `json:"ctrlrs"`
-	}
+	var result[] BdevNvmeGetControllerResult
 	err := call("bdev_nvme_get_controllers", nil, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -104,15 +77,10 @@ func (s *server) NVMfRemoteControllerList(ctx context.Context, in *pb.NVMfRemote
 
 func (s *server) NVMfRemoteControllerGet(ctx context.Context, in *pb.NVMfRemoteControllerGetRequest) (*pb.NVMfRemoteControllerGetResponse, error) {
 	log.Printf("NVMfRemoteControllerGet: Received from client: %v", in)
-	params := struct {
-		Name string `json:"name"`
-	}{
+	params := BdevNvmeGetControllerParams {
 		Name:       fmt.Sprint("OpiNvme", in.GetId()),
 	}
-	var result []struct {
-		Name        string `json:"name"`
-		CtrlId      int64  `json:"cntlid"`
-	}
+	var result[] BdevNvmeGetControllerResult
 	err := call("bdev_nvme_get_controllers", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)

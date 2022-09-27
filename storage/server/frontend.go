@@ -18,18 +18,13 @@ import (
 
 func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCreateRequest) (*pb.NVMeSubsystemCreateResponse, error) {
 	log.Printf("NVMeSubsystemCreate: Received from client: %v", in)
-	params := struct {
-		Name        string `json:"name"`
-		BlockSize   int64  `json:"block_size"`
-		NumBlocks   int64  `json:"num_blocks"`
-		Uuid        string `json:"uuid"`
-	}{
+	params := BdevMalloCreateParams {
 		Name:       in.GetSubsystem().GetNqn(),
 		BlockSize:  512,
 		NumBlocks:  64,
-		Uuid:      uuid.New().String(),
+		UUID:       uuid.New().String(),
 	}
-	var result string
+	var result BdevAMalloCreateResult
 	err := call("bdev_malloc_create", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -41,12 +36,10 @@ func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCr
 
 func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDeleteRequest) (*pb.NVMeSubsystemDeleteResponse, error) {
 	log.Printf("NVMeSubsystemDelete: Received from client: %v", in)
-	params := struct {
-		Name        string `json:"name"`
-	}{
+	params := BdevMallocDeleteParams {
 		Name:       fmt.Sprint("OpiMalloc", in.GetNqn()),
 	}
-	var result bool
+	var result BdevMallocDeleteResult
 	err := call("bdev_malloc_delete", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -61,12 +54,10 @@ func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDe
 
 func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUpdateRequest) (*pb.NVMeSubsystemUpdateResponse, error) {
 	log.Printf("NVMeSubsystemUpdate: Received from client: %v", in)
-	params1 := struct {
-		Name        string `json:"name"`
-	}{
+	params1 := BdevMallocDeleteParams {
 		Name:       in.GetSubsystem().GetNqn(),
 	}
-	var result1 bool
+	var result1 BdevMallocDeleteResult
 	err1 := call("bdev_malloc_delete", &params1, &result1)
 	if err1 != nil {
 		log.Printf("error: %v", err1)
@@ -76,18 +67,13 @@ func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUp
 	if (!result1) {
 		log.Printf("Could not delete: %v", in)
 	}
-	params2 := struct {
-		Name        string `json:"name"`
-		BlockSize   int64  `json:"block_size"`
-		NumBlocks   int64  `json:"num_blocks"`
-		Uuid        string `json:"uuid"`
-	}{
+	params2 := BdevMalloCreateParams {
 		Name:       in.GetSubsystem().GetNqn(),
 		BlockSize:  512,
 		NumBlocks:  64,
-		Uuid:      uuid.New().String(),
+		UUID:       uuid.New().String(),
 	}
-	var result2 string
+	var result2 BdevAMalloCreateResult
 	err2 := call("bdev_malloc_create", &params2, &result2)
 	if err2 != nil {
 		log.Printf("error: %v", err2)
@@ -99,12 +85,7 @@ func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUp
 
 func (s *server) NVMeSubsystemList(ctx context.Context, in *pb.NVMeSubsystemListRequest) (*pb.NVMeSubsystemListResponse, error) {
 	log.Printf("NVMeSubsystemList: Received from client: %v", in)
-	var result []struct {
-		Name        string `json:"name"`
-		BlockSize   int64  `json:"block_size"`
-		NumBlocks   int64  `json:"num_blocks"`
-		Uuid        string `json:"uuid"`
-	}
+	var result []BdevGetBdevsResult
 	err := call("bdev_get_bdevs", nil, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -121,17 +102,10 @@ func (s *server) NVMeSubsystemList(ctx context.Context, in *pb.NVMeSubsystemList
 
 func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRequest) (*pb.NVMeSubsystemGetResponse, error) {
 	log.Printf("NVMeSubsystemGet: Received from client: %v", in)
-	params := struct {
-		Name string `json:"name"`
-	}{
+	params := BdevGetBdevsParams {
 		Name:       fmt.Sprint("OpiMalloc", in.GetNqn()),
 	}
-	var result []struct {
-		Name        string `json:"name"`
-		BlockSize   int64  `json:"block_size"`
-		NumBlocks   int64  `json:"num_blocks"`
-		Uuid        string `json:"uuid"`
-	}
+	var result[] BdevGetBdevsResult
 	err := call("bdev_get_bdevs", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -148,28 +122,11 @@ func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRe
 
 func (s *server) NVMeSubsystemStats(ctx context.Context, in *pb.NVMeSubsystemStatsRequest) (*pb.NVMeSubsystemStatsResponse, error) {
 	log.Printf("NVMeSubsystemStats: Received from client: %v", in)
-	params := struct {
-		Name string `json:"name"`
-	}{
+	params := BdevGetIostatParams {
 		Name:     fmt.Sprint("OpiMalloc", in.GetNqn()),
 	}
 	// See https://mholt.github.io/json-to-go/
-	var result struct {
-		TickRate int64 `json:"tick_rate"`
-		Ticks    int64 `json:"ticks"`
-		Bdevs    []struct {
-			Name              string `json:"name"`
-			BytesRead         int    `json:"bytes_read"`
-			NumReadOps        int    `json:"num_read_ops"`
-			BytesWritten      int    `json:"bytes_written"`
-			NumWriteOps       int    `json:"num_write_ops"`
-			BytesUnmapped     int    `json:"bytes_unmapped"`
-			NumUnmapOps       int    `json:"num_unmap_ops"`
-			ReadLatencyTicks  int    `json:"read_latency_ticks"`
-			WriteLatencyTicks int    `json:"write_latency_ticks"`
-			UnmapLatencyTicks int    `json:"unmap_latency_ticks"`
-		} `json:"bdevs"`
-	}
+	var result BdevGetIostatResult
 	err := call("bdev_get_iostat", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -254,14 +211,11 @@ func (s *server) NVMeNamespaceStats(ctx context.Context, in *pb.NVMeNamespaceSta
 
 func (s *server) VirtioBlkCreate(ctx context.Context, in *pb.VirtioBlkCreateRequest) (*pb.VirtioBlkCreateResponse, error) {
 	log.Printf("VirtioBlkCreate: Received from client: %v", in)
-	params := struct {
-		Name      string `json:"ctrlr"`
-		Bdev      string `json:"dev_name"`
-	}{
-		Name:       in.GetController().GetName(),
-		Bdev:       in.GetController().GetBdev(),
+	params := VhostCreateBlkConreollerParams {
+		Ctrlr:      in.GetController().GetName(),
+		DevName:    in.GetController().GetBdev(),
 	}
-	var result bool
+	var result VhostCreateBlkConreollerResult
 	err := call("vhost_create_blk_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -276,12 +230,10 @@ func (s *server) VirtioBlkCreate(ctx context.Context, in *pb.VirtioBlkCreateRequ
 
 func (s *server) VirtioBlkDelete(ctx context.Context, in *pb.VirtioBlkDeleteRequest) (*pb.VirtioBlkDeleteResponse, error) {
 	log.Printf("VirtioBlkDelete: Received from client: %v", in)
-	params := struct {
-		Name        string `json:"ctrlr"`
-	}{
-		Name:       fmt.Sprint("VirtioBlk", in.GetControllerId()),
+	params := VhostDeleteControllerParams {
+		Ctrlr:       fmt.Sprint("VirtioBlk", in.GetControllerId()),
 	}
-	var result bool
+	var result VhostDeleteControllerResult
 	err := call("vhost_delete_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -301,13 +253,7 @@ func (s *server) VirtioBlkUpdate(ctx context.Context, in *pb.VirtioBlkUpdateRequ
 
 func (s *server) VirtioBlkList(ctx context.Context, in *pb.VirtioBlkListRequest) (*pb.VirtioBlkListResponse, error) {
 	log.Printf("VirtioBlkList: Received from client: %v", in)
-	var result []struct {
-		Ctrlr           string `json:"ctrlr"`
-		Cpumask         string `json:"cpumask"`
-		DelayBaseUs     int    `json:"delay_base_us"`
-		IopsThreshold   int    `json:"iops_threshold"`
-		Socket          string `json:"socket"`
-	}
+	var result []VhostGetControllersResult
 	err := call("vhost_get_controllers", nil, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -325,18 +271,10 @@ func (s *server) VirtioBlkList(ctx context.Context, in *pb.VirtioBlkListRequest)
 
 func (s *server) VirtioBlkGet(ctx context.Context, in *pb.VirtioBlkGetRequest) (*pb.VirtioBlkGetResponse, error) {
 	log.Printf("VirtioBlkGet: Received from client: %v", in)
-	params := struct {
-		Name string `json:"name"`
-	}{
+	params := VhostGetControllersParams {
 		Name:       fmt.Sprint("VirtioBlk", in.GetControllerId()),
 	}
-	var result []struct {
-		Ctrlr           string `json:"ctrlr"`
-		Cpumask         string `json:"cpumask"`
-		DelayBaseUs     int    `json:"delay_base_us"`
-		IopsThreshold   int    `json:"iops_threshold"`
-		Socket          string `json:"socket"`
-	}
+	var result []VhostGetControllersResult
 	err := call("vhost_get_controllers", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
