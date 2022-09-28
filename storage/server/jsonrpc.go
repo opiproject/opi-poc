@@ -70,7 +70,8 @@ func call(method string, args, result interface{}) error {
 		Result: result,
 	}
 	err = json.NewDecoder(resp).Decode(&response)
-	log.Printf("Received from SPDK: %v", response)
+	jsonresponse, _ := json.Marshal(response)
+	log.Printf("Received from SPDK: %s", jsonresponse)
 	if err != nil {
 		return fmt.Errorf("%s: %s", method, err)
 	}
