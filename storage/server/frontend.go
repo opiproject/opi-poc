@@ -211,11 +211,11 @@ func (s *server) NVMeNamespaceStats(ctx context.Context, in *pb.NVMeNamespaceSta
 
 func (s *server) VirtioBlkCreate(ctx context.Context, in *pb.VirtioBlkCreateRequest) (*pb.VirtioBlkCreateResponse, error) {
 	log.Printf("VirtioBlkCreate: Received from client: %v", in)
-	params := VhostCreateBlkConreollerParams {
+	params := VhostCreateBlkControllerParams {
 		Ctrlr:      in.GetController().GetName(),
 		DevName:    in.GetController().GetBdev(),
 	}
-	var result VhostCreateBlkConreollerResult
+	var result VhostCreateBlkControllerResult
 	err := call("vhost_create_blk_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -298,12 +298,10 @@ func (s *server) VirtioBlkStats(ctx context.Context, in *pb.VirtioBlkStatsReques
 
 func (s *server) VirtioScsiControllerCreate(ctx context.Context, in *pb.VirtioScsiControllerCreateRequest) (*pb.VirtioScsiControllerCreateResponse, error) {
 	log.Printf("VirtioScsiControllerCreate: Received from client: %v", in)
-	params := struct {
-		Name      string `json:"ctrlr"`
-	}{
-		Name:       in.GetController().GetName(),
+	params := VhostCreateScsiControllerParams {
+		Ctrlr:       in.GetController().GetName(),
 	}
-	var result bool
+	var result VhostCreateScsiControllerResult
 	err := call("vhost_create_scsi_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -318,12 +316,10 @@ func (s *server) VirtioScsiControllerCreate(ctx context.Context, in *pb.VirtioSc
 
 func (s *server) VirtioScsiControllerDelete(ctx context.Context, in *pb.VirtioScsiControllerDeleteRequest) (*pb.VirtioScsiControllerDeleteResponse, error) {
 	log.Printf("VirtioScsiControllerDelete: Received from client: %v", in)
-	params := struct {
-		Name        string `json:"ctrlr"`
-	}{
-		Name:       fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
+	params := VhostDeleteControllerParams {
+		Ctrlr:       fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
 	}
-	var result bool
+	var result VhostDeleteControllerResult
 	err := call("vhost_delete_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -343,13 +339,7 @@ func (s *server) VirtioScsiControllerUpdate(ctx context.Context, in *pb.VirtioSc
 
 func (s *server) VirtioScsiControllerList(ctx context.Context, in *pb.VirtioScsiControllerListRequest) (*pb.VirtioScsiControllerListResponse, error) {
 	log.Printf("VirtioScsiControllerList: Received from client: %v", in)
-	var result []struct {
-		Ctrlr           string `json:"ctrlr"`
-		Cpumask         string `json:"cpumask"`
-		DelayBaseUs     int    `json:"delay_base_us"`
-		IopsThreshold   int    `json:"iops_threshold"`
-		Socket          string `json:"socket"`
-	}
+	var result []VhostGetControllersResult
 	err := call("vhost_get_controllers", nil, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -366,18 +356,10 @@ func (s *server) VirtioScsiControllerList(ctx context.Context, in *pb.VirtioScsi
 
 func (s *server) VirtioScsiControllerGet(ctx context.Context, in *pb.VirtioScsiControllerGetRequest) (*pb.VirtioScsiControllerGetResponse, error) {
 	log.Printf("VirtioScsiControllerGet: Received from client: %v", in)
-	params := struct {
-		Name string `json:"name"`
-	}{
+	params := VhostGetControllersParams {
 		Name:       fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
 	}
-	var result []struct {
-		Ctrlr           string `json:"ctrlr"`
-		Cpumask         string `json:"cpumask"`
-		DelayBaseUs     int    `json:"delay_base_us"`
-		IopsThreshold   int    `json:"iops_threshold"`
-		Socket          string `json:"socket"`
-	}
+	var result []VhostGetControllersResult
 	err := call("vhost_get_controllers", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -449,13 +431,7 @@ func (s *server) VirtioScsiLunUpdate(ctx context.Context, in *pb.VirtioScsiLunUp
 
 func (s *server) VirtioScsiLunList(ctx context.Context, in *pb.VirtioScsiLunListRequest) (*pb.VirtioScsiLunListResponse, error) {
 	log.Printf("VirtioScsiLunList: Received from client: %v", in)
-	var result []struct {
-		Ctrlr           string `json:"ctrlr"`
-		Cpumask         string `json:"cpumask"`
-		DelayBaseUs     int    `json:"delay_base_us"`
-		IopsThreshold   int    `json:"iops_threshold"`
-		Socket          string `json:"socket"`
-	}
+	var result []VhostGetControllersResult
 	err := call("vhost_get_controllers", nil, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -472,18 +448,10 @@ func (s *server) VirtioScsiLunList(ctx context.Context, in *pb.VirtioScsiLunList
 
 func (s *server) VirtioScsiLunGet(ctx context.Context, in *pb.VirtioScsiLunGetRequest) (*pb.VirtioScsiLunGetResponse, error) {
 	log.Printf("VirtioScsiLunGet: Received from client: %v", in)
-	params := struct {
-		Name string `json:"name"`
-	}{
+	params := VhostGetControllersParams {
 		Name:       fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
 	}
-	var result []struct {
-		Ctrlr           string `json:"ctrlr"`
-		Cpumask         string `json:"cpumask"`
-		DelayBaseUs     int    `json:"delay_base_us"`
-		IopsThreshold   int    `json:"iops_threshold"`
-		Socket          string `json:"socket"`
-	}
+	var result []VhostGetControllersResult
 	err := call("vhost_get_controllers", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)

@@ -126,12 +126,12 @@ type BdevGetIostatResult struct {
 	} `json:"bdevs"`
 }
 
-type VhostCreateBlkConreollerParams struct {
+type VhostCreateBlkControllerParams struct {
 	Ctrlr   string `json:"ctrlr"`
 	DevName string `json:"dev_name"`
 }
 
-type VhostCreateBlkConreollerResult bool
+type VhostCreateBlkControllerResult bool
 
 type VhostDeleteControllerParams struct {
 	Ctrlr   string `json:"ctrlr"`
@@ -156,3 +156,9 @@ type VhostGetControllersResult struct {
 		} `json:"block"`
 	} `json:"backend_specific"`
 }
+
+type VhostCreateScsiControllerParams struct {
+	Ctrlr   string `json:"ctrlr"`
+}
+
+type VhostCreateScsiControllerResult bool
