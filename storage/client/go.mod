@@ -1,6 +1,6 @@
 module opi.storage.v1
 
-go 1.18
+go 1.19
 
 require (
 	github.com/opiproject/opi-api v0.0.0-20220917210936-deff7696ee2d

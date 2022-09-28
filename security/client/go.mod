@@ -1,6 +1,6 @@
 module main
 
-go 1.18
+go 1.19
 
 require (
 	github.com/go-ping/ping v1.1.0

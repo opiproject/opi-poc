@@ -1,6 +1,6 @@
 module main
 
-go 1.18
+go 1.19
 
 require (
 	github.com/opiproject/opi-api v0.0.0-20220912122535-ead3a0c2da92
