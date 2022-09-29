@@ -102,5 +102,129 @@ func (s *server) NVMfRemoteControllerStats(ctx context.Context, in *pb.NVMfRemot
 
 //////////////////////////////////////////////////////////
 
-// TODO: add NULL
+func (s *server) NullDebugCreate(ctx context.Context, in *pb.NullDebugCreateRequest) (*pb.NullDebugCreateResponse, error) {
+	log.Printf("NullDebugCreate: Received from client: %v", in)
+	params := BdevNullCreateParams {
+		Name:       in.GetDevice().GetName(),
+		BlockSize:  512,
+		NumBlocks:  64,
+	}
+	var result BdevNullCreateResult
+	err := call("bdev_null_create", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
+	return &pb.NullDebugCreateResponse{}, nil
+}
+
+func (s *server) NullDebugDelete(ctx context.Context, in *pb.NullDebugDeleteRequest) (*pb.NullDebugDeleteResponse, error) {
+	log.Printf("NullDebugDelete: Received from client: %v", in)
+	params := BdevNullDeleteParams {
+		Name:       fmt.Sprint("OpiNull", in.GetId()),
+	}
+	var result BdevNullDeleteResult
+	err := call("bdev_null_delete", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if (!result) {
+		log.Printf("Could not delete: %v", in)
+	}
+	return &pb.NullDebugDeleteResponse{}, nil
+}
+
+func (s *server) NullDebugUpdate(ctx context.Context, in *pb.NullDebugUpdateRequest) (*pb.NullDebugUpdateResponse, error) {
+	log.Printf("NullDebugUpdate: Received from client: %v", in)
+	params1 := BdevNullDeleteParams {
+		Name:       in.GetDevice().GetName(),
+	}
+	var result1 BdevNullDeleteResult
+	err1 := call("bdev_null_delete", &params1, &result1)
+	if err1 != nil {
+		log.Printf("error: %v", err1)
+		return nil, err1
+	}
+	log.Printf("Received from SPDK: %v", result1)
+	if (!result1) {
+		log.Printf("Could not delete: %v", in)
+	}
+	params2 := BdevNullCreateParams {
+		Name:       in.GetDevice().GetName(),
+		BlockSize:  512,
+		NumBlocks:  64,
+	}
+	var result2 BdevNullCreateResult
+	err2 := call("bdev_null_create", &params2, &result2)
+	if err2 != nil {
+		log.Printf("error: %v", err2)
+		return nil, err2
+	}
+	log.Printf("Received from SPDK: %v", result2)
+	return &pb.NullDebugUpdateResponse{}, nil
+}
+
+func (s *server) NullDebugList(ctx context.Context, in *pb.NullDebugListRequest) (*pb.NullDebugListResponse, error) {
+	log.Printf("NullDebugList: Received from client: %v", in)
+	var result []BdevGetBdevsResult
+	err := call("bdev_get_bdevs", nil, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
+	Blobarray := make([]*pb.NullDebug, len(result))
+	for i := range result {
+		r := &result[i]
+		Blobarray[i] = &pb.NullDebug{Name: r.Name}
+	}
+	return &pb.NullDebugListResponse{Device: Blobarray}, nil
+}
+
+func (s *server) NullDebugGet(ctx context.Context, in *pb.NullDebugGetRequest) (*pb.NullDebugGetResponse, error) {
+	log.Printf("NullDebugGet: Received from client: %v", in)
+	params := BdevGetBdevsParams {
+		Name:       fmt.Sprint("OpiNull", in.GetId()),
+	}
+	var result[] BdevGetBdevsResult
+	err := call("bdev_get_bdevs", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if (len(result) != 1) {
+		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result))
+		log.Print(msg)
+		return nil, status.Errorf(codes.InvalidArgument, msg)
+	}
+	return &pb.NullDebugGetResponse{Device: &pb.NullDebug{Name: result[0].Name}}, nil
+}
+
+func (s *server) NullDebugStats(ctx context.Context, in *pb.NullDebugStatsRequest) (*pb.NullDebugStatsResponse, error) {
+	log.Printf("NullDebugStats: Received from client: %v", in)
+	params := BdevGetIostatParams {
+		Name:     fmt.Sprint("OpiNull", in.GetId()),
+	}
+	// See https://mholt.github.io/json-to-go/
+	var result BdevGetIostatResult
+	err := call("bdev_get_iostat", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if (len(result.Bdevs) != 1) {
+		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result.Bdevs))
+		log.Print(msg)
+		return nil, status.Errorf(codes.InvalidArgument, msg)
+	}
+	return &pb.NullDebugStatsResponse{Stats: fmt.Sprint(result.Bdevs[0])}, nil
+}
+
+//////////////////////////////////////////////////////////
+
 // TODO: add AIO

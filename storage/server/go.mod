@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/google/uuid v1.3.0
-	github.com/opiproject/opi-api v0.0.0-20220928183016-871ea63d879a
+	github.com/opiproject/opi-api v0.0.0-20220929173337-e82b272479cc
 	google.golang.org/grpc v1.49.0
 )
 

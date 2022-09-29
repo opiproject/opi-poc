@@ -53,6 +53,20 @@ type BdevMallocDeleteParams struct {
 
 type BdevMallocDeleteResult bool
 
+type BdevNullCreateParams struct {
+	BlockSize     int    `json:"block_size"`
+	NumBlocks     int    `json:"num_blocks"`
+	Name          string `json:"name"`
+}
+
+type BdevNullCreateResult string
+
+type BdevNullDeleteParams struct {
+	Name string `json:"name"`
+}
+
+type BdevNullDeleteResult bool
+
 type BdevNvmeAttachControllerParams struct {
 	Name        string `json:"name"`
 	Type        string `json:"trtype"`

@@ -26,6 +26,7 @@ type server struct {
 	pb.UnimplementedVirtioBlkServiceServer
 	pb.UnimplementedVirtioScsiControllerServiceServer
 	pb.UnimplementedVirtioScsiLunServiceServer
+	pb.UnimplementedNullDebugServiceServer
 }
 
 func main() {
@@ -43,6 +44,7 @@ func main() {
 	pb.RegisterVirtioBlkServiceServer(s, &server{})
 	pb.RegisterVirtioScsiControllerServiceServer(s, &server{})
 	pb.RegisterVirtioScsiLunServiceServer(s, &server{})
+	pb.RegisterNullDebugServiceServer(s, &server{})
 
 	reflection.Register(s)
 
