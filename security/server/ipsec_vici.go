@@ -5,11 +5,11 @@ package main
 
 import (
 	"log"
-	"strings"
 	"strconv"
+	"strings"
 
+	pb "github.com/opiproject/opi-api/security/v1/gen/go"
 	"github.com/strongswan/govici/vici"
-	pb "github.com/opiproject/opi-api/security/proto"
 )
 
 type localOpts struct {
@@ -34,44 +34,44 @@ type remoteOpts struct {
 }
 
 type childSA struct {
-	RemoteTrafficSelectors []string   `vici:"remote_ts"`
-	LocalTrafficSelectors  []string   `vici:"local_ts"`
-	Updown                 string     `vici:"updown"`
-	ESPProposals           []string   `vici:"esp_proposals"`
-	AgProposals            []string   `vici:"ag_proposals"`
-	RekeyTime              string     `vici:"rekey_time"`
-	LifeTime               string     `vici:"life_time"`
-	RandTime               string     `vici:"rand_time"`
-	Inactivity             uint32     `vici:"inactivity"`
-	MarkIn                 uint32     `vici:"mark_in"`
-	MarkInSa               string     `vici:"mark_in_sa"`
-	MarkOut                uint32     `vici:"mark_out"`
-	SetMarkIn              uint32     `vici:"set_mark_in"`
-	SetMarkOut             uint32     `vici:"set_mark_out"`
-	HwOffload              string     `vici:"hw_offload"`
+	RemoteTrafficSelectors []string `vici:"remote_ts"`
+	LocalTrafficSelectors  []string `vici:"local_ts"`
+	Updown                 string   `vici:"updown"`
+	ESPProposals           []string `vici:"esp_proposals"`
+	AgProposals            []string `vici:"ag_proposals"`
+	RekeyTime              string   `vici:"rekey_time"`
+	LifeTime               string   `vici:"life_time"`
+	RandTime               string   `vici:"rand_time"`
+	Inactivity             uint32   `vici:"inactivity"`
+	MarkIn                 uint32   `vici:"mark_in"`
+	MarkInSa               string   `vici:"mark_in_sa"`
+	MarkOut                uint32   `vici:"mark_out"`
+	SetMarkIn              uint32   `vici:"set_mark_in"`
+	SetMarkOut             uint32   `vici:"set_mark_out"`
+	HwOffload              string   `vici:"hw_offload"`
 }
 
 type connection struct {
 	Name string // This field will NOT be marshaled!
 
-	LocalAddrs   []string               `vici:"local_addrs"`
-	RemoteAddrs  []string               `vici:"remote_addrs"`
-	Local        localOpts              `vici:"local"`
-	Remote       remoteOpts             `vici:"remote"`
-	Children     map[string]childSA     `vici:"children"`
-	Version      int                    `vici:"version"`
-	Proposals    []string               `vici:"proposals"`
-	Vips         []string               `vici:"vips"`
-	LocalPort    uint32                 `vici:"local_port"`
-	RemotePort   uint32                 `vici:"remote_port"`
-	Dscp         uint64                 `vici:"dscp"`
-	Encap        string                 `vici:"encap"`
-	Mobike       string                 `vici:"mobike"`
-	DpdDelay     uint32                 `vici:"dpd_delay"`
-	DpdTimeout   uint32                 `vici:"dpd_timeout"`
-	ReauthTime   uint32                 `vici:"reauth_time"`
-	RekeyTime    string                 `vici:"rekey_time"`
-	Pools        []string               `vici:"pools"`
+	LocalAddrs  []string           `vici:"local_addrs"`
+	RemoteAddrs []string           `vici:"remote_addrs"`
+	Local       localOpts          `vici:"local"`
+	Remote      remoteOpts         `vici:"remote"`
+	Children    map[string]childSA `vici:"children"`
+	Version     int                `vici:"version"`
+	Proposals   []string           `vici:"proposals"`
+	Vips        []string           `vici:"vips"`
+	LocalPort   uint32             `vici:"local_port"`
+	RemotePort  uint32             `vici:"remote_port"`
+	Dscp        uint64             `vici:"dscp"`
+	Encap       string             `vici:"encap"`
+	Mobike      string             `vici:"mobike"`
+	DpdDelay    uint32             `vici:"dpd_delay"`
+	DpdTimeout  uint32             `vici:"dpd_timeout"`
+	ReauthTime  uint32             `vici:"reauth_time"`
+	RekeyTime   string             `vici:"rekey_time"`
+	Pools       []string           `vici:"pools"`
 }
 
 type unload_connection struct {
@@ -88,60 +88,60 @@ type init_connection struct {
 }
 
 type terminate_connection struct {
-	Child      string `vici:"child"`
-	Ike        string `vici:"ike"`
-	ChildId    uint64 `vici:"child-id"`
-	IkeId      uint64 `vici:"ike-id"`
-	Force      string `vici:"force"`
-	Timeout    int    `vici:"timeout"`
-	LogLevel   string `vici:"loglevel"`
+	Child    string `vici:"child"`
+	Ike      string `vici:"ike"`
+	ChildId  uint64 `vici:"child-id"`
+	IkeId    uint64 `vici:"ike-id"`
+	Force    string `vici:"force"`
+	Timeout  int    `vici:"timeout"`
+	LogLevel string `vici:"loglevel"`
 }
 
 type rekey_connection struct {
-	Child      string `vici:"child"`
-	Ike        string `vici:"ike"`
-	ChildId    uint64 `vici:"child-id"`
-	IkeId      uint64 `vici:"ike-id"`
-	Reauth     bool   `vici:"reauth"`
+	Child   string `vici:"child"`
+	Ike     string `vici:"ike"`
+	ChildId uint64 `vici:"child-id"`
+	IkeId   uint64 `vici:"ike-id"`
+	Reauth  bool   `vici:"reauth"`
 }
 
 type list_sas struct {
-	Ike        string `vici:"ike"`
-	IkeId      uint64 `vici:"ike-id"`
-	Child      string `vici:"child"`
-	ChildId    uint64 `vici:"child-id"`
-	Noblock    string `vici:"noblock"`
+	Ike     string `vici:"ike"`
+	IkeId   uint64 `vici:"ike-id"`
+	Child   string `vici:"child"`
+	ChildId uint64 `vici:"child-id"`
+	Noblock string `vici:"noblock"`
 }
 
 type list_conns struct {
-	Ike        string `vici:"ike"`
+	Ike string `vici:"ike"`
 }
 
 type list_certs struct {
-	Type       string `vici:"type"`
-	Flag       string `vici:"flag"`
-	Subject    string `vici:"subject"`
+	Type    string `vici:"type"`
+	Flag    string `vici:"flag"`
+	Subject string `vici:"subject"`
 }
 
 type list_child_sa struct {
-	Protocol      string `vici:"protocol"`
-	Encap         string `vici:"encap"`
-	SpiIn         string `vici:"spi-in"`
-	SpiOut        string `vici:"spi-out"`
-	CpiIn         string `vici:"cpi-in"`
-	CpiOut        string `vici:"cpi-out"`
-	MarkIn        string `vici:"mark-in"`
-	MarkMaskIn    string `vici:"mark-mask-in"`
-	MarkOut       string `vici:"mark-out"`
-	MarkMaskOut   string `vici:"mark-mask-out"`
-	IfIdIn        string `vici:"if-id-in"`
-	IfIdOut       string `vici:"if-id-out"`
-	EncrAlg       string `vici:"encr-alg"`
-	EncKeysize    string `vici:"encr-keysize"`
-	IntegAlg      string `vici:"integ-alg"`
-	IntegKeysize  string `vici:"integ-keysize"`
-	DhGroup       string `vici:"dh-group"`
-	Esn           string `vici:"esn"`
+	Protocol     string `vici:"protocol"`
+	Encap        string `vici:"encap"`
+	SpiIn        string `vici:"spi-in"`
+	SpiOut       string `vici:"spi-out"`
+	CpiIn        string `vici:"cpi-in"`
+	CpiOut       string `vici:"cpi-out"`
+	MarkIn       string `vici:"mark-in"`
+	MarkMaskIn   string `vici:"mark-mask-in"`
+	MarkOut      string `vici:"mark-out"`
+	MarkMaskOut  string `vici:"mark-mask-out"`
+	IfIdIn       string `vici:"if-id-in"`
+	IfIdOut      string `vici:"if-id-out"`
+	EncrAlg      string `vici:"encr-alg"`
+	EncKeysize   string `vici:"encr-keysize"`
+	IntegAlg     string `vici:"integ-alg"`
+	IntegKeysize string `vici:"integ-keysize"`
+	DhGroup      string `vici:"dh-group"`
+	Esn          string `vici:"esn"`
 }
 
 type list_ike_sa struct {
@@ -184,7 +184,7 @@ type list_ike_sa struct {
 }
 
 type list_auth struct {
-	Name string // This field will NOT be marshaled!
+	Name       string   // This field will NOT be marshaled!
 	Class      string   `vici:"class"`
 	EapType    string   `vici:"eap-type"`
 	EapVendor  string   `vici:"eap-vendor"`
@@ -202,44 +202,44 @@ type list_auth struct {
 }
 
 type list_child struct {
-	Name string // This field will NOT be marshaled!
-	Mode                   string     `vici:"mode"`
-	Label                  string     `vici:"label"`
-	RekeyTime              uint32     `vici:"rekey_time"`
-	RekeyBytes             uint32     `vici:"rekey_bytes"`
-	RekeyPackets           uint32     `vici:"rekey_packets"`
-	DpdAction              string     `vici:"dpd_action"`
-	CloseAction            string     `vici:"close_action"`
-	RemoteTs               []string   `vici:"remote-ts"` // Used by list-conns so we can overload this struct
-	LocalTs                []string   `vici:"local-ts"`  // Used by list-conns so we can overload this struct
-	Interface              string     `vici:"interface"`
-	Priority               string     `vici:"priority"`
+	Name         string   // This field will NOT be marshaled!
+	Mode         string   `vici:"mode"`
+	Label        string   `vici:"label"`
+	RekeyTime    uint32   `vici:"rekey_time"`
+	RekeyBytes   uint32   `vici:"rekey_bytes"`
+	RekeyPackets uint32   `vici:"rekey_packets"`
+	DpdAction    string   `vici:"dpd_action"`
+	CloseAction  string   `vici:"close_action"`
+	RemoteTs     []string `vici:"remote-ts"` // Used by list-conns so we can overload this struct
+	LocalTs      []string `vici:"local-ts"`  // Used by list-conns so we can overload this struct
+	Interface    string   `vici:"interface"`
+	Priority     string   `vici:"priority"`
 }
 
 type list_ike struct {
-	LocalAddrs   []string               `vici:"local_addrs"`
-	RemoteAddrs  []string               `vici:"remote_addrs"`
-	Version      string                 `vici:"version"`
-	ReauthTime   uint32                 `vici:"reauth_time"`
-	RekeyTime    uint32                 `vici:"rekey_time"`
-	Unique       string                 `vici:"unique"`
-	DpdDelay     uint32                 `vici:"dpd_delay"`
-	DpdTimeout   uint32                 `vici:"dpd_timeout"`
-	Ppk          string                 `vici:"ppk"`
-	PpkRequired  string                 `vici:"ppk_required"`
-	Local        map[string]list_auth   `vici:"local"`
-	Remote       map[string]list_auth   `vici:"remote"`
-	Children     map[string]list_child  `vici:"children"`
+	LocalAddrs  []string              `vici:"local_addrs"`
+	RemoteAddrs []string              `vici:"remote_addrs"`
+	Version     string                `vici:"version"`
+	ReauthTime  uint32                `vici:"reauth_time"`
+	RekeyTime   uint32                `vici:"rekey_time"`
+	Unique      string                `vici:"unique"`
+	DpdDelay    uint32                `vici:"dpd_delay"`
+	DpdTimeout  uint32                `vici:"dpd_timeout"`
+	Ppk         string                `vici:"ppk"`
+	PpkRequired string                `vici:"ppk_required"`
+	Local       map[string]list_auth  `vici:"local"`
+	Remote      map[string]list_auth  `vici:"remote"`
+	Children    map[string]list_child `vici:"children"`
 }
 
 type list_cert struct {
-	Type        string `vici:"type"`
-	Flag        string `vici:"flag"`
-	HasPrivKey  string `vici:"has_privkey"`
-	Data        string `vici:"data"`
-	Subject     string `vici:"subject"`
-	NotBefore   string `vici:"not-before"`
-	NotAfter    string `vici:"not-after"`
+	Type       string `vici:"type"`
+	Flag       string `vici:"flag"`
+	HasPrivKey string `vici:"has_privkey"`
+	Data       string `vici:"data"`
+	Subject    string `vici:"subject"`
+	NotBefore  string `vici:"not-before"`
+	NotAfter   string `vici:"not-after"`
 }
 
 func buildProposal(prop *pb.Proposals) (string, error) {
@@ -252,28 +252,28 @@ func buildProposal(prop *pb.Proposals) (string, error) {
 
 	for k := 0; k < len(prop.CryptoAlg); k++ {
 		crypto.WriteString(strings.ToLower(prop.CryptoAlg[k].String()))
-		if (k+1) < len(prop.CryptoAlg) {
+		if (k + 1) < len(prop.CryptoAlg) {
 			tstr = "-"
 			crypto.WriteString(tstr)
 		}
 	}
 	for k := 0; k < len(prop.IntegAlg); k++ {
 		integ.WriteString(strings.ToLower(prop.IntegAlg[k].String()))
-		if (k+1) < len(prop.IntegAlg) {
+		if (k + 1) < len(prop.IntegAlg) {
 			tstr = "-"
 			integ.WriteString(tstr)
 		}
 	}
 	for k := 0; k < len(prop.Prf); k++ {
 		prf.WriteString(strings.ToLower(prop.Prf[k].String()))
-		if (k+1) < len(prop.Prf) {
+		if (k + 1) < len(prop.Prf) {
 			tstr = "-"
 			prf.WriteString(tstr)
 		}
 	}
 	for k := 0; k < len(prop.Dhgroups); k++ {
 		dh.WriteString(strings.ToLower(prop.Dhgroups[k].String()))
-		if (k+1) < len(prop.Dhgroups) {
+		if (k + 1) < len(prop.Dhgroups) {
 			tstr = "-"
 			dh.WriteString(tstr)
 		}
@@ -321,14 +321,14 @@ func ipsecVersion() (*pb.IPsecVersionResp, error) {
 		return nil, err
 	}
 
-	daemon  := m.Get("daemon").(string)
+	daemon := m.Get("daemon").(string)
 	version := m.Get("version").(string)
 	sysname := m.Get("sysname").(string)
 	release := m.Get("release").(string)
 	machine := m.Get("machine").(string)
 
 	// Assemble return value
-	verresp := &pb.IPsecVersionResp {
+	verresp := &pb.IPsecVersionResp{
 		Daemon:  daemon,
 		Version: version,
 		Sysname: sysname,
@@ -361,18 +361,18 @@ func ipsecStats() (*pb.IPsecStatsResp, error) {
 		log.Printf("Embedded map key was not marshaled as a sub-message")
 	} else {
 		running := field.Get("running").(string)
-		since   := field.Get("since").(string)
+		since := field.Get("since").(string)
 		stat_string.WriteString("Running time: " + running + "\n")
 		stat_string.WriteString("Absolute startup time: " + since + "\n")
 	}
 
 	value = m.Get("workers")
 	field, ok = value.(*vici.Message)
-	if ! ok {
+	if !ok {
 		log.Printf("Cannot find workers in map")
 	} else {
 		total := field.Get("total").(string)
-		idle  := field.Get("idle").(string)
+		idle := field.Get("idle").(string)
 		stat_string.WriteString("Total # of worker threads: " + total + "\n")
 		stat_string.WriteString("Worker threads currently idle: " + idle + "\n")
 
@@ -382,9 +382,9 @@ func ipsecStats() (*pb.IPsecStatsResp, error) {
 			log.Printf("Cannot find active in map")
 		} else {
 			critical := subfield.Get("critical").(string)
-			high     := subfield.Get("high").(string)
-			medium   := subfield.Get("medium").(string)
-			low      := subfield.Get("low").(string)
+			high := subfield.Get("high").(string)
+			medium := subfield.Get("medium").(string)
+			low := subfield.Get("low").(string)
 			stat_string.WriteString("Threads processing critical priority jobs: " + critical + "\n")
 			stat_string.WriteString("Threads processing high priority jobs: " + high + "\n")
 			stat_string.WriteString("Threads processing medium priority jobs: " + medium + "\n")
@@ -398,9 +398,9 @@ func ipsecStats() (*pb.IPsecStatsResp, error) {
 		log.Printf("Cannot find queues in map")
 	} else {
 		critical := field.Get("critical").(string)
-		high     := field.Get("high").(string)
-		medium   := field.Get("medium").(string)
-		low      := field.Get("low").(string)
+		high := field.Get("high").(string)
+		medium := field.Get("medium").(string)
+		low := field.Get("low").(string)
 		stat_string.WriteString("Jobs queued with critical priority: " + critical + "\n")
 		stat_string.WriteString("Jobs queued with high priority: " + high + "\n")
 		stat_string.WriteString("Jobs queued with medium priority: " + medium + "\n")
@@ -415,7 +415,7 @@ func ipsecStats() (*pb.IPsecStatsResp, error) {
 	if !ok {
 		log.Printf("Cannot find ikesas")
 	} else {
-		total     := field.Get("total").(string)
+		total := field.Get("total").(string)
 		half_open := field.Get("half-open").(string)
 		stat_string.WriteString("Total number of IKE_SAs active: " + total + "\n")
 		stat_string.WriteString("Number of IKE_SAs in half-open state: " + half_open + "\n")
@@ -433,7 +433,7 @@ func ipsecStats() (*pb.IPsecStatsResp, error) {
 	if !ok {
 		log.Printf("Cannot find mem")
 	} else {
-		total  := field.Get("total").(string)
+		total := field.Get("total").(string)
 		allocs := field.Get("allocs").(string)
 		stat_string.WriteString("Total heap memory usage in bytes: " + total + "\n")
 		stat_string.WriteString("Total heap allocation in blocks: " + allocs + "\n")
@@ -457,7 +457,7 @@ func ipsecStats() (*pb.IPsecStatsResp, error) {
 		stat_string.WriteString("Available but unsued bytes: " + free + "\n")
 	}
 
-	statsresp := &pb.IPsecStatsResp {
+	statsresp := &pb.IPsecStatsResp{
 		Status: stat_string.String(),
 	}
 
@@ -466,16 +466,16 @@ func ipsecStats() (*pb.IPsecStatsResp, error) {
 
 func loadConn(connreq *pb.IPsecLoadConnReq) error {
 	// Declare the connection variable, as we have to conditionally load it
-	var conn = &connection {
-		LocalPort: 500,
+	var conn = &connection{
+		LocalPort:  500,
 		RemotePort: 500,
-		RekeyTime: "4h",
+		RekeyTime:  "4h",
 	}
 	c := connreq.GetConnection()
 
-	if c.GetName() != ""{
+	if c.GetName() != "" {
 		conn.Name = c.GetName()
-	 }
+	}
 	if c.GetVersion() != "" {
 		ver, _ := strconv.Atoi(c.GetVersion())
 		conn.Version = ver
@@ -513,17 +513,17 @@ func loadConn(connreq *pb.IPsecLoadConnReq) error {
 		conn.RekeyTime = s + "s"
 	}
 	if c.GetLocalAuth() != nil {
-		conn.Local = localOpts {
+		conn.Local = localOpts{
 			Auth: strings.ToLower(c.GetLocalAuth().GetAuth().String()),
-			Id: c.GetLocalAuth().GetId(),
+			Id:   c.GetLocalAuth().GetId(),
 		}
 
 		log.Printf("DUMPING conn.Local: %v", conn.Local)
 	}
 	if c.GetRemoteAuth() != nil {
-		conn.Remote = remoteOpts {
+		conn.Remote = remoteOpts{
 			Auth: strings.ToLower(c.GetRemoteAuth().GetAuth().String()),
-			Id: c.GetRemoteAuth().GetId(),
+			Id:   c.GetRemoteAuth().GetId(),
 		}
 
 		log.Printf("DUMPING conn.Remove: %v", conn.Remote)
@@ -546,7 +546,7 @@ func loadConn(connreq *pb.IPsecLoadConnReq) error {
 
 	if c.Proposals != nil {
 		ike_proposal, _ := buildProposal(c.Proposals)
-		conn.Proposals = []string { ike_proposal }
+		conn.Proposals = []string{ike_proposal}
 		log.Printf("IKE proposal: %v", conn.Proposals)
 	}
 
@@ -566,26 +566,26 @@ func loadConn(connreq *pb.IPsecLoadConnReq) error {
 		}
 		log.Printf("Dumping local_ts [%v] remote_ts [%v]", local_ts, remote_ts)
 
-		csa := childSA {
-				LocalTrafficSelectors: local_ts,
-				RemoteTrafficSelectors: remote_ts,
-				RekeyTime: "1h",
-				LifeTime: "66m",
-				Inactivity: c.Children[i].GetInactivity(),
-				MarkIn: c.Children[i].GetMarkIn(),
-				MarkInSa: "no",
-				MarkOut: c.Children[i].GetMarkOut(),
-				SetMarkIn: c.Children[i].GetSetMarkIn(),
-				SetMarkOut: c.Children[i].GetSetMarkOut(),
-				HwOffload: "no",
+		csa := childSA{
+			LocalTrafficSelectors:  local_ts,
+			RemoteTrafficSelectors: remote_ts,
+			RekeyTime:              "1h",
+			LifeTime:               "66m",
+			Inactivity:             c.Children[i].GetInactivity(),
+			MarkIn:                 c.Children[i].GetMarkIn(),
+			MarkInSa:               "no",
+			MarkOut:                c.Children[i].GetMarkOut(),
+			SetMarkIn:              c.Children[i].GetSetMarkIn(),
+			SetMarkOut:             c.Children[i].GetSetMarkOut(),
+			HwOffload:              "no",
 		}
 		if c.Children[i].EspProposals != nil {
 			proposal, _ := buildProposal(c.Children[i].EspProposals)
-			csa.ESPProposals = []string { proposal }
+			csa.ESPProposals = []string{proposal}
 		}
 		if c.Children[i].AgProposals != nil {
 			ag_proposal, _ := buildProposal(c.Children[i].AgProposals)
-			csa.AgProposals = []string { ag_proposal }
+			csa.AgProposals = []string{ag_proposal}
 		}
 
 		if c.Children[i].RekeyTime != 0 {
@@ -646,7 +646,7 @@ func loadConn(connreq *pb.IPsecLoadConnReq) error {
 
 func unloadConn(connreq *pb.IPsecUnloadConnReq) error {
 	// Build the connection object
-	conn := &unload_connection {
+	conn := &unload_connection{
 		Name: connreq.GetName(),
 	}
 
@@ -675,7 +675,7 @@ func unloadConn(connreq *pb.IPsecUnloadConnReq) error {
 }
 
 func initiateConn(initreq *pb.IPsecInitiateReq) error {
-	init_conn := &init_connection {}
+	init_conn := &init_connection{}
 
 	if initreq.GetChild() != "" {
 		init_conn.Child = initreq.GetChild()
@@ -716,7 +716,7 @@ func initiateConn(initreq *pb.IPsecInitiateReq) error {
 }
 
 func terminateConn(termreq *pb.IPsecTerminateReq) (uint32, error) {
-	term_conn := &terminate_connection {}
+	term_conn := &terminate_connection{}
 
 	if termreq.GetChild() != "" {
 		term_conn.Child = termreq.GetChild()
@@ -766,7 +766,7 @@ func terminateConn(termreq *pb.IPsecTerminateReq) (uint32, error) {
 }
 
 func rekeyConn(rekeyreq *pb.IPsecRekeyReq) (string, uint32, error) {
-	rekey_conn := &rekey_connection {}
+	rekey_conn := &rekey_connection{}
 
 	if rekeyreq.GetChild() != "" {
 		rekey_conn.Child = rekeyreq.GetChild()
@@ -817,7 +817,7 @@ func rekeyConn(rekeyreq *pb.IPsecRekeyReq) (string, uint32, error) {
 }
 
 func listSas(listreq *pb.IPsecListSasReq) (*pb.IPsecListSasResp, error) {
-	listsas_req := &list_sas {}
+	listsas_req := &list_sas{}
 
 	if listreq.GetChild() != "" {
 		listsas_req.Child = listreq.GetChild()
@@ -862,7 +862,7 @@ func listSas(listreq *pb.IPsecListSasReq) (*pb.IPsecListSasResp, error) {
 	m := list_messages.Messages()
 	for _, mess := range m {
 		for _, k := range mess.Keys() {
-			list_sas := list_ike_sa {}
+			list_sas := list_ike_sa{}
 			log.Printf("K IS EQUAL TO %v", k)
 			sa := mess.Get(k).(*vici.Message)
 			err := vici.UnmarshalMessage(sa, &list_sas)
@@ -885,7 +885,7 @@ func listSas(listreq *pb.IPsecListSasReq) (*pb.IPsecListSasResp, error) {
 }
 
 func listConns(listreq *pb.IPsecListConnsReq) (*pb.IPsecListConnsResp, error) {
-	listconns_req := &list_conns {}
+	listconns_req := &list_conns{}
 
 	if listreq.GetIke() != "" {
 		listconns_req.Ike = listreq.GetIke()
@@ -918,7 +918,7 @@ func listConns(listreq *pb.IPsecListConnsReq) (*pb.IPsecListConnsResp, error) {
 	m := list_messages.Messages()
 	for _, mess := range m {
 		for _, k := range mess.Keys() {
-			conn := list_ike {}
+			conn := list_ike{}
 			log.Printf("K IS EQUAL TO %v", k)
 			sa := mess.Get(k).(*vici.Message)
 			err := vici.UnmarshalMessage(sa, &conn)
@@ -941,7 +941,7 @@ func listConns(listreq *pb.IPsecListConnsReq) (*pb.IPsecListConnsResp, error) {
 }
 
 func listCerts(listreq *pb.IPsecListCertsReq) (*pb.IPsecListCertsResp, error) {
-	listcerts_req := &list_certs {}
+	listcerts_req := &list_certs{}
 
 	if listreq.GetType() != "" {
 		listcerts_req.Type = listreq.GetType()
@@ -979,7 +979,7 @@ func listCerts(listreq *pb.IPsecListCertsReq) (*pb.IPsecListCertsResp, error) {
 	// We stream responses, so build responses now
 	m := list_messages.Messages()
 	for _, mess := range m {
-		cert := list_cert {}
+		cert := list_cert{}
 		err := vici.UnmarshalMessage(mess, &cert)
 		if err != nil {
 			log.Printf("Failed marshalling message: %v", err)

@@ -6,11 +6,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	fw "github.com/opiproject/opi-api/security/firewall/v1/gen/go"
 	"log"
 	"net"
 
+	pb "github.com/opiproject/opi-api/security/v1/gen/go"
 	"google.golang.org/grpc"
-	pb "github.com/opiproject/opi-api/security/proto"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -23,7 +24,7 @@ type server struct {
 }
 
 type session_server struct {
-	pb.UnimplementedSessionTableServer
+	fw.UnimplementedSessionTableServer
 }
 
 func main() {
@@ -35,7 +36,7 @@ func main() {
 	s := grpc.NewServer()
 
 	pb.RegisterIPsecServer(s, &server{})
-	pb.RegisterSessionTableServer(s, &session_server{})
+	fw.RegisterSessionTableServer(s, &session_server{})
 
 	reflection.Register(s)
 

@@ -5,16 +5,16 @@ package main
 
 import (
 	"encoding/base64"
-        "log"
+	"log"
 	"strings"
 
-        pb "github.com/opiproject/opi-api/security/proto"
+	pb "github.com/opiproject/opi-api/security/v1/gen/go"
 )
 
 func parse_child_list_sas(childsa list_child_sa, name string) (*pb.ListChildSa, error) {
 	log.Printf("Found key %v", childsa)
 
-	child := &pb.ListChildSa {}
+	child := &pb.ListChildSa{}
 
 	child.Name = name
 	if childsa.Protocol != "" {
@@ -76,7 +76,7 @@ func parse_child_list_sas(childsa list_child_sa, name string) (*pb.ListChildSa, 
 }
 
 func parse_ike_list_sas(ikesa *list_ike_sa, km string) (*pb.ListIkeSa, error) {
-	list_ret := &pb.ListIkeSa {}
+	list_ret := &pb.ListIkeSa{}
 
 	list_ret.Name = km
 	if ikesa.UniqueId != "" {
@@ -261,7 +261,7 @@ func parse_auth(conn_auth list_auth, name string) (*pb.ListConnAuth, error) {
 func parse_connection_child(list_child list_child, name string) (*pb.ListChild, error) {
 	log.Printf("Found key %v", list_child)
 
-	child := &pb.ListChild {}
+	child := &pb.ListChild{}
 
 	child.Name = name
 	if list_child.Mode != "" {
@@ -288,9 +288,9 @@ func parse_connection_child(list_child list_child, name string) (*pb.ListChild, 
 	if list_child.RemoteTs != nil {
 		for k := 0; k < len(list_child.RemoteTs); k++ {
 			s := strings.Split(list_child.RemoteTs[k], ":")
-			ts := &pb.TrafficSelectors_TrafficSelector {}
+			ts := &pb.TrafficSelectors_TrafficSelector{}
 			if len(s) >= 1 && s[0] != "" {
-				ts.Cidr =s[0]
+				ts.Cidr = s[0]
 			}
 			if len(s) >= 2 && s[1] != "" {
 				ts.Proto = s[1]
@@ -299,17 +299,17 @@ func parse_connection_child(list_child list_child, name string) (*pb.ListChild, 
 				ts.Port = s[2]
 			}
 
-			child.RemoteTs = &pb.TrafficSelectors {}
-			child.RemoteTs.Ts = []*pb.TrafficSelectors_TrafficSelector {}
+			child.RemoteTs = &pb.TrafficSelectors{}
+			child.RemoteTs.Ts = []*pb.TrafficSelectors_TrafficSelector{}
 			child.RemoteTs.Ts = append(child.RemoteTs.Ts, ts)
 		}
 	}
 	if list_child.LocalTs != nil {
 		for k := 0; k < len(list_child.LocalTs); k++ {
 			s := strings.Split(list_child.LocalTs[k], ":")
-			ts := &pb.TrafficSelectors_TrafficSelector {}
+			ts := &pb.TrafficSelectors_TrafficSelector{}
 			if len(s) >= 1 && s[0] != "" {
-				ts.Cidr =s[0]
+				ts.Cidr = s[0]
 			}
 			if len(s) >= 2 && s[1] != "" {
 				ts.Proto = s[1]
@@ -318,8 +318,8 @@ func parse_connection_child(list_child list_child, name string) (*pb.ListChild, 
 				ts.Port = s[2]
 			}
 
-			child.LocalTs = &pb.TrafficSelectors {}
-			child.LocalTs.Ts = []*pb.TrafficSelectors_TrafficSelector {}
+			child.LocalTs = &pb.TrafficSelectors{}
+			child.LocalTs.Ts = []*pb.TrafficSelectors_TrafficSelector{}
 			child.LocalTs.Ts = append(child.LocalTs.Ts, ts)
 		}
 	}
@@ -334,15 +334,15 @@ func parse_connection_child(list_child list_child, name string) (*pb.ListChild, 
 }
 
 func parse_connection(conn *list_ike, km string) (*pb.ListConnResp, error) {
-	list_ret := &pb.ListConnResp {}
+	list_ret := &pb.ListConnResp{}
 
 	list_ret.Name = km
 	for i := 0; i < len(conn.LocalAddrs); i++ {
-		addr := &pb.Addrs { Addr: conn.LocalAddrs[i], }
+		addr := &pb.Addrs{Addr: conn.LocalAddrs[i]}
 		list_ret.LocalAddrs = append(list_ret.LocalAddrs, addr)
 	}
-	for i := 0 ; i < len(conn.RemoteAddrs); i++ {
-		addr := &pb.Addrs { Addr: conn.RemoteAddrs[i], }
+	for i := 0; i < len(conn.RemoteAddrs); i++ {
+		addr := &pb.Addrs{Addr: conn.RemoteAddrs[i]}
 		list_ret.RemoteAddrs = append(list_ret.RemoteAddrs, addr)
 	}
 	if conn.Version != "" {
@@ -354,8 +354,8 @@ func parse_connection(conn *list_ike, km string) (*pb.ListConnResp, error) {
 	if conn.RekeyTime != 0 {
 		list_ret.RekeyTime = conn.RekeyTime
 	}
-	if conn.Unique!= "" {
-		list_ret.Unique= conn.Unique
+	if conn.Unique != "" {
+		list_ret.Unique = conn.Unique
 	}
 	if conn.DpdDelay != 0 {
 		list_ret.DpdDelay = conn.DpdDelay
@@ -403,12 +403,11 @@ func parse_connection(conn *list_ike, km string) (*pb.ListConnResp, error) {
 		}
 	}
 
-
 	return list_ret, nil
 }
 
 func parse_certificate(cert *list_cert) (*pb.ListCert, error) {
-	list_ret := &pb.ListCert {}
+	list_ret := &pb.ListCert{}
 
 	if cert.Type != "" {
 		s1 := strings.ToUpper(cert.Type)

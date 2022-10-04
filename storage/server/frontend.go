@@ -8,21 +8,21 @@ import (
 	"fmt"
 	"log"
 
-	pb "github.com/opiproject/opi-api/storage/proto"
+	"github.com/google/uuid"
+	pb "github.com/opiproject/opi-api/storage/v1/gen/go"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"github.com/google/uuid"
 )
 
 //////////////////////////////////////////////////////////
 
 func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCreateRequest) (*pb.NVMeSubsystemCreateResponse, error) {
 	log.Printf("NVMeSubsystemCreate: Received from client: %v", in)
-	params := BdevMalloCreateParams {
-		Name:       in.GetSubsystem().GetNqn(),
-		BlockSize:  512,
-		NumBlocks:  64,
-		UUID:       uuid.New().String(),
+	params := BdevMalloCreateParams{
+		Name:      in.GetSubsystem().GetNqn(),
+		BlockSize: 512,
+		NumBlocks: 64,
+		UUID:      uuid.New().String(),
 	}
 	var result BdevAMalloCreateResult
 	err := call("bdev_malloc_create", &params, &result)
@@ -36,8 +36,8 @@ func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCr
 
 func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDeleteRequest) (*pb.NVMeSubsystemDeleteResponse, error) {
 	log.Printf("NVMeSubsystemDelete: Received from client: %v", in)
-	params := BdevMallocDeleteParams {
-		Name:       fmt.Sprint("OpiMalloc", in.GetNqn()),
+	params := BdevMallocDeleteParams{
+		Name: fmt.Sprint("OpiMalloc", in.GetNqn()),
 	}
 	var result BdevMallocDeleteResult
 	err := call("bdev_malloc_delete", &params, &result)
@@ -46,7 +46,7 @@ func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDe
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if (!result) {
+	if !result {
 		log.Printf("Could not delete: %v", in)
 	}
 	return &pb.NVMeSubsystemDeleteResponse{}, nil
@@ -54,8 +54,8 @@ func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDe
 
 func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUpdateRequest) (*pb.NVMeSubsystemUpdateResponse, error) {
 	log.Printf("NVMeSubsystemUpdate: Received from client: %v", in)
-	params1 := BdevMallocDeleteParams {
-		Name:       in.GetSubsystem().GetNqn(),
+	params1 := BdevMallocDeleteParams{
+		Name: in.GetSubsystem().GetNqn(),
 	}
 	var result1 BdevMallocDeleteResult
 	err1 := call("bdev_malloc_delete", &params1, &result1)
@@ -64,14 +64,14 @@ func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUp
 		return nil, err1
 	}
 	log.Printf("Received from SPDK: %v", result1)
-	if (!result1) {
+	if !result1 {
 		log.Printf("Could not delete: %v", in)
 	}
-	params2 := BdevMalloCreateParams {
-		Name:       in.GetSubsystem().GetNqn(),
-		BlockSize:  512,
-		NumBlocks:  64,
-		UUID:       uuid.New().String(),
+	params2 := BdevMalloCreateParams{
+		Name:      in.GetSubsystem().GetNqn(),
+		BlockSize: 512,
+		NumBlocks: 64,
+		UUID:      uuid.New().String(),
 	}
 	var result2 BdevAMalloCreateResult
 	err2 := call("bdev_malloc_create", &params2, &result2)
@@ -102,17 +102,17 @@ func (s *server) NVMeSubsystemList(ctx context.Context, in *pb.NVMeSubsystemList
 
 func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRequest) (*pb.NVMeSubsystemGetResponse, error) {
 	log.Printf("NVMeSubsystemGet: Received from client: %v", in)
-	params := BdevGetBdevsParams {
-		Name:       fmt.Sprint("OpiMalloc", in.GetNqn()),
+	params := BdevGetBdevsParams{
+		Name: fmt.Sprint("OpiMalloc", in.GetNqn()),
 	}
-	var result[] BdevGetBdevsResult
+	var result []BdevGetBdevsResult
 	err := call("bdev_get_bdevs", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if (len(result) != 1) {
+	if len(result) != 1 {
 		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result))
 		log.Print(msg)
 		return nil, status.Errorf(codes.InvalidArgument, msg)
@@ -122,8 +122,8 @@ func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRe
 
 func (s *server) NVMeSubsystemStats(ctx context.Context, in *pb.NVMeSubsystemStatsRequest) (*pb.NVMeSubsystemStatsResponse, error) {
 	log.Printf("NVMeSubsystemStats: Received from client: %v", in)
-	params := BdevGetIostatParams {
-		Name:     fmt.Sprint("OpiMalloc", in.GetNqn()),
+	params := BdevGetIostatParams{
+		Name: fmt.Sprint("OpiMalloc", in.GetNqn()),
 	}
 	// See https://mholt.github.io/json-to-go/
 	var result BdevGetIostatResult
@@ -133,7 +133,7 @@ func (s *server) NVMeSubsystemStats(ctx context.Context, in *pb.NVMeSubsystemSta
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if (len(result.Bdevs) != 1) {
+	if len(result.Bdevs) != 1 {
 		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result.Bdevs))
 		log.Print(msg)
 		return nil, status.Errorf(codes.InvalidArgument, msg)
@@ -211,9 +211,9 @@ func (s *server) NVMeNamespaceStats(ctx context.Context, in *pb.NVMeNamespaceSta
 
 func (s *server) VirtioBlkCreate(ctx context.Context, in *pb.VirtioBlkCreateRequest) (*pb.VirtioBlkCreateResponse, error) {
 	log.Printf("VirtioBlkCreate: Received from client: %v", in)
-	params := VhostCreateBlkControllerParams {
-		Ctrlr:      in.GetController().GetName(),
-		DevName:    in.GetController().GetBdev(),
+	params := VhostCreateBlkControllerParams{
+		Ctrlr:   in.GetController().GetName(),
+		DevName: in.GetController().GetBdev(),
 	}
 	var result VhostCreateBlkControllerResult
 	err := call("vhost_create_blk_controller", &params, &result)
@@ -222,7 +222,7 @@ func (s *server) VirtioBlkCreate(ctx context.Context, in *pb.VirtioBlkCreateRequ
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if (!result) {
+	if !result {
 		log.Printf("Could not create: %v", in)
 	}
 	return &pb.VirtioBlkCreateResponse{}, nil
@@ -230,8 +230,8 @@ func (s *server) VirtioBlkCreate(ctx context.Context, in *pb.VirtioBlkCreateRequ
 
 func (s *server) VirtioBlkDelete(ctx context.Context, in *pb.VirtioBlkDeleteRequest) (*pb.VirtioBlkDeleteResponse, error) {
 	log.Printf("VirtioBlkDelete: Received from client: %v", in)
-	params := VhostDeleteControllerParams {
-		Ctrlr:       fmt.Sprint("VirtioBlk", in.GetControllerId()),
+	params := VhostDeleteControllerParams{
+		Ctrlr: fmt.Sprint("VirtioBlk", in.GetControllerId()),
 	}
 	var result VhostDeleteControllerResult
 	err := call("vhost_delete_controller", &params, &result)
@@ -240,7 +240,7 @@ func (s *server) VirtioBlkDelete(ctx context.Context, in *pb.VirtioBlkDeleteRequ
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if (!result) {
+	if !result {
 		log.Printf("Could not delete: %v", in)
 	}
 	return &pb.VirtioBlkDeleteResponse{}, nil
@@ -271,8 +271,8 @@ func (s *server) VirtioBlkList(ctx context.Context, in *pb.VirtioBlkListRequest)
 
 func (s *server) VirtioBlkGet(ctx context.Context, in *pb.VirtioBlkGetRequest) (*pb.VirtioBlkGetResponse, error) {
 	log.Printf("VirtioBlkGet: Received from client: %v", in)
-	params := VhostGetControllersParams {
-		Name:       fmt.Sprint("VirtioBlk", in.GetControllerId()),
+	params := VhostGetControllersParams{
+		Name: fmt.Sprint("VirtioBlk", in.GetControllerId()),
 	}
 	var result []VhostGetControllersResult
 	err := call("vhost_get_controllers", &params, &result)
@@ -281,7 +281,7 @@ func (s *server) VirtioBlkGet(ctx context.Context, in *pb.VirtioBlkGetRequest) (
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if (len(result) != 1) {
+	if len(result) != 1 {
 		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result))
 		log.Print(msg)
 		return nil, status.Errorf(codes.InvalidArgument, msg)
@@ -298,8 +298,8 @@ func (s *server) VirtioBlkStats(ctx context.Context, in *pb.VirtioBlkStatsReques
 
 func (s *server) VirtioScsiControllerCreate(ctx context.Context, in *pb.VirtioScsiControllerCreateRequest) (*pb.VirtioScsiControllerCreateResponse, error) {
 	log.Printf("VirtioScsiControllerCreate: Received from client: %v", in)
-	params := VhostCreateScsiControllerParams {
-		Ctrlr:       in.GetController().GetName(),
+	params := VhostCreateScsiControllerParams{
+		Ctrlr: in.GetController().GetName(),
 	}
 	var result VhostCreateScsiControllerResult
 	err := call("vhost_create_scsi_controller", &params, &result)
@@ -308,7 +308,7 @@ func (s *server) VirtioScsiControllerCreate(ctx context.Context, in *pb.VirtioSc
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if (!result) {
+	if !result {
 		log.Printf("Could not create: %v", in)
 	}
 	return &pb.VirtioScsiControllerCreateResponse{}, nil
@@ -316,8 +316,8 @@ func (s *server) VirtioScsiControllerCreate(ctx context.Context, in *pb.VirtioSc
 
 func (s *server) VirtioScsiControllerDelete(ctx context.Context, in *pb.VirtioScsiControllerDeleteRequest) (*pb.VirtioScsiControllerDeleteResponse, error) {
 	log.Printf("VirtioScsiControllerDelete: Received from client: %v", in)
-	params := VhostDeleteControllerParams {
-		Ctrlr:       fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
+	params := VhostDeleteControllerParams{
+		Ctrlr: fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
 	}
 	var result VhostDeleteControllerResult
 	err := call("vhost_delete_controller", &params, &result)
@@ -326,7 +326,7 @@ func (s *server) VirtioScsiControllerDelete(ctx context.Context, in *pb.VirtioSc
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if (!result) {
+	if !result {
 		log.Printf("Could not delete: %v", in)
 	}
 	return &pb.VirtioScsiControllerDeleteResponse{}, nil
@@ -356,8 +356,8 @@ func (s *server) VirtioScsiControllerList(ctx context.Context, in *pb.VirtioScsi
 
 func (s *server) VirtioScsiControllerGet(ctx context.Context, in *pb.VirtioScsiControllerGetRequest) (*pb.VirtioScsiControllerGetResponse, error) {
 	log.Printf("VirtioScsiControllerGet: Received from client: %v", in)
-	params := VhostGetControllersParams {
-		Name:       fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
+	params := VhostGetControllersParams{
+		Name: fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
 	}
 	var result []VhostGetControllersResult
 	err := call("vhost_get_controllers", &params, &result)
@@ -366,7 +366,7 @@ func (s *server) VirtioScsiControllerGet(ctx context.Context, in *pb.VirtioScsiC
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if (len(result) != 1) {
+	if len(result) != 1 {
 		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result))
 		log.Print(msg)
 		return nil, status.Errorf(codes.InvalidArgument, msg)
@@ -384,13 +384,13 @@ func (s *server) VirtioScsiControllerStats(ctx context.Context, in *pb.VirtioScs
 func (s *server) VirtioScsiLunCreate(ctx context.Context, in *pb.VirtioScsiLunCreateRequest) (*pb.VirtioScsiLunCreateResponse, error) {
 	log.Printf("VirtioScsiLunCreate: Received from client: %v", in)
 	params := struct {
-		Name      string `json:"ctrlr"`
-		Num       int    `json:"scsi_target_num"`
-		Bdev      string `json:"bdev_name"`
+		Name string `json:"ctrlr"`
+		Num  int    `json:"scsi_target_num"`
+		Bdev string `json:"bdev_name"`
 	}{
-		Name:       fmt.Sprint("OPI-VirtioScsi", in.GetLun().GetControllerId()),
-		Num:        5,
-		Bdev:       in.GetLun().GetBdev(),
+		Name: fmt.Sprint("OPI-VirtioScsi", in.GetLun().GetControllerId()),
+		Num:  5,
+		Bdev: in.GetLun().GetBdev(),
 	}
 	var result int
 	err := call("vhost_scsi_controller_add_target", &params, &result)
@@ -405,11 +405,11 @@ func (s *server) VirtioScsiLunCreate(ctx context.Context, in *pb.VirtioScsiLunCr
 func (s *server) VirtioScsiLunDelete(ctx context.Context, in *pb.VirtioScsiLunDeleteRequest) (*pb.VirtioScsiLunDeleteResponse, error) {
 	log.Printf("VirtioScsiLunDelete: Received from client: %v", in)
 	params := struct {
-		Name        string `json:"ctrlr"`
-		Num         int    `json:"scsi_target_num"`
+		Name string `json:"ctrlr"`
+		Num  int    `json:"scsi_target_num"`
 	}{
-		Name:       fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
-		Num:        5,
+		Name: fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
+		Num:  5,
 	}
 	var result bool
 	err := call("vhost_scsi_controller_remove_target", &params, &result)
@@ -418,7 +418,7 @@ func (s *server) VirtioScsiLunDelete(ctx context.Context, in *pb.VirtioScsiLunDe
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if (!result) {
+	if !result {
 		log.Printf("Could not delete: %v", in)
 	}
 	return &pb.VirtioScsiLunDeleteResponse{}, nil
@@ -448,8 +448,8 @@ func (s *server) VirtioScsiLunList(ctx context.Context, in *pb.VirtioScsiLunList
 
 func (s *server) VirtioScsiLunGet(ctx context.Context, in *pb.VirtioScsiLunGetRequest) (*pb.VirtioScsiLunGetResponse, error) {
 	log.Printf("VirtioScsiLunGet: Received from client: %v", in)
-	params := VhostGetControllersParams {
-		Name:       fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
+	params := VhostGetControllersParams{
+		Name: fmt.Sprint("OPI-VirtioScsi", in.GetControllerId()),
 	}
 	var result []VhostGetControllersResult
 	err := call("vhost_get_controllers", &params, &result)
@@ -458,7 +458,7 @@ func (s *server) VirtioScsiLunGet(ctx context.Context, in *pb.VirtioScsiLunGetRe
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if (len(result) != 1) {
+	if len(result) != 1 {
 		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result))
 		log.Print(msg)
 		return nil, status.Errorf(codes.InvalidArgument, msg)

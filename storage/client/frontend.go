@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
+	pb "github.com/opiproject/opi-api/storage/v1/gen/go"
 	"google.golang.org/grpc"
-	pb "github.com/opiproject/opi-api/storage/proto"
 )
 
 func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
@@ -115,7 +115,7 @@ func do_frontend(conn grpc.ClientConnInterface, ctx context.Context) {
 	// VirtioBlk
 	c4 := pb.NewVirtioBlkServiceClient(conn)
 	log.Printf("Testing NewVirtioBlkServiceClient")
-	rv1, err := c4.VirtioBlkCreate(ctx, &pb.VirtioBlkCreateRequest{Controller: &pb.VirtioBlk{Name: "VirtioBlk8", Bdev:"Malloc1"}})
+	rv1, err := c4.VirtioBlkCreate(ctx, &pb.VirtioBlkCreateRequest{Controller: &pb.VirtioBlk{Name: "VirtioBlk8", Bdev: "Malloc1"}})
 	if err != nil {
 		log.Fatalf("could not create VirtioBlk Controller: %v", err)
 	}

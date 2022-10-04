@@ -7,7 +7,7 @@ import (
 	"context"
 	"log"
 
-	pb "github.com/opiproject/opi-api/security/proto"
+	pb "github.com/opiproject/opi-api/security/v1/gen/go"
 )
 
 func (s *server) IPsecVersion(ctx context.Context, in *pb.IPsecVersionReq) (*pb.IPsecVersionResp, error) {
@@ -39,8 +39,7 @@ func (s *server) IPsecInitiate(ctx context.Context, in *pb.IPsecInitiateReq) (*p
 		return nil, err
 	}
 
-	ip_ret := pb.IPsecInitiateResp{
-	}
+	ip_ret := pb.IPsecInitiateResp{}
 
 	return &ip_ret, nil
 }
@@ -54,7 +53,7 @@ func (s *server) IPsecTerminate(ctx context.Context, in *pb.IPsecTerminateReq) (
 		return nil, err
 	}
 
-	ip_ret := pb.IPsecTerminateResp {
+	ip_ret := pb.IPsecTerminateResp{
 		Success: "Yes",
 		Matches: matches,
 	}
@@ -71,7 +70,7 @@ func (s *server) IPsecRekey(ctx context.Context, in *pb.IPsecRekeyReq) (*pb.IPse
 		return nil, err
 	}
 
-	ip_ret := pb.IPsecRekeyResp {
+	ip_ret := pb.IPsecRekeyResp{
 		Success: success,
 		Matches: matches,
 	}
@@ -124,7 +123,7 @@ func (s *server) IPsecLoadConn(ctx context.Context, in *pb.IPsecLoadConnReq) (*p
 		return nil, err
 	}
 
-	ip_ret := pb.IPsecLoadConnResp {
+	ip_ret := pb.IPsecLoadConnResp{
 		Success: "Yes",
 	}
 
@@ -140,7 +139,7 @@ func (s *server) IPsecUnloadConn(ctx context.Context, in *pb.IPsecUnloadConnReq)
 		return nil, err
 	}
 
-	ip_ret := pb.IPsecUnloadConnResp {
+	ip_ret := pb.IPsecUnloadConnResp{
 		Success: "Yes",
 	}
 

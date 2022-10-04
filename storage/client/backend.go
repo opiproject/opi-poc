@@ -4,14 +4,14 @@ import (
 	"context"
 	"log"
 
+	pb "github.com/opiproject/opi-api/storage/v1/gen/go"
 	"google.golang.org/grpc"
-	pb "github.com/opiproject/opi-api/storage/proto"
 )
 
 func do_backend(conn grpc.ClientConnInterface, ctx context.Context) {
 	// NVMfRemoteController
 	c4 := pb.NewNVMfRemoteControllerServiceClient(conn)
-	rr0, err := c4.NVMfRemoteControllerConnect(ctx, &pb.NVMfRemoteControllerConnectRequest{Ctrl: &pb.NVMfRemoteController{Id: 8, Traddr:"127.0.0.1", Trsvcid:4444, Subnqn:"nqn.2016-06.io.spdk:cnode1"}})
+	rr0, err := c4.NVMfRemoteControllerConnect(ctx, &pb.NVMfRemoteControllerConnectRequest{Ctrl: &pb.NVMfRemoteController{Id: 8, Traddr: "127.0.0.1", Trsvcid: 4444, Subnqn: "nqn.2016-06.io.spdk:cnode1"}})
 	if err != nil {
 		log.Fatalf("could not connect to Remote NVMf controller: %v", err)
 	}
