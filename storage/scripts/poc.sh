@@ -41,13 +41,13 @@ tests_poc() {
     # check reflection
     grpc_cli=(docker run --network=storage_opi --rm namely/grpc-cli)
     "${grpc_cli[@]}" ls opi-spdk-server:50051
-    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi.storage.v1.NVMeControllerService -l
-    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi.storage.v1.NVMeNamespaceService -l
-    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi.storage.v1.NVMeSubsystemService -l
-    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi.storage.v1.NVMfRemoteControllerService -l
-    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi.storage.v1.VirtioBlkService -l
-    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi.storage.v1.VirtioScsiControllerService -l
-    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi.storage.v1.VirtioScsiLunService -l
+    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi_api.storage.v1.NVMeControllerService -l
+    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi_api.storage.v1.NVMeNamespaceService -l
+    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi_api.storage.v1.NVMeSubsystemService -l
+    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi_api.storage.v1.NVMfRemoteControllerService -l
+    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi_api.storage.v1.VirtioBlkService -l
+    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi_api.storage.v1.VirtioScsiControllerService -l
+    "${grpc_cli[@]}" ls opi-spdk-server:50051 opi_api.storage.v1.VirtioScsiLunService -l
 
     # this is last line
     $DC ps -a
