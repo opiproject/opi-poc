@@ -7,9 +7,9 @@ import (
 	"context"
 	"log"
 
-	pb "github.com/opiproject/opi-api/security/proto"
-	"google.golang.org/grpc"
 	"github.com/go-ping/ping"
+	pb "github.com/opiproject/opi-api/security/v1/gen/go"
+	"google.golang.org/grpc"
 )
 
 func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
@@ -17,33 +17,33 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 	c1 := pb.NewIPsecClient(conn)
 
 	// Load IPsec connection
-	local_ipsec := pb.IPsecLoadConnReq {
-		Connection: &pb.Connection {
-			Name: "opi-test",
+	local_ipsec := pb.IPsecLoadConnReq{
+		Connection: &pb.Connection{
+			Name:    "opi-test",
 			Version: "2",
-			Vips: &pb.Vips { Vip: []string { "0.0.0.0", }, },
-			LocalAddrs: []*pb.Addrs {
+			Vips:    &pb.Vips{Vip: []string{"0.0.0.0"}},
+			LocalAddrs: []*pb.Addrs{
 				{
 					Addr: "192.168.200.200",
 				},
 			},
-			RemoteAddrs: []*pb.Addrs {
+			RemoteAddrs: []*pb.Addrs{
 				{
 					Addr: "192.168.200.210",
 				},
 			},
-			LocalAuth: &pb.LocalAuth { Auth: pb.AuthType_PSK, Id: "hacker@strongswan.org" },
-			RemoteAuth: &pb.RemoteAuth { Auth: pb.AuthType_PSK, Id: "server.strongswan.org" },
-			Children: []*pb.Child {
+			LocalAuth:  &pb.LocalAuth{Auth: pb.AuthType_PSK, Id: "hacker@strongswan.org"},
+			RemoteAuth: &pb.RemoteAuth{Auth: pb.AuthType_PSK, Id: "server.strongswan.org"},
+			Children: []*pb.Child{
 				{
 					Name: "opi-child",
-					EspProposals: &pb.Proposals {
-						CryptoAlg: []pb.CryptoAlgorithm { pb.CryptoAlgorithm_AES256GCM128 },
-						IntegAlg: []pb.IntegAlgorithm { pb.IntegAlgorithm_SHA512 },
-						Dhgroups: []pb.DiffieHellmanGroups { pb.DiffieHellmanGroups_CURVE25519 },
+					EspProposals: &pb.Proposals{
+						CryptoAlg: []pb.CryptoAlgorithm{pb.CryptoAlgorithm_AES256GCM128},
+						IntegAlg:  []pb.IntegAlgorithm{pb.IntegAlgorithm_SHA512},
+						Dhgroups:  []pb.DiffieHellmanGroups{pb.DiffieHellmanGroups_CURVE25519},
 					},
-					RemoteTs: &pb.TrafficSelectors {
-						Ts: []*pb.TrafficSelectors_TrafficSelector {
+					RemoteTs: &pb.TrafficSelectors{
+						Ts: []*pb.TrafficSelectors_TrafficSelector{
 							{
 								Cidr: "10.1.0.0/16",
 							},
@@ -54,7 +54,7 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 		},
 	}
 
-	ver_req := pb.IPsecVersionReq {}
+	ver_req := pb.IPsecVersionReq{}
 
 	vresp, err := c1.IPsecVersion(ctx, &ver_req)
 	if err != nil {
@@ -66,7 +66,7 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 	log.Printf("Release [%v]", vresp.GetRelease())
 	log.Printf("Machine [%v]", vresp.GetMachine())
 
-	stats_req := pb.IPsecStatsReq {}
+	stats_req := pb.IPsecStatsReq{}
 
 	stats_resp, err := c1.IPsecStats(ctx, &stats_req)
 	if err != nil {
@@ -81,8 +81,8 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 	log.Printf("Loaded: %v", rs1)
 
 	// Bring the connection up
-	init_conn := pb.IPsecInitiateReq {
-		Ike: "opi-test",
+	init_conn := pb.IPsecInitiateReq{
+		Ike:   "opi-test",
 		Child: "opi-child",
 	}
 
@@ -93,7 +93,7 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 	log.Printf("Initiated: %v", init_ret)
 
 	// List the IKE_SAs
-	ike_sas := pb.IPsecListSasReq {
+	ike_sas := pb.IPsecListSasReq{
 		Ike: "opi-test",
 	}
 
@@ -104,7 +104,7 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 	log.Printf("Returned IKE_SAs: %v", list_sas_ret)
 
 	// List the connections
-	list_conn := pb.IPsecListConnsReq {
+	list_conn := pb.IPsecListConnsReq{
 		Ike: "opi-test",
 	}
 
@@ -115,7 +115,7 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 	log.Printf("Returned connections: %v", list_conns_ret)
 
 	// List the certificats
-	list_certs := pb.IPsecListCertsReq {
+	list_certs := pb.IPsecListCertsReq{
 		Type: "any",
 	}
 
@@ -143,7 +143,7 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 	log.Printf("Ping stats: %v", stats)
 
 	// Rekey the IKE_SA
-	rekey_conn := pb.IPsecRekeyReq {
+	rekey_conn := pb.IPsecRekeyReq{
 		Ike: "opi-test",
 	}
 
@@ -164,9 +164,8 @@ func do_ipsec(conn grpc.ClientConnInterface, ctx context.Context) {
 	}
 	log.Printf("Terminate: %v", term_ret)
 
-
 	// Unload
-	unload_ipsec := pb.IPsecUnloadConnReq {
+	unload_ipsec := pb.IPsecUnloadConnReq{
 		Name: "opi-test",
 	}
 
