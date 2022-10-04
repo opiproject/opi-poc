@@ -67,39 +67,39 @@ See services
 ```bash
  $ grpc_cli ls opi-security-server:50051
 grpc.reflection.v1alpha.ServerReflection
-opi.security.v1.IPsec
+opi_api.security.v1.IPsec
 ```
 
 See commands
 
 ```bash
-$ grpc_cli ls opi-security-server:50051 opi.security.v1.IPsec -l
+$ grpc_cli ls opi-security-server:50051 opi_api.security.v1.IPsec -l
 filename: ipsec.proto
-package: opi.security.v1;
+package: opi_api.security.v1;
 service IPsec {
-  rpc IPsecCreate(opi.security.v1.IPsecCreateRequest) returns (opi.security.v1.IPsecCreateResponse) {}
-  rpc IPsecDelete(opi.security.v1.IPsecDeleteRequest) returns (opi.security.v1.IPsecDeleteResponse) {}
-  rpc IPsecUpdate(opi.security.v1.IPsecUpdateRequest) returns (opi.security.v1.IPsecUpdateResponse) {}
-  rpc IPsecList(opi.security.v1.IPsecListRequest) returns (opi.security.v1.IPsecListResponse) {}
-  rpc IPsecGet(opi.security.v1.IPsecGetRequest) returns (opi.security.v1.IPsecGetResponse) {}
+  rpc IPsecCreate(opi_api.security.v1.IPsecCreateRequest) returns (opi_api.security.v1.IPsecCreateResponse) {}
+  rpc IPsecDelete(opi_api.security.v1.IPsecDeleteRequest) returns (opi_api.security.v1.IPsecDeleteResponse) {}
+  rpc IPsecUpdate(opi_api.security.v1.IPsecUpdateRequest) returns (opi_api.security.v1.IPsecUpdateResponse) {}
+  rpc IPsecList(opi_api.security.v1.IPsecListRequest) returns (opi_api.security.v1.IPsecListResponse) {}
+  rpc IPsecGet(opi_api.security.v1.IPsecGetRequest) returns (opi_api.security.v1.IPsecGetResponse) {}
 }
 ```
 
 See methods
 
 ```bash
-$ grpc_cli ls opi-security-server:50051 opi.security.v1.IPsec.IPsecCreate -l
-  rpc IPsecCreate(opi.security.v1.IPsecCreateRequest) returns (opi.security.v1.IPsecCreateResponse) {}
+$ grpc_cli ls opi-security-server:50051 opi_api.security.v1.IPsec.IPsecCreate -l
+  rpc IPsecCreate(opi_api.security.v1.IPsecCreateRequest) returns (opi_api.security.v1.IPsecCreateResponse) {}
 ```
 
 See messages
 
 ```bash
-$ grpc_cli type opi-security-server:50051 opi.security.v1.IPsecCreateRequest
+$ grpc_cli type opi-security-server:50051 opi_api.security.v1.IPsecCreateRequest
 message IPsecCreateRequest {
-  .opi.security.v1.TunnelInterfaces tunnel = 1 [json_name = "tunnel"];
-  .opi.security.v1.SecurityPolicyDatabases policy = 2 [json_name = "policy"];
-  .opi.security.v1.SecurityAssociations sa = 3 [json_name = "sa"];
+  .opi_api.security.v1.TunnelInterfaces tunnel = 1 [json_name = "tunnel"];
+  .opi_api.security.v1.SecurityPolicyDatabases policy = 2 [json_name = "policy"];
+  .opi_api.security.v1.SecurityAssociations sa = 3 [json_name = "sa"];
 }
 ```
 

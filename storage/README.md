@@ -71,6 +71,29 @@ connecting to 10.10.10.1:50051
 Rpc succeeded with OK status
 ```
 
+and netwok-facing APIs:
+
+```bash
+docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMfRemoteControllerConnect "{'ctrl' : {'id': '12', 'traddr':'11.11.11.2', 'subnqn':'nqn.2016-06.com.opi.spdk.target0', 'trsvcid':'4444'}}"
+connecting to 10.10.10.1:50051
+{}
+Rpc succeeded with OK status
+
+docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMfRemoteControllerGet "{'id': '12'}"
+connecting to 10.10.10.1:50051
+{
+ "ctrl": {
+  "subnqn": "OpiNvme12"
+ }
+}
+Rpc succeeded with OK status
+
+docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMfRemoteControllerDisconnect "{'id': '12'}"
+connecting to 10.10.10.1:50051
+{}
+Rpc succeeded with OK status
+```
+
 ## Huge pages
 
 SPDK requires huge pages, this is how you can configure this manually.
@@ -103,7 +126,7 @@ Optionally if you need to download modules
 
 ```bash
 docker run --rm -it -v `pwd`:/app -w /app golang:alpine go get all
-docker run --rm -it -v `pwd`:/app -w /app golang:alpine go get github.com/opiproject/opi-api/storage/proto@main
+docker run --rm -it -v `pwd`:/app -w /app golang:alpine go get github.com/opiproject/opi-api/storage/v1/gen/go@main
 docker run --rm -it -v `pwd`:/app -w /app golang:alpine go mod tidy
 ```
 
@@ -140,55 +163,67 @@ See services
 ```bash
 $ grpc_cli ls opi-spdk-server:50051
 grpc.reflection.v1alpha.ServerReflection
-opi.storage.v1.NVMeControllerService
-opi.storage.v1.NVMeNamespaceService
-opi.storage.v1.NVMeSubsystemService
-opi.storage.v1.NVMfRemoteControllerService
-opi.storage.v1.VirtioBlkService
+opi_api.storage.v1.NVMeControllerService
+opi_api.storage.v1.NVMeNamespaceService
+opi_api.storage.v1.NVMeSubsystemService
+opi_api.storage.v1.NVMfRemoteControllerService
+opi_api.storage.v1.NullDebugService
+opi_api.storage.v1.VirtioBlkService
+opi_api.storage.v1.VirtioScsiControllerService
+opi_api.storage.v1.VirtioScsiLunService
 ```
 
 See commands
 
 ```bash
- $ grpc_cli ls opi-spdk-server:50051 opi.storage.v1.NVMeControllerService -l
+ $ grpc_cli ls opi-spdk-server:50051 opi_api.storage.v1.NVMeControllerService -l
 filename: frontend.proto
-package: opi.storage.v1;
+package: opi_api.storage.v1;
 service NVMeControllerService {
-  rpc NVMeControllerCreate(opi.storage.v1.NVMeControllerCreateRequest) returns (opi.storage.v1.NVMeControllerCreateResponse) {}
-  rpc NVMeControllerDelete(opi.storage.v1.NVMeControllerDeleteRequest) returns (opi.storage.v1.NVMeControllerDeleteResponse) {}
-  rpc NVMeControllerUpdate(opi.storage.v1.NVMeControllerUpdateRequest) returns (opi.storage.v1.NVMeControllerUpdateResponse) {}
-  rpc NVMeControllerList(opi.storage.v1.NVMeControllerListRequest) returns (opi.storage.v1.NVMeControllerListResponse) {}
-  rpc NVMeControllerGet(opi.storage.v1.NVMeControllerGetRequest) returns (opi.storage.v1.NVMeControllerGetResponse) {}
-  rpc NVMeControllerStats(opi.storage.v1.NVMeControllerStatsRequest) returns (opi.storage.v1.NVMeControllerStatsResponse) {}
+  rpc NVMeControllerCreate(opi_api.storage.v1.NVMeControllerCreateRequest) returns (opi_api.storage.v1.NVMeControllerCreateResponse) {}
+  rpc NVMeControllerDelete(opi_api.storage.v1.NVMeControllerDeleteRequest) returns (opi_api.storage.v1.NVMeControllerDeleteResponse) {}
+  rpc NVMeControllerUpdate(opi_api.storage.v1.NVMeControllerUpdateRequest) returns (opi_api.storage.v1.NVMeControllerUpdateResponse) {}
+  rpc NVMeControllerList(opi_api.storage.v1.NVMeControllerListRequest) returns (opi_api.storage.v1.NVMeControllerListResponse) {}
+  rpc NVMeControllerGet(opi_api.storage.v1.NVMeControllerGetRequest) returns (opi_api.storage.v1.NVMeControllerGetResponse) {}
+  rpc NVMeControllerStats(opi_api.storage.v1.NVMeControllerStatsRequest) returns (opi_api.storage.v1.NVMeControllerStatsResponse) {}
 }
 ```
 
 See methods
 
 ```bash
-grpc_cli ls opi-spdk-server:50051 opi.storage.v1.NVMeControllerService.NVMeControllerCreate -l
-  rpc NVMeControllerCreate(opi.storage.v1.NVMeControllerCreateRequest) returns (opi.storage.v1.NVMeControllerCreateResponse) {}
+grpc_cli ls opi-spdk-server:50051 opi_api.storage.v1.NVMeControllerService.NVMeControllerCreate -l
+  rpc NVMeControllerCreate(opi_api.storage.v1.NVMeControllerCreateRequest) returns (opi_api.storage.v1.NVMeControllerCreateResponse) {}
 ```
 
 See messages
 
 ```bash
-$ grpc_cli type opi-spdk-server:50051 opi.storage.v1.NVMeController
+$ grpc_cli type opi-spdk-server:50051 opi_api.storage.v1.NVMeController
 message NVMeController {
   int64 id = 1 [json_name = "id"];
   string name = 2 [json_name = "name"];
   string subsystem_id = 3 [json_name = "subsystemId"];
-  string pcie_id = 4 [json_name = "pcieId"];
+  .opi_api.storage.v1.NvmeControllerPciId pcie_id = 4 [json_name = "pcieId"];
   int64 max_io_qps = 5 [json_name = "maxIoQps"];
   int64 max_ns = 6 [json_name = "maxNs"];
+}
+
+$ grpc_cli type opi-spdk-server:50051 opi_api.storage.v1.NvmeControllerPciId
+message NvmeControllerPciId {
+  uint32 bus = 1 [json_name = "bus"];
+  uint32 device = 2 [json_name = "device"];
+  uint32 function = 3 [json_name = "function"];
+  uint32 virtual_function = 4 [json_name = "virtualFunction"];
 }
 ```
 
 Call remote method
 
 ```bash
-$ grpc_cli call opi-spdk-server:50051 NVMeControllerDelete "subsystem_id: 8"
+$ grpc_cli call --json_input --json_output opi-spdk-server:50051 NVMeControllerDelete "{subsystem_id: 8}"
 connecting to opi-spdk-server:50051
+{}
 Rpc succeeded with OK status
 ```
 
@@ -207,13 +242,17 @@ opi-spdk-server_1  | 2022/08/05 14:39:40 Could not delete: id:8
 Another remote call example
 
 ```bash
-$ grpc_cli call opi-spdk-server:50051 NVMeSubsystemList ""
+$ grpc_cli call --json_input --json_output opi-spdk-server:50051 NVMeSubsystemList {}
 connecting to opi-spdk-server:50051
-subsystem {
-  nqn: "Malloc0"
-}
-subsystem {
-  nqn: "Malloc1"
+{
+ "subsystem": [
+  {
+   "nqn": "Malloc0"
+  },
+  {
+   "nqn": "Malloc1"
+  }
+ ]
 }
 Rpc succeeded with OK status
 ```
