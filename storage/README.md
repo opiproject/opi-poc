@@ -9,11 +9,7 @@ This is a simple spdk based storage PoC
 * [SPDK CSI](https://github.com/spdk/spdk-csi/blob/master/deploy/spdk/Dockerfile)
 * [CSI Spec](https://github.com/container-storage-interface/spec/blob/master/spec.md)
 
-## Diagram
-
-![OPI Storage PoC Components](OPI-Storage-Layers-Detailed.png)
-
-## OPI-SPDK Bridge Diagram
+## OPI-SPDK Bridge Block Diagram
 
 The following is the example architecture we envision for the OPI Storage
 SPDK bridge APIs. It utilizes SPDK to handle storage services,
@@ -25,6 +21,13 @@ are going to be the OPI conumable product. For those that wish to use SPDK, this
 is a refernce implementation not intended to use in production.
 
 ![OPI Storage SPDK bridge/server](OPI-storage-SPDK-bridge.png)
+
+## OPI-SPDK Bridge Sequence Diagram
+
+The following is the example sequence diagram for OPI-SPDK bridge APIs.
+It is just an example and implies SPDK just as example, not mandated by OPI.
+
+![OPI Storage SPDK bridge/server](OPI-Storage-Sequence.png)
 
 ## QEMU example
 
