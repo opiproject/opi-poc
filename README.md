@@ -7,7 +7,8 @@
 [![Linters](https://github.com/opiproject/opi-poc/actions/workflows/linters.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/linters.yml)
 
 This repo hosts OPI proofs of concept.  These PoCs are used to demonstrate that
-the OPI project can work for some set of use cases.
+the OPI project can work for some set of use cases.  As a result, OPI CI is
+built on top of these PoCs.
 
 ## High level requirements
 
@@ -36,6 +37,11 @@ for more details.
 
 ## Current PoCs
 
-* [Developer Platform / Integration Platform](integration/README.md)
+* [Developer Platform / Integration Platform](integration/README.md) aka The CI
 * [Pure software networking](networking/README.md)
 * [Storage](storage/README.md)
+* [Security](security/README.md)
+
+## Other Work
+
+* [Lab hardware planning](lab/lab_requirement.md)
