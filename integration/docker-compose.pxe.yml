@@ -43,7 +43,7 @@ services:
     command: --script broadcast-dhcp-discover
 
   web:
-    image: python:3.10.6-slim
+    image: python:3.10.7-slim
     ports:
       - 8082:8082
     volumes:
