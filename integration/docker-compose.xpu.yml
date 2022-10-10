@@ -105,7 +105,7 @@ services:
       timeout: 10s
 
   strongswan:
-    image: strongx509/strongswan:5.9.6
+    image: strongx509/strongswan:5.9.7
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
