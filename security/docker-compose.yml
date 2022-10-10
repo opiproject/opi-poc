@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   vpn-server:
-    image: strongx509/strongswan:5.9.7
+    image: strongx509/strongswan:5.9.8
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
@@ -21,7 +21,7 @@ services:
     command: './charon'
 
   vpn-client:
-    image: strongx509/strongswan:5.9.7
+    image: strongx509/strongswan:5.9.8
     depends_on:
       - vpn-server
     cap_add:
