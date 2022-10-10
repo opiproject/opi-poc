@@ -75,7 +75,7 @@ services:
       timeout: 10s
 
   host-bmc-redfish:
-    image: dmtf/redfish-mockup-server:1.1.8
+    image: dmtf/redfish-mockup-server:1.1.9
     network_mode: service:host-bmc-ssh
 
 networks:
