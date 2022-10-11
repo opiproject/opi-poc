@@ -6,7 +6,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	fw "github.com/opiproject/opi-api/security/firewall/v1/gen/go"
 	"log"
 	"net"
 
@@ -23,10 +22,6 @@ type server struct {
 	pb.UnimplementedIPsecServer
 }
 
-type session_server struct {
-	fw.UnimplementedSessionTableServer
-}
-
 func main() {
 	flag.Parse()
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
@@ -36,7 +31,6 @@ func main() {
 	s := grpc.NewServer()
 
 	pb.RegisterIPsecServer(s, &server{})
-	fw.RegisterSessionTableServer(s, &session_server{})
 
 	reflection.Register(s)
 
