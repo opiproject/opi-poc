@@ -3,7 +3,7 @@
 
 FROM docker.io/library/fedora:36 as build
 
-ARG TAG=v22.05
+ARG TAG=v22.09
 # Pick an arch that has at least sse 4.2 but does not require newer avx
 # See https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
 ARG ARCH=x86-64-v2
@@ -17,8 +17,8 @@ RUN git clone https://github.com/spdk/spdk --branch ${TAG} --depth 1 && \
 
 # hadolint ignore=DL3003
 RUN cd spdk && ./rpmbuild/rpm.sh --target-arch=${ARCH} --without-uring --without-crypto \
-    --without-fio --with-raid5 --with-vhost --without-pmdk --without-rbd \
-    --with-rdma --with-shared --with-iscsi-initiator --without-vtune --without-isal
+    --without-fio --with-raid5f --with-vhost --without-pmdk --without-rbd \
+    --with-rdma --with-shared --with-iscsi-initiator --without-vtune
 
 FROM docker.io/library/fedora:36
 
