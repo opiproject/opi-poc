@@ -1,19 +1,16 @@
 # Security PoC
 
 This directory contains the security PoC for OPI. This includes reference code
-for both the [IPsec](https://github.com/opiproject/opi-api/blob/main/security/proto/ipsec.proto)
-and [Firewall Session Offload](https://github.com/opiproject/opi-api/blob/main/security/proto/openoffload.proto)
+for the [IPsec](https://github.com/opiproject/opi-api/blob/main/security/proto/ipsec.proto)
 APIs. The specification for these APIs can be found
-[here](https://github.com/opiproject/opi-api/blob/main/security/proto/autogen.md).
+[here](https://github.com/opiproject/opi-api/blob/main/security/v1/autogen.md).
 
 ## Architecture Diagram
 
 The following is the example architecture we envision for the OPI Security
 APIs. For IPsec, it utilizes strongSwan to handle IPsec IKE sessions and ESP
 keys, and assumes a vendor plugin in strongSwan for offloading ESP tunnels into
-HW acceleration. For the Firewall Session Offload, it makes use of an XDP
-program attached to interfaces, and is programmed via eBPF maps using the BPF
-syscall.
+HW acceleration.
 
 ![OPI Security Architcture](sec-architecture.drawio.png)
 
@@ -128,7 +125,6 @@ The architecture of the PoC includes the following components:
 * strongSwan client container
 * OPI Security API server container
 * OPI Security API client container
-* OPI Firewall container to load XDP programs
 
 ![OPI Security PoC Components](opi-security-poc.drawio.png)
 
