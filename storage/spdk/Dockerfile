@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2022 Dell Inc, or its subsidiaries.
 
-FROM docker.io/library/fedora:36 as build
+FROM docker.io/library/fedora:37 as build
 
 ARG TAG=v22.09
 # Pick an arch that has at least sse 4.2 but does not require newer avx
@@ -20,7 +20,7 @@ RUN cd spdk && ./rpmbuild/rpm.sh --target-arch=${ARCH} --without-uring --without
     --without-fio --with-raid5f --with-vhost --without-pmdk --without-rbd \
     --with-rdma --with-shared --with-iscsi-initiator --without-vtune
 
-FROM docker.io/library/fedora:36
+FROM docker.io/library/fedora:37
 
 WORKDIR /root
 RUN mkdir -p /root/rpmbuild
