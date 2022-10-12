@@ -1,3 +1,4 @@
+---
 version: '3.7'
 
 services:
@@ -13,8 +14,8 @@ services:
       - USER_PASSWORD=123456
       - USER_NAME=xpu
     ports:
-      - '2207:2222' # ssh
-      - "9009:9009" # spdk
+      - '2207:2222'  # ssh
+      - "9009:9009"  # spdk
       - "127.0.0.1:8011:8001/tcp"
       - "127.0.0.1:8444:8444/tcp"
     networks:
@@ -129,8 +130,8 @@ services:
       - USER_PASSWORD=123456
       - USER_NAME=bmc
     ports:
-      - '2209:2222' # ssh
-      - '8002:8000' # redfish
+      - '2209:2222'  # ssh
+      - '8002:8000'  # redfish
     networks:
       bmc:
         ipv4_address: 10.128.128.9
@@ -155,10 +156,10 @@ services:
       - example-network
       - example-storage
     ports:
-    - "50051:50051"
+      - "50051:50051"
     environment:
-    - NGINX_HOST=foobar.com
-    - NGINX_PORT=50051
+      - NGINX_HOST=foobar.com
+      - NGINX_PORT=50051
     healthcheck:
       test: curl --fail http://localhost:50051/ || exit 1
       interval: 10s

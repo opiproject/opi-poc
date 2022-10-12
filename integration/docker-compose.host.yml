@@ -1,3 +1,4 @@
+---
 version: '3.7'
 
 services:
@@ -13,7 +14,7 @@ services:
       - USER_PASSWORD=123456
       - USER_NAME=host
     ports:
-      - '2210:2222' # ssh
+      - '2210:2222'  # ssh
     networks:
       high-speed-external:
         ipv4_address: 10.129.129.10
@@ -60,8 +61,8 @@ services:
       - USER_PASSWORD=123456
       - USER_NAME=bmc
     ports:
-      - '2208:2222' # ssh
-      - '8001:8000' # redfish
+      - '2208:2222'  # ssh
+      - '8001:8000'  # redfish
     networks:
       bmc:
         ipv4_address: 10.128.128.8
