@@ -46,6 +46,8 @@ services:
       context: server
     volumes_from:
       - spdk:rw
+    ports:
+      - "50051:50051"
     networks:
       - opi
     depends_on:

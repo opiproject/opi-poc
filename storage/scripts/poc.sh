@@ -38,6 +38,9 @@ tests_poc() {
     curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{"id": 1, "method": "bdev_get_bdevs"}' http://127.0.0.1:9009
     $DC run opi-spdk-client
 
+    # Check exported port also works (host network)
+    docker run --network=host --rm namely/grpc-cli ls 127.0.0.1:50051
+
     # check reflection
     grpc_cli=(docker run --network=storage_opi --rm namely/grpc-cli)
     "${grpc_cli[@]}" ls opi-spdk-server:50051
