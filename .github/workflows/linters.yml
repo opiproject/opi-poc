@@ -8,6 +8,21 @@ on:
     branches: [ main ]
 
 jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run tests
+        run: |
+         lsblk || true
+         sudo modprobe -v null_blk || true
+         sudo modprobe -v nvme-fabrics || true
+         sudo modprobe -v nvme-loop || true
+         dd if=/dev/zero of=file.img bs=1KiB count=10
+         sudo losetup --find --show file.img
+         lsblk || true
+         sudo losetup -d /dev/loop0
+         
   markdown-lint:
     runs-on: ubuntu-latest
     steps:
