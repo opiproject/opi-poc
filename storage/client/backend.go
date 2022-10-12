@@ -5,6 +5,7 @@ import (
 	"log"
 
 	pb "github.com/opiproject/opi-api/storage/v1/gen/go"
+	pc "github.com/opiproject/opi-api/common/v1/gen/go"
 	"google.golang.org/grpc"
 )
 
@@ -76,4 +77,37 @@ func do_backend(conn grpc.ClientConnInterface, ctx context.Context) {
 	}
 	log.Printf("Deleted: %v", rs2)
 
+	// Aio
+	c2 := pb.NewAioControllerServiceClient(conn)
+	log.Printf("Testing NewAioControllerServiceClient")
+	ra1, err := c2.AioControllerCreate(ctx, &pb.AioControllerCreateRequest{Device: &pb.AioController{Name: "OpiAio4"}})
+	if err != nil {
+		log.Fatalf("could not create Aio device: %v", err)
+	}
+	log.Printf("Added: %v", ra1)
+	ra3, err := c2.AioControllerUpdate(ctx, &pb.AioControllerUpdateRequest{Device: &pb.AioController{Name: "OpiAio4"}})
+	if err != nil {
+		log.Fatalf("could not update Aio device: %v", err)
+	}
+	log.Printf("Updated: %v", ra3)
+	ra4, err := c2.AioControllerGetList(ctx, &pb.AioControllerGetListRequest{})
+	if err != nil {
+		log.Fatalf("could not list Aio device: %v", err)
+	}
+	log.Printf("Listed: %v", ra4)
+	ra5, err := c2.AioControllerGet(ctx, &pb.AioControllerGetRequest{Handle: &pc.ObjectKey{Value : "4"}})
+	if err != nil {
+		log.Fatalf("could not get Aio device: %v", err)
+	}
+	log.Printf("Got: %s", ra5.Name)
+	ra6, err := c2.AioControllerGetStats(ctx, &pb.AioControllerGetStatsRequest{Handle: &pc.ObjectKey{Value : "4"}})
+	if err != nil {
+		log.Fatalf("could not stats Aio device: %v", err)
+	}
+	log.Printf("Stats: %s", ra6.Stats)
+	ra2, err := c2.AioControllerDelete(ctx, &pb.AioControllerDeleteRequest{Handle: &pc.ObjectKey{Value : "4"}})
+	if err != nil {
+		log.Fatalf("could not delete Aio device: %v", err)
+	}
+	log.Printf("Deleted: %v", ra2)
 }

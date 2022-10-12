@@ -9,6 +9,7 @@ import (
 	"log"
 
 	pb "github.com/opiproject/opi-api/storage/v1/gen/go"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -227,4 +228,127 @@ func (s *server) NullDebugStats(ctx context.Context, in *pb.NullDebugStatsReques
 
 //////////////////////////////////////////////////////////
 
-// TODO: add AIO
+func (s *server) AioControllerCreate(ctx context.Context, in *pb.AioControllerCreateRequest) (*pb.AioController, error) {
+	log.Printf("AioControllerCreate: Received from client: %v", in)
+	params := BdevAioCreateParams{
+		Name:      in.GetDevice().GetName(),
+		BlockSize: 512,
+		Filename:  "/tmp/aio_bdev_file",
+	}
+	var result BdevAioCreateResult
+	err := call("bdev_aio_create", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
+	return &pb.AioController{}, nil
+}
+
+func (s *server) AioControllerDelete(ctx context.Context, in *pb.AioControllerDeleteRequest) (*emptypb.Empty, error) {
+	log.Printf("AioControllerDelete: Received from client: %v", in)
+	params := BdevAioDeleteParams{
+		Name: fmt.Sprint("OpiAio", in.GetHandle().GetValue()),
+	}
+	var result BdevAioDeleteResult
+	err := call("bdev_aio_delete", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if !result {
+		log.Printf("Could not delete: %v", in)
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *server) AioControllerUpdate(ctx context.Context, in *pb.AioControllerUpdateRequest) (*pb.AioController, error) {
+	log.Printf("AioControllerUpdate: Received from client: %v", in)
+	params1 := BdevAioDeleteParams{
+		Name: in.GetDevice().GetName(),
+	}
+	var result1 BdevAioDeleteResult
+	err1 := call("bdev_aio_delete", &params1, &result1)
+	if err1 != nil {
+		log.Printf("error: %v", err1)
+		return nil, err1
+	}
+	log.Printf("Received from SPDK: %v", result1)
+	if !result1 {
+		log.Printf("Could not delete: %v", in)
+	}
+	params2 := BdevAioCreateParams{
+		Name:      in.GetDevice().GetName(),
+		BlockSize: 512,
+		Filename:  "/tmp/aio_bdev_file",
+	}
+	var result2 BdevAioCreateResult
+	err2 := call("bdev_aio_create", &params2, &result2)
+	if err2 != nil {
+		log.Printf("error: %v", err2)
+		return nil, err2
+	}
+	log.Printf("Received from SPDK: %v", result2)
+	return &pb.AioController{}, nil
+}
+
+func (s *server) AioControllerGetList(ctx context.Context, in *pb.AioControllerGetListRequest) (*pb.AioControllerList, error) {
+	log.Printf("AioControllerGetList: Received from client: %v", in)
+	var result []BdevGetBdevsResult
+	err := call("bdev_get_bdevs", nil, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
+	Blobarray := make([]*pb.AioController, len(result))
+	for i := range result {
+		r := &result[i]
+		Blobarray[i] = &pb.AioController{Name: r.Name}
+	}
+	return &pb.AioControllerList{Device: Blobarray}, nil
+}
+
+func (s *server) AioControllerGet(ctx context.Context, in *pb.AioControllerGetRequest) (*pb.AioController, error) {
+	log.Printf("AioControllerGet: Received from client: %v", in)
+	params := BdevGetBdevsParams{
+		Name: fmt.Sprint("OpiAio", in.GetHandle().GetValue()),
+	}
+	var result []BdevGetBdevsResult
+	err := call("bdev_get_bdevs", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if len(result) != 1 {
+		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result))
+		log.Print(msg)
+		return nil, status.Errorf(codes.InvalidArgument, msg)
+	}
+	return &pb.AioController{Name: result[0].Name}, nil
+}
+
+func (s *server) AioControllerGetStats(ctx context.Context, in *pb.AioControllerGetStatsRequest) (*pb.AioControllerStats, error) {
+	log.Printf("AioControllerGetStats: Received from client: %v", in)
+	params := BdevGetIostatParams{
+		Name: fmt.Sprint("OpiAio", in.GetHandle().GetValue()),
+	}
+	// See https://mholt.github.io/json-to-go/
+	var result BdevGetIostatResult
+	err := call("bdev_get_iostat", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
+	if len(result.Bdevs) != 1 {
+		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result.Bdevs))
+		log.Print(msg)
+		return nil, status.Errorf(codes.InvalidArgument, msg)
+	}
+	return &pb.AioControllerStats{Stats: fmt.Sprint(result.Bdevs[0])}, nil
+}
+
+//////////////////////////////////////////////////////////
