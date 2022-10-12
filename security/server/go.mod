@@ -3,7 +3,7 @@ module main
 go 1.19
 
 require (
-	github.com/opiproject/opi-api v0.0.0-20221011191720-71dfd92661fb
+	github.com/opiproject/opi-api v0.0.0-20221012134350-65199a33c618
 	github.com/strongswan/govici v0.6.0
 	google.golang.org/grpc v1.50.0
 )
