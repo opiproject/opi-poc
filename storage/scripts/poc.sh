@@ -7,13 +7,8 @@ set -euxo pipefail
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-# DOCKER_COMPOSE setup
-DC=docker-compose
-
-if [ "$(command -v $DC)" == "" ]
-then
-    DC="docker compose"
-fi
+# docker compose plugin
+command -v docker-compose || { shopt -s expand_aliases && alias docker-compose='docker compose'; }
 
 usage() {
     echo "Usage: poc.sh [start|stop|tests|logs]"
@@ -24,7 +19,7 @@ tests_poc() {
         # Show x86-64-v level.
         "${SCRIPT_DIR}"/x86v.sh
     fi
-    $DC ps -a
+    docker-compose ps -a
     for i in $(seq 1 20)
     do
         echo "$i"
@@ -36,7 +31,7 @@ tests_poc() {
         fi
     done
     curl --fail --insecure --user spdkuser:spdkpass -X POST -H 'Content-Type: application/json' -d '{"id": 1, "method": "bdev_get_bdevs"}' http://127.0.0.1:9009
-    $DC run opi-spdk-client
+    docker-compose run opi-spdk-client
 
     # Check exported port also works (host network)
     docker run --network=host --rm namely/grpc-cli ls 127.0.0.1:50051
@@ -53,28 +48,28 @@ tests_poc() {
     "${grpc_cli[@]}" ls opi-spdk-server:50051 opi_api.storage.v1.VirtioScsiLunService -l
 
     # this is last line
-    $DC ps -a
+    docker-compose ps -a
 }
 
 stop_poc() {
-    $DC down --volumes
+    docker-compose down --volumes
     docker network prune --force
 }
 
 start_poc() {
-    $DC up --detach
+    docker-compose up --detach
 }
 
 logs_poc() {
-    $DC ps -a
-    $DC logs || true
-    docker inspect "$($DC ps -q)" || true
+    docker-compose ps -a
+    docker-compose logs || true
+    docker inspect "$(docker-compose ps -q)" || true
     netstat -an || true
     ifconfig -a || true
 }
 
 stop_containers() {
-    $DC down --volumes
+    docker-compose down --volumes
 }
 
 if [ $# -eq 0 ]
