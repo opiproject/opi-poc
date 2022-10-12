@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2022 Red Hat
+# Copyright (c) 2022 Dell Inc, or its subsidiaries.
+---
+- name: Suse | Install package dependencies
+  zypper:
+    name: docker.io,python3-pip,sshpass,git
+    state: present
+
+- name: Suse | Install docker-compose
+  pip:
+    name: docker-compose>=1.29
+    state: present
