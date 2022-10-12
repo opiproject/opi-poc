@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2022 Dell Inc, or its subsidiaries.
-
+---
 version: "3.7"
 
 services:
@@ -66,4 +66,3 @@ services:
 
 networks:
   opi:
-

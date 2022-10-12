@@ -1,3 +1,4 @@
+---
 version: '3.7'
 
 services:
@@ -62,7 +63,7 @@ services:
 networks:
   internet:
     ipam:
-      driver: default 
+      driver: default
       config:
         - subnet: 192.168.200.0/24
   intranet:
