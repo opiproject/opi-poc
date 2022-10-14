@@ -1,7 +1,7 @@
 # This Dockerfile runs the RouteGuide server from
 # https://grpc.io/docs/tutorials/basic/python.html
 
-FROM docker.io/library/python:3.10.7-slim
+FROM docker.io/library/python:3.10.8-slim
 RUN pip install grpcio-tools
 ADD https://github.com/grpc/grpc/archive/v1.49.x.tar.gz .
 RUN tar -zxvf v1.49.x.tar.gz
