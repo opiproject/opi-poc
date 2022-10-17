@@ -24,20 +24,23 @@ func main() {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("did not close connection: %v", err)
+		}
+	}(conn)
 
 	// Contact the server and print out its response.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
 	log.Printf("Test frontend")
-	do_frontend(conn, ctx)
+	doFrontend(ctx, conn)
 
 	log.Printf("Test backend")
-	do_backend(conn, ctx)
+	doBackend(ctx, conn)
 
 	log.Printf("Test middleend")
-	do_middleend(conn, ctx)
-
-
+	doMiddleend(ctx, conn)
 }

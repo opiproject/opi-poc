@@ -7,6 +7,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-func do_middleend(conn grpc.ClientConnInterface, ctx context.Context) {
+func doMiddleend(ctx context.Context, conn grpc.ClientConnInterface) {
 	log.Printf("Test middleend")
 }
