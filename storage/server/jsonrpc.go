@@ -5,19 +5,18 @@ package main
 
 import (
 	"bufio"
-	"io"
-	"flag"
 	"encoding/json"
+	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"sync/atomic"
 )
 
 var (
-
-	rpcID      int32 // json request message ID, auto incremented
-	rpc_sock = flag.String("rpc_sock", "/var/tmp/spdk.sock", "Path to SPDK JSON RPC socket")
+	rpcID   int32 // json request message ID, auto incremented
+	rpcSock = flag.String("rpc_sock", "/var/tmp/spdk.sock", "Path to SPDK JSON RPC socket")
 )
 
 // low level rpc request/response handling
@@ -57,7 +56,7 @@ func call(method string, args, result interface{}) error {
 	log.Printf("Sending to SPDK: %s", data)
 
 	// TODO: add also web option: resp, _ = webSocketCom(rpcClient, data)
-	resp, _ := unixSocketCom(*rpc_sock, data)
+	resp, _ := unixSocketCom(*rpcSock, data)
 
 	response := struct {
 		ID    int32 `json:"id"`
@@ -85,8 +84,8 @@ func call(method string, args, result interface{}) error {
 	return nil
 }
 
-func unixSocketCom(rpc_sock string, buf []byte) (io.Reader, error) {
-	conn, err := net.Dial("unix", rpc_sock)
+func unixSocketCom(rpcSock string, buf []byte) (io.Reader, error) {
+	conn, err := net.Dial("unix", rpcSock)
 	if err != nil {
 		log.Fatal(err)
 	}

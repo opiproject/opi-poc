@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2022 Dell Inc, or its subsidiaries.
 
+// The main package of the storage server
 package main
 
 import (
@@ -11,7 +12,7 @@ import (
 	pb "github.com/opiproject/opi-api/storage/v1/gen/go"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 //////////////////////////////////////////////////////////
@@ -41,10 +42,10 @@ func (s *server) NVMfRemoteControllerConnect(ctx context.Context, in *pb.NVMfRem
 
 func (s *server) NVMfRemoteControllerDisconnect(ctx context.Context, in *pb.NVMfRemoteControllerDisconnectRequest) (*pb.NVMfRemoteControllerDisconnectResponse, error) {
 	log.Printf("NVMfRemoteControllerDisconnect: Received from client: %v", in)
-	params := BdevNvmeDettachControllerParams{
+	params := BdevNvmeDetachControllerParams{
 		Name: fmt.Sprint("OpiNvme", in.GetId()),
 	}
-	var result BdevNvmeDettachControllerResult
+	var result BdevNvmeDetachControllerResult
 	err := call("bdev_nvme_detach_controller", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)

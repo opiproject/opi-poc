@@ -24,20 +24,25 @@ package main
 // vhost_delete_controller
 // vhost_get_controllers
 
+// BdevAioCreateParams holds the parameters required to create an AIO Block Device
 type BdevAioCreateParams struct {
 	Name      string `json:"name"`
 	Filename  string `json:"filename"`
 	BlockSize int    `json:"block_size"`
 }
 
+// BdevAioCreateResult is the result of creating an AIO Block Device
 type BdevAioCreateResult string
 
+// BdevAioDeleteParams holds the parameters required to delete an AIO Block Device
 type BdevAioDeleteParams struct {
 	Name string `json:"name"`
 }
 
+// BdevAioDeleteResult is the result of deleting an AIO Block Device
 type BdevAioDeleteResult bool
 
+// BdevMalloCreateParams holds the parameters required to create a Malloc Block Device
 type BdevMalloCreateParams struct {
 	NumBlocks int    `json:"num_blocks"`
 	BlockSize int    `json:"block_size"`
@@ -45,49 +50,63 @@ type BdevMalloCreateParams struct {
 	UUID      string `json:"uuid"`
 }
 
+// BdevAMalloCreateResult is the result of creating a Malloc Block Device
 type BdevAMalloCreateResult string
 
+// BdevMallocDeleteParams holds the parameters required to delete a Malloc Block Device
 type BdevMallocDeleteParams struct {
 	Name string `json:"name"`
 }
 
+// BdevMallocDeleteResult is the result of deleting a Malloc Block Device
 type BdevMallocDeleteResult bool
 
+// BdevNullCreateParams holds the parameters required to create a Null Block Device
+// that discards all writes and returns undefined data for reads
 type BdevNullCreateParams struct {
-	BlockSize     int    `json:"block_size"`
-	NumBlocks     int    `json:"num_blocks"`
-	Name          string `json:"name"`
+	BlockSize int    `json:"block_size"`
+	NumBlocks int    `json:"num_blocks"`
+	Name      string `json:"name"`
 }
 
+// BdevNullCreateResult is the result of creating a Null Block Device
 type BdevNullCreateResult string
 
+// BdevNullDeleteParams holds the parameters required to delete a Null Block Device
 type BdevNullDeleteParams struct {
 	Name string `json:"name"`
 }
 
+// BdevNullDeleteResult is the result of deleting a Null Block Device
 type BdevNullDeleteResult bool
 
+// BdevNvmeAttachControllerParams is the parameters required to create a block device based on an NVMe device
 type BdevNvmeAttachControllerParams struct {
-	Name        string `json:"name"`
-	Type        string `json:"trtype"`
-	Address     string `json:"traddr"`
-	Family      string `json:"adrfam"`
-	Port        string `json:"trsvcid"`
-	Subsystem   string `json:"subnqn"`
+	Name      string `json:"name"`
+	Type      string `json:"trtype"`
+	Address   string `json:"traddr"`
+	Family    string `json:"adrfam"`
+	Port      string `json:"trsvcid"`
+	Subsystem string `json:"subnqn"`
 }
 
+// BdevNvmeAttachControllerResult is the result of creating a block device based on an NVMe device
 type BdevNvmeAttachControllerResult string
 
-type BdevNvmeDettachControllerParams struct {
+// BdevNvmeDetachControllerParams is the parameters required to detach a block device based on an NVMe device
+type BdevNvmeDetachControllerParams struct {
 	Name string `json:"name"`
 }
 
-type BdevNvmeDettachControllerResult bool
+// BdevNvmeDetachControllerResult is the result of detaching a block device based on an NVMe device
+type BdevNvmeDetachControllerResult bool
 
+// BdevNvmeGetControllerParams is the parameters required to get a block device based on an NVMe device
 type BdevNvmeGetControllerParams struct {
 	Name string `json:"name"`
 }
 
+// BdevNvmeGetControllerResult is the result of getting a block device based on an NVMe device
 type BdevNvmeGetControllerResult struct {
 	Name   string `json:"name"`
 	Ctrlrs []struct {
@@ -108,21 +127,25 @@ type BdevNvmeGetControllerResult struct {
 	} `json:"ctrlrs"`
 }
 
+// BdevGetBdevsParams is the parameters required to get a block device
 type BdevGetBdevsParams struct {
 	Name string `json:"name"`
 }
 
+// BdevGetBdevsResult is the result of getting a block device
 type BdevGetBdevsResult struct {
-	Name        string `json:"name"`
-	BlockSize   int64  `json:"block_size"`
-	NumBlocks   int64  `json:"num_blocks"`
-	Uuid        string `json:"uuid"`
+	Name      string `json:"name"`
+	BlockSize int64  `json:"block_size"`
+	NumBlocks int64  `json:"num_blocks"`
+	UUID      string `json:"uuid"`
 }
 
+// BdevGetIostatParams hold the parameters required to get the IO stats of a block device
 type BdevGetIostatParams struct {
 	Name string `json:"name"`
 }
 
+// BdevGetIostatResult hold the results of getting the IO stats of a block device
 type BdevGetIostatResult struct {
 	TickRate int   `json:"tick_rate"`
 	Ticks    int64 `json:"ticks"`
@@ -140,23 +163,30 @@ type BdevGetIostatResult struct {
 	} `json:"bdevs"`
 }
 
+// VhostCreateBlkControllerParams holds the parameters required to create a block device
+// from a vhost controller
 type VhostCreateBlkControllerParams struct {
 	Ctrlr   string `json:"ctrlr"`
 	DevName string `json:"dev_name"`
 }
 
+// VhostCreateBlkControllerResult is the result of creating a block device from a vhost controller
 type VhostCreateBlkControllerResult bool
 
+// VhostDeleteControllerParams holds the parameters required to delete a vhost controller
 type VhostDeleteControllerParams struct {
-	Ctrlr   string `json:"ctrlr"`
+	Ctrlr string `json:"ctrlr"`
 }
 
+// VhostDeleteControllerResult is the result of deleting a vhost controller
 type VhostDeleteControllerResult bool
 
+// VhostGetControllersParams holds the parameters required to get a vhost controller
 type VhostGetControllersParams struct {
 	Name string `json:"name"`
 }
 
+// VhostGetControllersResult is the result of getting a vhost controller
 type VhostGetControllersResult struct {
 	Ctrlr           string `json:"ctrlr"`
 	Cpumask         string `json:"cpumask"`
@@ -171,8 +201,10 @@ type VhostGetControllersResult struct {
 	} `json:"backend_specific"`
 }
 
+// VhostCreateScsiControllerParams holds the parameters required to create a SCSI controller
 type VhostCreateScsiControllerParams struct {
-	Ctrlr   string `json:"ctrlr"`
+	Ctrlr string `json:"ctrlr"`
 }
 
+// VhostCreateScsiControllerResult is the result of creating a SCSI controller
 type VhostCreateScsiControllerResult bool
