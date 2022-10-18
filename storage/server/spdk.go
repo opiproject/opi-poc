@@ -228,3 +228,52 @@ type NvmfSubsystemRemoveNsParams struct {
 
 // NvmfSubsystemRemoveNsResult is the result of creating a NVMf subsystem
 type NvmfSubsystemRemoveNsResult bool
+
+// NvmfCreateSubsystemParams holds the parameters required to create a NVMf subsystem
+type NvmfCreateSubsystemParams struct {
+	Nqn          string `json:"nqn"`
+	SerialNumber string `json:"serial_number"`
+	AllowAnyHost bool   `json:"allow_any_host"`
+}
+
+// NvmfCreateSubsystemResult is the result of creating a NVMf subsystem
+type NvmfCreateSubsystemResult bool
+
+// NvmfDeleteSubsystemParams holds the parameters required to Delete a NVMf subsystem
+type NvmfDeleteSubsystemParams struct {
+	Nqn string `json:"nqn"`
+}
+
+// NvmfDeleteSubsystemResult is the result of creating a NVMf subsystem
+type NvmfDeleteSubsystemResult bool
+
+// NvmfGetSubsystemsResult is the result of listing all NVMf subsystems
+type NvmfGetSubsystemsResult struct {
+	Nqn             string        `json:"nqn"`
+	Subtype         string        `json:"subtype"`
+	ListenAddresses []interface{} `json:"listen_addresses"`
+	AllowAnyHost    bool          `json:"allow_any_host"`
+	Hosts           []interface{} `json:"hosts"`
+	SerialNumber    string        `json:"serial_number,omitempty"`
+	ModelNumber     string        `json:"model_number,omitempty"`
+	MaxNamespaces   int           `json:"max_namespaces,omitempty"`
+	MinCntlid       int           `json:"min_cntlid,omitempty"`
+	MaxCntlid       int           `json:"max_cntlid,omitempty"`
+	Namespaces      []interface{} `json:"namespaces,omitempty"`
+}
+
+// NvmfGetSubsystemStatsResult is the result of NVMf subsystem statistics
+type NvmfGetSubsystemStatsResult struct {
+	TickRate   int `json:"tick_rate"`
+	PollGroups []struct {
+		Name               string `json:"name"`
+		AdminQpairs        int    `json:"admin_qpairs"`
+		IoQpairs           int    `json:"io_qpairs"`
+		CurrentAdminQpairs int    `json:"current_admin_qpairs"`
+		CurrentIoQpairs    int    `json:"current_io_qpairs"`
+		PendingBdevIo      int    `json:"pending_bdev_io"`
+		Transports         []struct {
+			Trtype string `json:"trtype"`
+		} `json:"transports"`
+	} `json:"poll_groups"`
+}

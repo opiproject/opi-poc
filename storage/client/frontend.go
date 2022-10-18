@@ -239,12 +239,12 @@ func executeNVMeSubsystem(ctx context.Context, conn grpc.ClientConnInterface) er
 	// NVMeSubsystem
 	c1 := pb.NewNVMeSubsystemServiceClient(conn)
 	log.Printf("Testing NewNVMeSubsystemServiceClient")
-	rs1, err := c1.NVMeSubsystemCreate(ctx, &pb.NVMeSubsystemCreateRequest{Subsystem: &pb.NVMeSubsystem{Nqn: "OpiMalloc7"}})
+	rs1, err := c1.NVMeSubsystemCreate(ctx, &pb.NVMeSubsystemCreateRequest{Subsystem: &pb.NVMeSubsystem{Nqn: "nqn.2022-09.io.spdk:opi7"}})
 	if err != nil {
 		log.Fatalf("could not create NVMe subsystem: %v", err)
 	}
 	log.Printf("Added: %v", rs1)
-	rs3, err := c1.NVMeSubsystemUpdate(ctx, &pb.NVMeSubsystemUpdateRequest{Subsystem: &pb.NVMeSubsystem{Nqn: "OpiMalloc7"}})
+	rs3, err := c1.NVMeSubsystemUpdate(ctx, &pb.NVMeSubsystemUpdateRequest{Subsystem: &pb.NVMeSubsystem{Nqn: "nqn.2022-09.io.spdk:opi7"}})
 	if err != nil {
 		log.Fatalf("could not update NVMe subsystem: %v", err)
 	}

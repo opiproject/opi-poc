@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/google/uuid"
 	pb "github.com/opiproject/opi-api/storage/v1/gen/go"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,14 +17,13 @@ import (
 
 func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCreateRequest) (*pb.NVMeSubsystemCreateResponse, error) {
 	log.Printf("NVMeSubsystemCreate: Received from client: %v", in)
-	params := BdevMalloCreateParams{
-		Name:      in.GetSubsystem().GetNqn(),
-		BlockSize: 512,
-		NumBlocks: 64,
-		UUID:      uuid.New().String(),
+	params := NvmfCreateSubsystemParams{
+		Nqn:          in.GetSubsystem().GetNqn(),
+		SerialNumber: "SPDK0",
+		AllowAnyHost: true,
 	}
-	var result BdevAMalloCreateResult
-	err := call("bdev_malloc_create", &params, &result)
+	var result NvmfCreateSubsystemResult
+	err := call("nvmf_create_subsystem", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
 		return nil, err
@@ -36,11 +34,11 @@ func (s *server) NVMeSubsystemCreate(ctx context.Context, in *pb.NVMeSubsystemCr
 
 func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDeleteRequest) (*pb.NVMeSubsystemDeleteResponse, error) {
 	log.Printf("NVMeSubsystemDelete: Received from client: %v", in)
-	params := BdevMallocDeleteParams{
-		Name: fmt.Sprint("OpiMalloc", in.GetNqn()),
+	params := NvmfDeleteSubsystemParams{
+		Nqn: fmt.Sprint("nqn.2022-09.io.spdk:opi", in.GetNqn()),
 	}
-	var result BdevMallocDeleteResult
-	err := call("bdev_malloc_delete", &params, &result)
+	var result NvmfDeleteSubsystemResult
+	err := call("nvmf_delete_subsystem", &params, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
 		return nil, err
@@ -54,39 +52,13 @@ func (s *server) NVMeSubsystemDelete(ctx context.Context, in *pb.NVMeSubsystemDe
 
 func (s *server) NVMeSubsystemUpdate(ctx context.Context, in *pb.NVMeSubsystemUpdateRequest) (*pb.NVMeSubsystemUpdateResponse, error) {
 	log.Printf("NVMeSubsystemUpdate: Received from client: %v", in)
-	params1 := BdevMallocDeleteParams{
-		Name: in.GetSubsystem().GetNqn(),
-	}
-	var result1 BdevMallocDeleteResult
-	err1 := call("bdev_malloc_delete", &params1, &result1)
-	if err1 != nil {
-		log.Printf("error: %v", err1)
-		return nil, err1
-	}
-	log.Printf("Received from SPDK: %v", result1)
-	if !result1 {
-		log.Printf("Could not delete: %v", in)
-	}
-	params2 := BdevMalloCreateParams{
-		Name:      in.GetSubsystem().GetNqn(),
-		BlockSize: 512,
-		NumBlocks: 64,
-		UUID:      uuid.New().String(),
-	}
-	var result2 BdevAMalloCreateResult
-	err2 := call("bdev_malloc_create", &params2, &result2)
-	if err2 != nil {
-		log.Printf("error: %v", err2)
-		return nil, err2
-	}
-	log.Printf("Received from SPDK: %v", result2)
 	return &pb.NVMeSubsystemUpdateResponse{}, nil
 }
 
 func (s *server) NVMeSubsystemList(ctx context.Context, in *pb.NVMeSubsystemListRequest) (*pb.NVMeSubsystemListResponse, error) {
 	log.Printf("NVMeSubsystemList: Received from client: %v", in)
-	var result []BdevGetBdevsResult
-	err := call("bdev_get_bdevs", nil, &result)
+	var result []NvmfGetSubsystemsResult
+	err := call("nvmf_get_subsystems", nil, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
 		return nil, err
@@ -95,50 +67,42 @@ func (s *server) NVMeSubsystemList(ctx context.Context, in *pb.NVMeSubsystemList
 	Blobarray := make([]*pb.NVMeSubsystem, len(result))
 	for i := range result {
 		r := &result[i]
-		Blobarray[i] = &pb.NVMeSubsystem{Nqn: r.Name}
+		Blobarray[i] = &pb.NVMeSubsystem{Nqn: r.Nqn}
 	}
 	return &pb.NVMeSubsystemListResponse{Subsystem: Blobarray}, nil
 }
 
 func (s *server) NVMeSubsystemGet(ctx context.Context, in *pb.NVMeSubsystemGetRequest) (*pb.NVMeSubsystemGetResponse, error) {
 	log.Printf("NVMeSubsystemGet: Received from client: %v", in)
-	params := BdevGetBdevsParams{
-		Name: fmt.Sprint("OpiMalloc", in.GetNqn()),
-	}
-	var result []BdevGetBdevsResult
-	err := call("bdev_get_bdevs", &params, &result)
+	var result []NvmfGetSubsystemsResult
+	err := call("nvmf_get_subsystems", nil, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if len(result) != 1 {
-		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result))
-		log.Print(msg)
-		return nil, status.Errorf(codes.InvalidArgument, msg)
+	nqn := fmt.Sprint("nqn.2022-09.io.spdk:opi", in.GetNqn())
+	for i := range result {
+		r := &result[i]
+		if r.Nqn == nqn {
+			return &pb.NVMeSubsystemGetResponse{Subsystem: &pb.NVMeSubsystem{Nqn: r.Nqn}}, nil
+		}
 	}
-	return &pb.NVMeSubsystemGetResponse{Subsystem: &pb.NVMeSubsystem{Nqn: result[0].Name}}, nil
+	msg := fmt.Sprintf("Could not find NQN: %s", nqn)
+	log.Print(msg)
+	return nil, status.Errorf(codes.InvalidArgument, msg)
 }
 
 func (s *server) NVMeSubsystemStats(ctx context.Context, in *pb.NVMeSubsystemStatsRequest) (*pb.NVMeSubsystemStatsResponse, error) {
 	log.Printf("NVMeSubsystemStats: Received from client: %v", in)
-	params := BdevGetIostatParams{
-		Name: fmt.Sprint("OpiMalloc", in.GetNqn()),
-	}
-	// See https://mholt.github.io/json-to-go/
-	var result BdevGetIostatResult
-	err := call("bdev_get_iostat", &params, &result)
+	var result NvmfGetSubsystemStatsResult
+	err := call("nvmf_get_stats", nil, &result)
 	if err != nil {
 		log.Printf("error: %v", err)
 		return nil, err
 	}
 	log.Printf("Received from SPDK: %v", result)
-	if len(result.Bdevs) != 1 {
-		msg := fmt.Sprintf("expecting exactly 1 result, got %d", len(result.Bdevs))
-		log.Print(msg)
-		return nil, status.Errorf(codes.InvalidArgument, msg)
-	}
-	return &pb.NVMeSubsystemStatsResponse{Stats: fmt.Sprint(result.Bdevs[0])}, nil
+	return &pb.NVMeSubsystemStatsResponse{Stats: fmt.Sprint(result.TickRate)}, nil
 }
 
 //////////////////////////////////////////////////////////
