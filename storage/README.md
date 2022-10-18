@@ -45,33 +45,9 @@ $ docker run --rm -it -v /var/tmp/:/var/tmp/ -p 50051:50051 ghcr.io/opiproject/o
 on X86 management VM run
 
 ```bash
-$ docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMeSubsystemList "{}"
-connecting to 10.10.10.1:50051
-{
- "subsystem": [
-  {
-   "nqn": "Malloc0"
-  },
-  {
-   "nqn": "Malloc1"
-  }
- ]
-}
-Rpc succeeded with OK status
-
-$ docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMeSubsystemCreate "{'subsystem' : {'nqn' : 'OpiMalloc8'} }"
-connecting to 10.10.10.1:50051
-{}
-Rpc succeeded with OK status
-
-$ docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMeSubsystemGet "{'nqn': '8'}"
-connecting to 10.10.10.1:50051
-{
- "subsystem": {
-  "nqn": "OpiMalloc8"
- }
-}
-Rpc succeeded with OK status
+docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMeSubsystemCreate "{'subsystem' : {'nqn' : 'Opi1'} }"
+docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMeControllerCreate "{'controller' : {'name' : 'Opi2' , 'subsystem_id' : '1'} }"
+docker run --network=host --rm -it namely/grpc-cli call --json_input --json_output 10.10.10.1:50051 NVMeNamespaceCreate "{'namespace' : {'name' : 'Opi3' , 'controller_id' : '2' , 'subsystem_id' : '1'} }"
 ```
 
 and netwok-facing APIs:
