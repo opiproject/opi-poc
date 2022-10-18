@@ -108,12 +108,40 @@ func (s *server) NVMeSubsystemStats(ctx context.Context, in *pb.NVMeSubsystemSta
 //////////////////////////////////////////////////////////
 
 func (s *server) NVMeControllerCreate(ctx context.Context, in *pb.NVMeControllerCreateRequest) (*pb.NVMeControllerCreateResponse, error) {
-	log.Printf("Received from client: %v", in.GetController())
+	log.Printf("NVMeControllerCreate: Received from client: %v", in)
+	params := NvmfSubsystemAddListenerParams{
+		Nqn: fmt.Sprint("nqn.2019-07.io.spdk:opi", in.GetController().GetSubsystemId()),
+	}
+	params.ListenAddress.Trtype = "VFIOUSER"
+	params.ListenAddress.Traddr = "/var/tmp"
+	params.ListenAddress.Trsvcid = "0"
+
+	var result NvmfSubsystemAddListenerResult
+	err := call("nvmf_subsystem_add_listener", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
 	return &pb.NVMeControllerCreateResponse{}, nil
 }
 
 func (s *server) NVMeControllerDelete(ctx context.Context, in *pb.NVMeControllerDeleteRequest) (*pb.NVMeControllerDeleteResponse, error) {
-	log.Printf("Received from client: %v", in.GetControllerId())
+	log.Printf("NVMeControllerDelete: Received from client: %v", in)
+	params := NvmfSubsystemAddListenerParams{
+		Nqn: fmt.Sprint("nqn.2019-07.io.spdk:opi", in.GetSubsystemId()),
+	}
+	params.ListenAddress.Trtype = "VFIOUSER"
+	params.ListenAddress.Traddr = "/var/tmp"
+	params.ListenAddress.Trsvcid = "0"
+
+	var result NvmfSubsystemAddListenerResult
+	err := call("nvmf_subsystem_remove_listener", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
 	return &pb.NVMeControllerDeleteResponse{}, nil
 }
 
@@ -123,8 +151,22 @@ func (s *server) NVMeControllerUpdate(ctx context.Context, in *pb.NVMeController
 }
 
 func (s *server) NVMeControllerList(ctx context.Context, in *pb.NVMeControllerListRequest) (*pb.NVMeControllerListResponse, error) {
-	log.Printf("Received from client: %v", in.GetSubsystemId())
-	Blobarray := make([]*pb.NVMeController, 3)
+	log.Printf("NVMeSubsystemList: Received from client: %v", in)
+	params := NvmfSubsystemGetListenersParams{
+		Nqn: fmt.Sprint("nqn.2019-07.io.spdk:opi", in.GetSubsystemId()),
+	}
+	var result []NvmfSubsystemGetListenersResult
+	err := call("nvmf_subsystem_get_listeners", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
+	Blobarray := make([]*pb.NVMeController, len(result))
+	for i := range result {
+		r := &result[i]
+		Blobarray[i] = &pb.NVMeController{Name: r.Address.Trsvcid}
+	}
 	return &pb.NVMeControllerListResponse{Controller: Blobarray}, nil
 }
 

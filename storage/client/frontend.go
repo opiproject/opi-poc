@@ -201,22 +201,22 @@ func executeNVMeController(ctx context.Context, conn grpc.ClientConnInterface) e
 	// NVMeController
 	c2 := pb.NewNVMeControllerServiceClient(conn)
 	log.Printf("Testing NewNVMeControllerServiceClient")
-	rc1, err := c2.NVMeControllerCreate(ctx, &pb.NVMeControllerCreateRequest{Controller: &pb.NVMeController{Name: "OPI-Nvme"}})
+	rc1, err := c2.NVMeControllerCreate(ctx, &pb.NVMeControllerCreateRequest{Controller: &pb.NVMeController{SubsystemId: "7"}})
 	if err != nil {
 		log.Fatalf("could not create NVMe subsystem: %v", err)
 	}
 	log.Printf("Added: %v", rc1)
-	rc2, err := c2.NVMeControllerDelete(ctx, &pb.NVMeControllerDeleteRequest{SubsystemId: 8})
-	if err != nil {
-		log.Fatalf("could not delete NVMe subsystem: %v", err)
-	}
-	log.Printf("Deleted: %v", rc2)
+	// rc2, err := c2.NVMeControllerDelete(ctx, &pb.NVMeControllerDeleteRequest{SubsystemId: 7})
+	// if err != nil {
+	// 	log.Fatalf("could not delete NVMe subsystem: %v", err)
+	// }
+	// log.Printf("Deleted: %v", rc2)
 	rc3, err := c2.NVMeControllerUpdate(ctx, &pb.NVMeControllerUpdateRequest{Controller: &pb.NVMeController{Name: "OPI-Nvme"}})
 	if err != nil {
 		log.Fatalf("could not update NVMe subsystem: %v", err)
 	}
 	log.Printf("Updated: %v", rc3)
-	rc4, err := c2.NVMeControllerList(ctx, &pb.NVMeControllerListRequest{SubsystemId: 8})
+	rc4, err := c2.NVMeControllerList(ctx, &pb.NVMeControllerListRequest{SubsystemId: 7})
 	if err != nil {
 		log.Fatalf("could not list NVMe subsystem: %v", err)
 	}
@@ -264,10 +264,10 @@ func executeNVMeSubsystem(ctx context.Context, conn grpc.ClientConnInterface) er
 		log.Fatalf("could not stats NVMe subsystem: %v", err)
 	}
 	log.Printf("Stats: %s", rs6.Stats)
-	rs2, err := c1.NVMeSubsystemDelete(ctx, &pb.NVMeSubsystemDeleteRequest{Nqn: "7"})
-	if err != nil {
-		log.Fatalf("could not delete NVMe subsystem: %v", err)
-	}
-	log.Printf("Deleted: %v", rs2)
+	// rs2, err := c1.NVMeSubsystemDelete(ctx, &pb.NVMeSubsystemDeleteRequest{Nqn: "7"})
+	// if err != nil {
+	// 	log.Fatalf("could not delete NVMe subsystem: %v", err)
+	// }
+	// log.Printf("Deleted: %v", rs2)
 	return err
 }

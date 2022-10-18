@@ -280,3 +280,31 @@ type NvmfGetSubsystemStatsResult struct {
 		} `json:"transports"`
 	} `json:"poll_groups"`
 }
+
+// NvmfSubsystemAddListenerParams holds the parameters required to create add a listener to an existing NVMf subsystem
+type NvmfSubsystemAddListenerParams struct {
+	Nqn           string `json:"nqn"`
+	ListenAddress struct {
+		Trtype  string `json:"trtype"`
+		Traddr  string `json:"traddr"`
+		Trsvcid string `json:"trsvcid"`
+	} `json:"listen_address"`
+}
+
+// NvmfSubsystemAddListenerResult is the result of creating a listener
+type NvmfSubsystemAddListenerResult bool
+
+// NvmfSubsystemGetListenersParams holds the parameters required to get list of listeners from an existing NVMf subsystem
+type NvmfSubsystemGetListenersParams struct {
+	Nqn string `json:"nqn"`
+}
+
+// NvmfSubsystemGetListenersResult is the result of listeners list
+type NvmfSubsystemGetListenersResult struct {
+	Address struct {
+		Trtype  string `json:"trtype"`
+		Adrfam  string `json:"adrfam"`
+		Traddr  string `json:"traddr"`
+		Trsvcid string `json:"trsvcid"`
+	} `json:"address"`
+}
