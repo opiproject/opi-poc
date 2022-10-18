@@ -328,3 +328,68 @@ sdc  sdc   Malloc disk 2:0:1:0     64M INTEL    block:scsi:virtio:pci
 ### Run qemu with HOT PLUG virtio-scsi
 
 tbd
+
+## Nvme
+
+### Configure SPDK vfio-user
+
+```bash
+./spdk/scripts/rpc.py spdk_get_version
+./spdk/scripts/rpc.py bdev_malloc_create 64 512 -b Malloc4
+./spdk/scripts/rpc.py nvmf_create_transport -t VFIOUSER
+./spdk/scripts/rpc.py nvmf_create_subsystem nqn.2019-07.io.spdk:cnode0 -a -s SPDK0
+./spdk/scripts/rpc.py nvmf_subsystem_add_ns nqn.2019-07.io.spdk:cnode0 Malloc4
+./spdk/scripts/rpc.py nvmf_subsystem_add_listener nqn.2019-07.io.spdk:cnode0 -t VFIOUSER -a /var/tmp -s 0
+```
+
+### Build new qemu
+
+```bash
+git clone https://github.com/oracle/qemu qemu-orcl
+cd qemu-orcl
+git submodule update --init --recursive
+./configure --enable-multiprocess
+make -j
+```
+
+### Run qemu with predefined vfio-user device
+
+```bash
+taskset -c 2,3 qemu-orcl/build/qemu-system-x86_64 \
+  -smp 2 \
+  -cdrom init.iso \
+  -m 1G -object memory-backend-file,id=mem0,size=1G,mem-path=/dev/hugepages,share=on -numa node,memdev=mem0 \
+  -drive file=guest_os_image.qcow2,if=none,id=disk \
+  -device ide-hd,drive=disk,bootindex=0 \
+  -device vfio-user-pci,socket=/var/tmp/cntrl \
+  --nographic
+```
+
+Login using fedora/fedora and run few tests
+
+```bash
+[fedora@fed21 ~]$ dmesg | grep nvme
+[   16.069632] nvme nvme0: pci function 0000:00:04.0
+[   17.884627] nvme nvme0: 2/0/0 default/read/poll queues
+
+[fedora@fed21 ~]$ ls -l /sys/class/block | grep nvme
+lrwxrwxrwx. 1 root root 0 Oct 18 22:15 nvme0n1 -> ../../devices/pci0000:00/0000:00:04.0/nvme/nvme0/nvme0n1
+
+[fedora@fed21 ~]$ lsblk /dev/nvme0n1
+NAME    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+nvme0n1 259:0    0  512M  0 disk
+
+[fedora@fed21 ~]$ sudo dd of=/dev/null if=/dev/nvme0n1 bs=4096 count=4
+4+0 records in
+4+0 records out
+16384 bytes (16 kB, 16 KiB) copied, 0.00664428 s, 2.5 MB/s
+
+[fedora@fed21 ~]$ sudo dd if=/dev/urandom of=/dev/nvme0n1 bs=4096 count=4
+4+0 records in
+4+0 records out
+16384 bytes (16 kB, 16 KiB) copied, 0.00753424 s, 2.2 MB/s
+```
+
+### Run qemu with HOT PLUG vfio-user
+
+tbd
