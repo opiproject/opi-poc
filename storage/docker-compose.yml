@@ -13,7 +13,7 @@ services:
       - /dev/hugepages:/dev/hugepages
       - /dev/shm:/dev/shm
       - /proc:/proc
-      - /var/tmp
+      - /var/tmp:/var/tmp
     ports:
       - "9009:9009"
     privileged: true
