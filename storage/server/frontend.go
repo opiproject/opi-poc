@@ -265,8 +265,7 @@ func (s *server) VirtioBlkList(ctx context.Context, in *pb.VirtioBlkListRequest)
 		r := &result[i]
 		Blobarray[i] = &pb.VirtioBlk{Name: r.Ctrlr}
 	}
-	// return &pb.VirtioBlkListResponse{Controller: Blobarray}, nil
-	return &pb.VirtioBlkListResponse{}, nil
+	return &pb.VirtioBlkListResponse{Controller: Blobarray}, nil
 }
 
 func (s *server) VirtioBlkGet(ctx context.Context, in *pb.VirtioBlkGetRequest) (*pb.VirtioBlkGetResponse, error) {
