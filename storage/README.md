@@ -1,6 +1,10 @@
 # Storage
 
-This is a simple spdk based storage PoC
+This is a simple SPDK based storage API PoC.
+
+* SPDK - container with SPDK app that is running on xPU
+* Server - container with OPI gRPC storage APIs to SPDK json-rpc APIs bridge
+* Client - container with OPI gRPC client for testing of the above server/bridge
 
 ## Docs
 
@@ -28,6 +32,11 @@ The following is the example sequence diagram for OPI-SPDK bridge APIs.
 It is just an example and implies SPDK just as example, not mandated by OPI.
 
 ![OPI Storage SPDK bridge/server](OPI-Storage-Sequence.png)
+
+## Getting started
+
+* [Setup everything once using ansible](../setup)
+* Run `docker-compose up -d`
 
 ## QEMU example
 
@@ -73,61 +82,13 @@ connecting to 10.10.10.1:50051
 Rpc succeeded with OK status
 ```
 
-## Huge pages
-
-SPDK requires huge pages, this is how you can configure this manually.
-
-FYI `docker-compose` will do this for you.
-
-```bash
-sync
-echo 1 | sudo tee /proc/sys/vm/drop_caches
-sudo mkdir -p /mnt/huge
-grep hugetlbfs /proc/mounts || sudo mount -t hugetlbfs nodev /mnt/huge
-echo 1024 | sudo tee /proc/sys/vm/nr_hugepages
-echo "Check and fail if not enough"
-grep 1024 /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
-```
-
-## Getting started
-
-Run `docker-compose up -d`
-
 ## Test SPDK is up
 
 ```bash
 curl -k --user spdkuser:spdkpass -X POST -H "Content-Type: application/json" -d '{"id": 1, "method": "bdev_get_bdevs", "params": {"name": "Malloc0"}}' http://127.0.0.1:9009/
 ```
 
-## SPDK gRPC example
-
-Optionally if you need to download modules
-
-```bash
-docker run --rm -it -v `pwd`:/app -w /app golang:alpine go get all
-docker run --rm -it -v `pwd`:/app -w /app golang:alpine go get github.com/opiproject/opi-api/storage/v1/gen/go@main
-docker run --rm -it -v `pwd`:/app -w /app golang:alpine go mod tidy
-```
-
-Run example server (not for production) manually
-
-```bash
-   docker run --rm -it -v `pwd`:/app -w /app/server -p 50051:50051 golang:alpine go run jsonrpc.go frontend.go backend.go middleend.go server.go
-```
-
-Run example client (not for production) manually
-
-```bash
-   docker run --net=host --rm -it -v  `pwd`:/app -w /app/client golang:alpine go run frontend.go backend.go middleend.go client.go
-```
-
-Run both examples client and server via compose (not for production)
-
-```bash
-   docker-compose up opi-spdk-client
-```
-
-## gRPC CLI
+## gRPC CLI examples
 
 From <https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md>
 
@@ -142,6 +103,7 @@ See services
 ```bash
 $ grpc_cli ls opi-spdk-server:50051
 grpc.reflection.v1alpha.ServerReflection
+opi_api.storage.v1.AioControllerService
 opi_api.storage.v1.NVMeControllerService
 opi_api.storage.v1.NVMeNamespaceService
 opi_api.storage.v1.NVMeSubsystemService
@@ -226,10 +188,10 @@ connecting to opi-spdk-server:50051
 {
  "subsystem": [
   {
-   "nqn": "Malloc0"
+   "nqn": "nqn.2014-08.org.nvmexpress.discovery"
   },
   {
-   "nqn": "Malloc1"
+   "nqn": "nqn.2016-06.io.spdk:cnode1"
   }
  ]
 }
