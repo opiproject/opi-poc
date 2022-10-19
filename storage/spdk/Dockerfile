@@ -22,6 +22,8 @@ RUN cd spdk && ./rpmbuild/rpm.sh --target-arch=${ARCH} --without-uring --without
 
 FROM docker.io/library/fedora:37
 
+RUN dnf install -y hostname && dnf clean all
+
 WORKDIR /root
 RUN mkdir -p /root/rpmbuild
 COPY --from=build /root/rpmbuild/ /root/rpmbuild/

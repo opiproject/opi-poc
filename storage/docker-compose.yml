@@ -16,6 +16,7 @@ services:
       - /var/tmp:/var/tmp
     ports:
       - "9009:9009"
+      - "4444:4444"
     privileged: true
     networks:
       - opi
@@ -33,7 +34,7 @@ services:
             ./rpc.py bdev_malloc_create -b Malloc1 64 512 && \
             ./rpc.py nvmf_create_transport -t TCP -u 8192 -m 4 -c 0  && \
             ./rpc.py nvmf_create_subsystem nqn.2016-06.io.spdk:cnode1 -a -s SPDK00000000000001 -d SPDK_Controller1  && \
-            ./rpc.py nvmf_subsystem_add_listener nqn.2016-06.io.spdk:cnode1 -t tcp -a 127.0.0.1 -f ipv4 -s 4444  && \
+            ./rpc.py nvmf_subsystem_add_listener nqn.2016-06.io.spdk:cnode1 -t tcp -a  `hostname -i` -f ipv4 -s 4444  && \
             ./rpc_http_proxy.py 0.0.0.0 9009 spdkuser spdkpass'
     healthcheck:
       test: ["CMD-SHELL", "python3 /usr/libexec/spdk/scripts/rpc.py spdk_get_version || exit 1"]
