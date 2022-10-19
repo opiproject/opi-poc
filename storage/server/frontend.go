@@ -177,12 +177,35 @@ func (s *server) NVMeControllerStats(ctx context.Context, in *pb.NVMeControllerS
 //////////////////////////////////////////////////////////
 
 func (s *server) NVMeNamespaceCreate(ctx context.Context, in *pb.NVMeNamespaceCreateRequest) (*pb.NVMeNamespaceCreateResponse, error) {
-	log.Printf("Received from client: %v", in.GetNamespace())
+	log.Printf("NVMeNamespaceCreate: Received from client: %v", in)
+	params := NvmfSubsystemAddNsParams{
+		Nqn: in.GetNamespace().GetSubsystemId(),
+	}
+	params.Namespace.BdevName = in.GetNamespace().GetBdev()
+
+	var result NvmfSubsystemAddNsResult
+	err := call("nvmf_subsystem_add_ns", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
 	return &pb.NVMeNamespaceCreateResponse{}, nil
 }
 
 func (s *server) NVMeNamespaceDelete(ctx context.Context, in *pb.NVMeNamespaceDeleteRequest) (*pb.NVMeNamespaceDeleteResponse, error) {
-	log.Printf("Received from client: %v", in.GetNamespaceId())
+	log.Printf("NVMeNamespaceDelete: Received from client: %v", in)
+	params := NvmfSubsystemRemoveNsParams{
+		Nqn:  fmt.Sprint("nqn.2016-06.io.spdk:cnode", in.GetSubsystemId()),
+		Nsid: int(in.GetNamespaceId()),
+	}
+	var result NvmfSubsystemRemoveNsResult
+	err := call("nvmf_subsystem_remove_ns", &params, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
 	return &pb.NVMeNamespaceDeleteResponse{}, nil
 }
 

@@ -208,3 +208,23 @@ type VhostCreateScsiControllerParams struct {
 
 // VhostCreateScsiControllerResult is the result of creating a SCSI controller
 type VhostCreateScsiControllerResult bool
+
+// NvmfSubsystemAddNsParams holds the parameters required to add a namespace to an existing subsystem
+type NvmfSubsystemAddNsParams struct {
+	Nqn       string `json:"nqn"`
+	Namespace struct {
+		BdevName string `json:"bdev_name"`
+	} `json:"namespace"`
+}
+
+// NvmfSubsystemAddNsResult is the result NSID of attaching a namespace to an existing subsystem
+type NvmfSubsystemAddNsResult int
+
+// NvmfSubsystemRemoveNsParams holds the parameters required to Delete a NVMf subsystem
+type NvmfSubsystemRemoveNsParams struct {
+	Nqn  string `json:"nqn"`
+	Nsid int    `json:"nsid"`
+}
+
+// NvmfSubsystemRemoveNsResult is the result of creating a NVMf subsystem
+type NvmfSubsystemRemoveNsResult bool

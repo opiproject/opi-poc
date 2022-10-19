@@ -163,12 +163,12 @@ func executeNVMeNamespace(ctx context.Context, conn grpc.ClientConnInterface) er
 	// NVMeNamespace
 	c3 := pb.NewNVMeNamespaceServiceClient(conn)
 	log.Printf("Testing NewNVMeNamespaceServiceClient")
-	rn1, err := c3.NVMeNamespaceCreate(ctx, &pb.NVMeNamespaceCreateRequest{Namespace: &pb.NVMeNamespace{Name: "OPI-Nvme"}})
+	rn1, err := c3.NVMeNamespaceCreate(ctx, &pb.NVMeNamespaceCreateRequest{Namespace: &pb.NVMeNamespace{SubsystemId: "nqn.2016-06.io.spdk:cnode1", Bdev: "Malloc1"}})
 	if err != nil {
 		log.Fatalf("could not create NVMe subsystem: %v", err)
 	}
 	log.Printf("Added: %v", rn1)
-	rn2, err := c3.NVMeNamespaceDelete(ctx, &pb.NVMeNamespaceDeleteRequest{SubsystemId: 8})
+	rn2, err := c3.NVMeNamespaceDelete(ctx, &pb.NVMeNamespaceDeleteRequest{SubsystemId: 1, NamespaceId: 1})
 	if err != nil {
 		log.Fatalf("could not delete NVMe subsystem: %v", err)
 	}
