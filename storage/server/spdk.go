@@ -259,7 +259,10 @@ type NvmfGetSubsystemsResult struct {
 	MaxNamespaces   int           `json:"max_namespaces,omitempty"`
 	MinCntlid       int           `json:"min_cntlid,omitempty"`
 	MaxCntlid       int           `json:"max_cntlid,omitempty"`
-	Namespaces      []interface{} `json:"namespaces,omitempty"`
+	Namespaces      []struct {
+		Nsid int    `json:"nsid"`
+		Name string `json:"name"`
+	} `json:"namespaces,omitempty"`
 }
 
 // NvmfGetSubsystemStatsResult is the result of NVMf subsystem statistics

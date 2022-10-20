@@ -179,9 +179,29 @@ func (s *server) NVMeNamespaceUpdate(ctx context.Context, in *pb.NVMeNamespaceUp
 }
 
 func (s *server) NVMeNamespaceList(ctx context.Context, in *pb.NVMeNamespaceListRequest) (*pb.NVMeNamespaceListResponse, error) {
-	log.Printf("Received from client: %v", in.GetControllerId())
-	Blobarray := make([]*pb.NVMeNamespace, 3)
-	return &pb.NVMeNamespaceListResponse{Namespace: Blobarray}, nil
+	log.Printf("NVMeNamespaceList: Received from client: %v", in)
+	var result []NvmfGetSubsystemsResult
+	err := call("nvmf_get_subsystems", nil, &result)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	log.Printf("Received from SPDK: %v", result)
+	nqn := fmt.Sprint("nqn.2016-06.io.spdk:cnode", in.GetSubsystemId())
+	for i := range result {
+		rr := &result[i]
+		if rr.Nqn == nqn {
+			Blobarray := make([]*pb.NVMeNamespace, len(rr.Namespaces))
+			for j := range rr.Namespaces {
+				r := &rr.Namespaces[j]
+				Blobarray[j] = &pb.NVMeNamespace{Name: r.Name}
+			}
+			return &pb.NVMeNamespaceListResponse{Namespace: Blobarray}, nil
+		}
+	}
+	msg := fmt.Sprintf("Could not find NQN: %s", nqn)
+	log.Print(msg)
+	return nil, status.Errorf(codes.InvalidArgument, msg)
 }
 
 func (s *server) NVMeNamespaceGet(ctx context.Context, in *pb.NVMeNamespaceGetRequest) (*pb.NVMeNamespaceGetResponse, error) {

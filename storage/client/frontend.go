@@ -178,7 +178,7 @@ func executeNVMeNamespace(ctx context.Context, conn grpc.ClientConnInterface) er
 		log.Fatalf("could not update NVMe subsystem: %v", err)
 	}
 	log.Printf("Updated: %v", rn3)
-	rn4, err := c3.NVMeNamespaceList(ctx, &pb.NVMeNamespaceListRequest{SubsystemId: 8})
+	rn4, err := c3.NVMeNamespaceList(ctx, &pb.NVMeNamespaceListRequest{SubsystemId: 1})
 	if err != nil {
 		log.Fatalf("could not list NVMe subsystem: %v", err)
 	}
