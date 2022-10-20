@@ -168,11 +168,6 @@ func executeNVMeNamespace(ctx context.Context, conn grpc.ClientConnInterface) er
 		log.Fatalf("could not create NVMe subsystem: %v", err)
 	}
 	log.Printf("Added: %v", rn1)
-	rn2, err := c3.NVMeNamespaceDelete(ctx, &pb.NVMeNamespaceDeleteRequest{SubsystemId: 1, NamespaceId: 1})
-	if err != nil {
-		log.Fatalf("could not delete NVMe subsystem: %v", err)
-	}
-	log.Printf("Deleted: %v", rn2)
 	rn3, err := c3.NVMeNamespaceUpdate(ctx, &pb.NVMeNamespaceUpdateRequest{Namespace: &pb.NVMeNamespace{Name: "OPI-Nvme"}})
 	if err != nil {
 		log.Fatalf("could not update NVMe subsystem: %v", err)
@@ -183,7 +178,7 @@ func executeNVMeNamespace(ctx context.Context, conn grpc.ClientConnInterface) er
 		log.Fatalf("could not list NVMe subsystem: %v", err)
 	}
 	log.Printf("Listed: %v", rn4)
-	rn5, err := c3.NVMeNamespaceGet(ctx, &pb.NVMeNamespaceGetRequest{SubsystemId: 8})
+	rn5, err := c3.NVMeNamespaceGet(ctx, &pb.NVMeNamespaceGetRequest{SubsystemId: 1, NamespaceId: 1})
 	if err != nil {
 		log.Fatalf("could not get NVMe subsystem: %v", err)
 	}
@@ -193,6 +188,11 @@ func executeNVMeNamespace(ctx context.Context, conn grpc.ClientConnInterface) er
 		log.Fatalf("could not stats NVMe subsystem: %v", err)
 	}
 	log.Printf("Stats: %v", rn6.Stats)
+	rn2, err := c3.NVMeNamespaceDelete(ctx, &pb.NVMeNamespaceDeleteRequest{SubsystemId: 1, NamespaceId: 1})
+	if err != nil {
+		log.Fatalf("could not delete NVMe subsystem: %v", err)
+	}
+	log.Printf("Deleted: %v", rn2)
 
 	return err
 }
