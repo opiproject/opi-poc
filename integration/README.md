@@ -6,32 +6,7 @@
 
 ## Prereqs
 
-Install docker-compose <https://docs.docker.com/compose/install/>
-
-Minimal supported version is:
-
-```bash
- $ docker-compose -v
-docker-compose version 1.29.2, build unknown
-```
-
-### Prereqs - Red Hat
-
-docker-compose does work on Red Hat OSes starting with podman 3.x.
-For example:
-
-```bash
-sudo dnf install -y podman podman-docker podman-plugins
-sudo systemctl enable podman.socket --now
-```
-
-### Prereqs - PIP
-
-One can install latest docker-compose via PIP
-
-```bash
-sudo python3 -m pip install --upgrade docker-compose
-```
+[Setup via Ansible](../setup/README.md)
 
 ## Start
 
