@@ -63,7 +63,7 @@ services:
       - /dev/hugepages:/dev/hugepages
       - /dev/shm:/dev/shm
       - /proc:/proc
-      - /var/tmp/
+      - /var/tmp:/var/tmp
     privileged: true
     network_mode: service:xpu-cpu-ssh
     working_dir: /usr/libexec/spdk/scripts
