@@ -28,7 +28,7 @@ services:
     command: --script broadcast-dhcp-discover
 
   web:
-    image: docker.io/library/python:3.11.0-slim
+    image: ghcr.io/opiproject/opi-web:main
     ports:
       - 8082:8082
     networks:
@@ -46,18 +46,36 @@ services:
       SZTPD_INIT_MODE: 1
       SZTPD_ACCEPT_CONTRACT: "Yes"
       SZTPD_INIT_ADDR: 0.0.0.0
+    entrypoint: bash
+    command: -c "sed -i 's/1 10/1 20/g' /usr/local/bin/docker-entrypoint.sh && /usr/local/bin/docker-entrypoint.sh"
     networks:
       xpu-cpu:
         ipv4_address: 10.127.127.11
-    command: |
-      sh -e -u -x -c "env && \
-        envsubst '$$SZTPD_INIT_PORT,$$SZTPD_SBI_PORT,$$SZTPD_INIT_ADDR' < /tmp/running.json.static > /tmp/running.json && \
-        sztpd sqlite:///:memory: 2>&1 & \
-        echo wait 5s... && sleep 5s && \
-        echo wait 5s... && sleep 5s && \
-        wait"
     healthcheck:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
+
+  dhclient:
+    image: ghcr.io/opiproject/opi-dhcp-client:main
+    cap_add:
+      - CAP_NET_RAW
+    volumes:
+      - dhcp-leases-folder:/var/lib/dhclient/
+    network_mode: service:web
+    command: dhclient -d -v
+
+  agent:
+    image: ghcr.io/opiproject/opi-sztp-agent:main
+    depends_on:
+      bootstrap:
+        condition: service_healthy
+    volumes_from:
+      - dhclient:ro
+    networks:
+      - xpu-cpu
+    command: ['/opi-sztp-agent', 'daemon']
+
+volumes:
+  dhcp-leases-folder:
 
 networks:
   xpu-cpu:

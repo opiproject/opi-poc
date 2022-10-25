@@ -83,6 +83,14 @@ run_integration_tests() {
     curl --fail http://127.0.0.1:9091/api/v1/query?query=net_bytes_recv | grep net_bytes_recv
     curl --fail http://127.0.0.1:9091/api/v1/query?query=redfish_thermal_fans_reading_rpm | grep redfish_thermal_fans_reading_rpm
 
+    SZTP_AGENT_NAME=$(docker-compose ps | grep agent | awk '{print $1}')
+    SZTP_AGENT_RC=$(docker wait "${SZTP_AGENT_NAME}")
+    if [ "${SZTP_AGENT_RC}" != "0" ]; then
+        echo "${SZTP_AGENT_NAME} failed:"
+        docker logs "${SZTP_AGENT_NAME}"
+        # TODO: exit 1
+    fi
+
     NETWORK_CLIENT_NAME=$(docker-compose ps | grep example-network-client | awk '{print $1}')
     NETWORK_CLIENT_RC=$(docker inspect --format '{{.State.ExitCode}}' "${NETWORK_CLIENT_NAME}")
     if [ "${NETWORK_CLIENT_RC}" != "0" ]; then
