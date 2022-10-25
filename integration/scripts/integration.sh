@@ -39,7 +39,7 @@ run_integration_tests() {
     echo wait 5s... && sleep 5s
     curl --fail http://127.0.0.1:8001/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8002/redfish/v1/Systems/437XR1138R2
-    curl --fail http://127.0.0.1:8082/var/lib/tftpboot/
+    curl --fail http://127.0.0.1:8082/var/lib/misc/
 
     for i in $(seq 1 20)
     do
@@ -70,8 +70,6 @@ run_integration_tests() {
     docker-compose exec -T dhcp cat /var/lib/dhcpd/dhcpd.leases
     docker-compose run nmap
     docker-compose run nmap | grep "Server Identifier: 10.127.127.3"
-    docker-compose exec -T tftp curl --fail http://10.127.127.16:8082/var/lib/tftpboot/
-    docker-compose exec -T tftp bash -c 'tftp 10.127.127.3 -v -c get grubx64.efi && diff ./grubx64.efi /var/lib/tftpboot/grubx64.efi'
     docker-compose exec -T sztp ./run-sztpd-test.sh
     docker-compose exec -T spdk-target /usr/local/bin/identify -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'
     docker-compose exec -T xpu-spdk /usr/local/bin/identify    -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'
