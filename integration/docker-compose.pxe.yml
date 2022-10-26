@@ -35,14 +35,7 @@ services:
       xpu-cpu:
         ipv4_address: 10.127.127.16
     healthcheck:
-      test: |
-        python -c "
-        from urllib.request import urlopen
-        try:
-            urlopen('http://localhost:8082').read()
-            exit(0)
-        except Exception as e:
-            exit(1)"
+      test: curl --silent --fail http://localhost:8082 || exit 1
     command: python3 -m http.server 8082
 
   bootstrap:
