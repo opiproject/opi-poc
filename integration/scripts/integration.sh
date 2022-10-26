@@ -24,7 +24,7 @@ build_containers() {
 }
 
 start_containers() {
-    docker-compose down
+    docker-compose down --volumes --remove-orphans
     docker network prune --force
     docker-compose pull
     docker-compose up -d

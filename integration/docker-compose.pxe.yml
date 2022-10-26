@@ -52,9 +52,15 @@ services:
     command: |
       sh -e -u -x -c "env && \
         envsubst '$$SZTPD_INIT_PORT,$$SZTPD_SBI_PORT,$$SZTPD_INIT_ADDR' < /tmp/running.json.static > /tmp/running.json && \
+        diff /tmp/running.json.static /tmp/running.json || true && \
         sztpd sqlite:///:memory: 2>&1 & \
+        echo waiting for server to start && \
+        for i in \`seq 1 10\` ; do curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta && break || sleep 1; done  && \
         echo wait 5s... && sleep 5s && \
+        curl -i -X PUT --user my-admin@example.com:my-secret --data @/tmp/running.json -H Content-Type:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/restconf/ds/ietf-datastores:running || true && \
         echo wait 5s... && sleep 5s && \
+        echo waiting for server to start && \
+        for i in \`seq 1 10\` ; do curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta && break || sleep 1; done  && \
         wait"
     healthcheck:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
