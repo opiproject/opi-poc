@@ -27,11 +27,13 @@ start_containers() {
     docker-compose down --volumes --remove-orphans
     docker network prune --force
     docker-compose pull
-    docker-compose up -d
+    docker-compose up bootstrap
 }
 
 run_integration_tests() {
     docker-compose ps
+    docker-compose logs -f bootstrap
+
     # shellcheck disable=SC2046
     uniq -c <<< "$(sort <<< "$(docker inspect --format='{{json .State.Health.Status}}' $(docker-compose ps -q))")"
 
