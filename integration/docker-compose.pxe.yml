@@ -38,10 +38,11 @@ services:
       test: curl --silent --fail http://localhost:8082 || exit 1
     command: python3 -m http.server 8082
 
-  sztp:
+  bootstrap:
     image: ghcr.io/opiproject/opi-sztp-server:main
     environment:
       SZTPD_INIT_PORT: 1080
+      SZTPD_SBI_PORT: 9090
       SZTPD_INIT_MODE: 1
       SZTPD_ACCEPT_CONTRACT: "Yes"
       SZTPD_INIT_ADDR: 0.0.0.0

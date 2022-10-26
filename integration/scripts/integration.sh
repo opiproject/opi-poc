@@ -70,7 +70,8 @@ run_integration_tests() {
     docker-compose exec -T dhcp cat /var/lib/dhcpd/dhcpd.leases
     docker-compose run nmap
     docker-compose run nmap | grep "Server Identifier: 10.127.127.3"
-    # docker-compose exec -w /tmp/sztpd-simulator -T sztp ./run-sztpd-test.sh
+    # docker-compose exec -w /tmp/sztpd-simulator -T bootstrap ./run-sztpd-test.sh
+    docker-compose exec -T bootstrap curl --fail -H 'Accept:application/yang-data+json' http://127.0.0.1:1080/.well-known/host-meta
     docker-compose exec -T spdk-target /usr/local/bin/identify -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'
     docker-compose exec -T xpu-spdk /usr/local/bin/identify    -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'
     docker-compose exec -T spdk-target /usr/local/bin/perf     -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10
