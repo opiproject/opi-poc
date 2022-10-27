@@ -116,6 +116,8 @@ services:
       - ./strongswan/strongswan.conf:/etc/strongswan.conf:z
     network_mode: service:xpu-cpu-ssh
     command: './charon'
+    healthcheck:
+      test: swanctl --stats || exit 1
 
   xpu-bmc-ssh:
     image: linuxserver/openssh-server:8.8_p1-r1-ls84
