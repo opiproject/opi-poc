@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/go-ping/ping v1.1.0
-	github.com/opiproject/opi-api v0.0.0-20221102195714-805c63e06611
+	github.com/opiproject/opi-api v0.0.0-20221103150802-0d8816b9043a
 	google.golang.org/grpc v1.50.1
 )
 
