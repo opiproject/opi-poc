@@ -10,7 +10,7 @@ goals of the OPI lab are inappropriate.
 
 ## Appropriate
 
-###General purpose servers
+### General purpose servers
 
 - 1U, 2U, 3U, 4U rack servers with PCIE 3.0/4.0/5.0 slots
 - Pedestal servers
