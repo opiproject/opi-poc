@@ -4,7 +4,7 @@ This document provides guidance for using OPI funds to acquire lab
 equipment.  We describe both "appropriate" and "inappropriate" use of
 equipment funds and include examples of each.  Generally, commonly
 used lab equipment generally available in the market are appropriate.
-Pre-production equipment or equipment that do not service the
+Pre-production equipment or equipment that does not service the
 goals of the OPI lab are inappropriate.
 
 
@@ -23,7 +23,7 @@ goals of the OPI lab are inappropriate.
 
 ### Test equipment
 
-- IXIA traffic generators
+- Traffic generators
 
 ### Cables
 
@@ -70,11 +70,11 @@ goals of the OPI lab are inappropriate.
 
 ## Inappropriate
 
-### Preproduction equipment
+### Pre-production equipment
 
-- Preproduction DPUs/IPUs
-- Preproduction servers
-- Preproduction switches
+- Pre-production DPUs/IPUs
+- Pre-production servers
+- Pre-production switches
 
 ### Incompatible with goals of OPI Lab
 
