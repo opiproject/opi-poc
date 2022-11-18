@@ -4,7 +4,7 @@ version: "3.7"
 services:
 
   spdk-target:
-    image: ghcr.io/opiproject/opi-spdk:main
+    image: ghcr.io/opiproject/opi-storage-spdk:main
     volumes:
       - /dev/hugepages:/dev/hugepages
       - /dev/shm:/dev/shm
@@ -39,7 +39,7 @@ services:
       timeout: 10s
 
   spdk-target-web:
-    image: ghcr.io/opiproject/opi-spdk:main
+    image: ghcr.io/opiproject/opi-storage-spdk:main
     volumes_from:
       - spdk-target:rw
     ports:
