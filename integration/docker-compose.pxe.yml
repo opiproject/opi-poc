@@ -46,6 +46,7 @@ services:
       SZTPD_INIT_MODE: 1
       SZTPD_ACCEPT_CONTRACT: "Yes"
       SZTPD_INIT_ADDR: 0.0.0.0
+      SZTPD_OPI_MODE: "running"
     entrypoint: bash
     command: -c "sed -i 's/1 10/1 20/g' /usr/local/bin/docker-entrypoint.sh && /usr/local/bin/docker-entrypoint.sh"
     networks:
