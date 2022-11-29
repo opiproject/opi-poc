@@ -93,6 +93,8 @@ github.com/opiproject/opi-api v0.0.0-20221117170559-ca2c25b808b3 h1:5NztGQz+dklj
 github.com/opiproject/opi-api v0.0.0-20221117170559-ca2c25b808b3/go.mod h1:92pv4ulvvPMuxCJ9ND3aYbmBfEMLx0VCjpkiR7ZTqPY=
 github.com/opiproject/opi-api v0.0.0-20221121200811-5d2289de810a h1:dFFDDQez4aCsKEkvEnQ+yFnMu5/yZ/VWBxbIRmAvgd4=
 github.com/opiproject/opi-api v0.0.0-20221121200811-5d2289de810a/go.mod h1:92pv4ulvvPMuxCJ9ND3aYbmBfEMLx0VCjpkiR7ZTqPY=
+github.com/opiproject/opi-api v0.0.0-20221129180238-b10361a9c119 h1:exwxNwGuwQtA9IRs2I/Eh22IWeeReAf3uzExgblLytY=
+github.com/opiproject/opi-api v0.0.0-20221129180238-b10361a9c119/go.mod h1:92pv4ulvvPMuxCJ9ND3aYbmBfEMLx0VCjpkiR7ZTqPY=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
