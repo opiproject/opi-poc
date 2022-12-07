@@ -1,7 +1,6 @@
 # OPI Project PoC
 
 [![Integration](https://github.com/opiproject/opi-poc/actions/workflows/poc-integration.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-integration.yml)
-[![Security](https://github.com/opiproject/opi-poc/actions/workflows/poc-security.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/poc-security.yml)
 [![Linters](https://github.com/opiproject/opi-poc/actions/workflows/linters.yml/badge.svg)](https://github.com/opiproject/opi-poc/actions/workflows/linters.yml)
 
 This repo hosts OPI proofs of concept.  These PoCs are used to demonstrate that
