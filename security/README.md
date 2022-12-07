@@ -14,6 +14,11 @@ HW acceleration.
 
 ![OPI Security Architcture](sec-architecture.drawio.png)
 
+Note that the architecture is meant to show how the OPI Security APIs can work
+in tandem with the [OPI sessionOffload APIs](https://github.com/opiproject/sessionOffload)
+to provide a full IPsec experience, from IKE session creation to ESP session
+offload.
+
 ## PoC Diagram
 
 ![OPI Security PoC Components](opi-security-poc.drawio.png)
@@ -134,10 +139,10 @@ On creation of a new IPsec tunnel, the OPI API Security server will do the
 following:
 
 * Receive the API call on the northbound side
-* Write a strongSwan configuration file to disk
 * Using the vici API
-  * Reload strongSwan configuration
+  * Program the new IKE session into strongSwan
   * Trigger the connection
+  * Offload the ESP session using the sessionOffload API
 
 ### Delete
 
@@ -145,7 +150,6 @@ On deletion of an IPsec tunnel, the OPI API Security server will do the
 following:
 
 * Receive the API call on the northbound side
-* Delete the local configuration file on disk
 * Using the vici API:
   * Down the connection
-  * Reload strongSwan configuration
+  * Delete the IKE session from strongSwan
