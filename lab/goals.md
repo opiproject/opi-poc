@@ -9,6 +9,9 @@ to validate compatibility and to avoid regressions.
 
 The OPI lab should be used for:
 
+Phase 0
+ - define partitioning
+
 * automatic testing
   + Phase 1:
     - Functional validation and regression
