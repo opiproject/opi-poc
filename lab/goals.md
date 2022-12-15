@@ -21,8 +21,9 @@ The OPI lab should be used for:
       - Reserve IPU/DPUs from multiple vendors to run the test
       - Test portability, compatibility
 
+  
+* manual
   + Phase 3:
-  - manual
     - Drive adoption  
 
       - Demos, Conferences - OPI Lab preferred
