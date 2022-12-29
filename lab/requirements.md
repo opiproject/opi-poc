@@ -1,18 +1,19 @@
 # OPI Lab Requirements
 
 ## Access
-  - Option 1:  Open Access
-    - All IPU/DPUs accessible to all OPI members
-  - Option 2: Restricted Access
-    - Vendors donate or purchased HW - used only for CI
-    - Vendors access their own IPU/DPU only
-      - SSH connection is available through VPN.
-      - Emergency console can be enabled for remote access in case of issue.
-    - No cross vendor access
-  - Option 3: No Access
-    - except the lab owner(s) responsible to maintain the CI/CD
-  - Option 4: No lab
-    - CI/CD access Vendor private labs through APIs for CI only
+
+- Option 1:  Open Access
+  - All IPU/DPUs accessible to all OPI members
+- Option 2: Restricted Access
+  - Vendors donate or purchased HW - used only for CI
+  - Vendors access their own IPU/DPU only
+    - SSH connection is available through VPN.
+    - Emergency console can be enabled for remote access in case of issue.
+  - No cross vendor access
+- Option 3: No Access
+  - except the lab owner(s) responsible to maintain the CI/CD
+- Option 4: No lab
+  - CI/CD access Vendor private labs through APIs for CI only
 
 ## Backup
 
