@@ -4,7 +4,7 @@ version: '3.7'
 services:
 
   dhcp:
-    image: ghcr.io/opiproject/opi-dhcp-server:main
+    image: ghcr.io/opiproject/opi-dhcp-server@sha256:16b35123f7f6dd1d5a49a81227ec039bbd259353a55471255eaefad1574dbe6e
     environment:
       NODE_IP_SUBNET: 10.127.127.0
       NODE_IP_NETMASK: 255.255.255.0
@@ -28,7 +28,7 @@ services:
     command: --script broadcast-dhcp-discover
 
   web:
-    image: ghcr.io/opiproject/opi-web:main
+    image: ghcr.io/opiproject/opi-web@sha256:47fac9022399fef5d951525e6b2ed86ab20e56ae8cc06ca7a3ce738f1c191e3a
     ports:
       - 8082:8082
     networks:
@@ -39,7 +39,7 @@ services:
     command: python3 -m http.server 8082
 
   bootstrap:
-    image: ghcr.io/opiproject/opi-sztp-server:main
+    image: ghcr.io/opiproject/opi-sztp-server@sha256:1bab6b91e9835fc9bdfdb3b35ac33a51f4414c6c3015180edfcdeb312bed1e1d
     environment:
       SZTPD_INIT_PORT: 1080
       SZTPD_SBI_PORT: 9090
@@ -56,7 +56,7 @@ services:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
 
   redirecter:
-    image: ghcr.io/opiproject/opi-sztp-server:main
+    image: ghcr.io/opiproject/opi-sztp-server@sha256:1bab6b91e9835fc9bdfdb3b35ac33a51f4414c6c3015180edfcdeb312bed1e1d
     environment:
       SZTPD_INIT_PORT: 1080
       SZTPD_SBI_PORT: 8080
@@ -73,7 +73,7 @@ services:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
 
   dhclient:
-    image: ghcr.io/opiproject/opi-dhcp-client:main
+    image: ghcr.io/opiproject/opi-dhcp-client@sha256:a78214c2bbb8815496e922b329344cba07bce3c2d23041fc7f8ea809a05f75f5
     cap_add:
       - CAP_NET_RAW
     volumes:
@@ -82,7 +82,7 @@ services:
     command: dhclient -d -v
 
   agent:
-    image: ghcr.io/opiproject/opi-sztp-agent:main
+    image: ghcr.io/opiproject/opi-sztp-agent@sha256:a6995685661cfdb2e7e547205c2f8810a1f5602eb1cca0830677a0271882262d
     depends_on:
       bootstrap:
         condition: service_healthy
