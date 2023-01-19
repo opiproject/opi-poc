@@ -11,9 +11,9 @@ The OPI lab should be used for:
 
 Phase 0
 
- - define partitioning
- - budgeting
- - hardware duplication only when needed and if needed
+- define partitioning
+- budgeting
+- hardware duplication only when needed and if needed
 
 - automatic testing
   - Phase 1:
@@ -35,7 +35,7 @@ Phase 0
       - Learning, Training - Vendor Lab preferred
       - Development lab for SW vendors
 
-  + Phase 4:
+  - Phase 4:
   - certification
 
 The performance data generated in the lab shall not be used
@@ -49,7 +49,6 @@ In order to serve the OPI community, these properties should be targeted:
 - reliability: always running, without false positive result
 - neutrality: same automatic tests and configurations on all HW/SW platforms
 - security: access is restricted to avoid unexpected changes
-
 
 ## For consideration
 
