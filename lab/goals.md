@@ -10,21 +10,24 @@ to validate compatibility and to avoid regressions.
 The OPI lab should be used for:
 
 Phase 0
- - define partitioning
 
-* automatic testing
-  + Phase 1:
+ - define partitioning
+ - budgeting
+ - hardware duplication only when needed and if needed
+
+- automatic testing
+  - Phase 1:
     - Functional validation and regression
       - scheduled functional validation
       - patch validation (CI)
       - No Access except the lab owner(s) responsible to maintain the CI/CD
     - Conformance
-  + Phase 2: 
+  - Phase 2:
     - Interoperability
       - Reserve IPU/DPUs from multiple vendors to run the test
       - Test portability, compatibility  
-* manual
-  + Phase 3:
+- manual
+  - Phase 3:
     - Drive adoption  
 
       - Open Access All IPU/DPUs accessible to all OPI members
@@ -43,9 +46,9 @@ Conformance data or certifications from OPI labs can be used for marketing purpo
 
 In order to serve the OPI community, these properties should be targeted:
 
-* reliability: always running, without false positive result
-* neutrality: same automatic tests and configurations on all HW/SW platforms
-* security: access is restricted to avoid unexpected changes
+- reliability: always running, without false positive result
+- neutrality: same automatic tests and configurations on all HW/SW platforms
+- security: access is restricted to avoid unexpected changes
 
 
 ## For consideration
@@ -55,12 +58,12 @@ In order to serve the OPI community, these properties should be targeted:
 - separation (physical or by time bound reservation) of HW/SW used for automated regression from manual
 - clean start before each reservation (restore to factory defaults functionality)
 
-
-# OPI Lab Requirements
+## OPI Lab Requirements
 
 ## Access
 
-
+- restricted access to the automated setup (only maintainers get access)
+- reservation based access to the manual setup
 
 ## Backup
 
@@ -106,4 +109,3 @@ In order to serve the OPI community, these properties should be targeted:
 
 - SSH access at 99% availability.
 - Automatic tests running at 95% availability (includes maintenance downtime).
-
