@@ -4,7 +4,7 @@ version: '3.7'
 services:
 
   dhcp:
-    image: ghcr.io/opiproject/opi-dhcp-server:main
+    image: ghcr.io/opiproject/opi-dhcp-server:main@sha256:ef2c534de4866de1684dd9c2d9a7639d35dbe62da6d2fc0c2c863dc1c41ec47c
     environment:
       NODE_IP_SUBNET: 10.127.127.0
       NODE_IP_NETMASK: 255.255.255.0
@@ -28,7 +28,7 @@ services:
     command: --script broadcast-dhcp-discover
 
   web:
-    image: ghcr.io/opiproject/opi-web:main
+    image: ghcr.io/opiproject/opi-web:main@sha256:ef215818aa60b01442effe7de3f99410ee3f8d8d855c547f46233683216c5981
     ports:
       - 8082:8082
     networks:
@@ -39,7 +39,7 @@ services:
     command: python3 -m http.server 8082
 
   bootstrap:
-    image: ghcr.io/opiproject/opi-sztp-server:main
+    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:a53c17fd92a2b236eb08debf2886e73d4bfc1af6c0f27a835bdef6e7d4971949
     environment:
       SZTPD_INIT_PORT: 1080
       SZTPD_SBI_PORT: 9090
@@ -56,7 +56,7 @@ services:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
 
   redirecter:
-    image: ghcr.io/opiproject/opi-sztp-server:main
+    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:a53c17fd92a2b236eb08debf2886e73d4bfc1af6c0f27a835bdef6e7d4971949
     environment:
       SZTPD_INIT_PORT: 1080
       SZTPD_SBI_PORT: 8080
@@ -73,7 +73,7 @@ services:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
 
   dhclient:
-    image: ghcr.io/opiproject/opi-dhcp-client:main
+    image: ghcr.io/opiproject/opi-dhcp-client:main@sha256:aaffa6b2a660985e26c702e5a26aaed1039d54eafceb641908d2adbe715e5ad2
     cap_add:
       - CAP_NET_RAW
     volumes:
@@ -82,7 +82,7 @@ services:
     command: dhclient -d -v
 
   agent:
-    image: ghcr.io/opiproject/opi-sztp-agent:main
+    image: ghcr.io/opiproject/opi-sztp-agent:main@sha256:3c247baf86eaba2ea9efca5e9a30ac33bf1ed8743780639c905ccdb9040cfb24
     depends_on:
       bootstrap:
         condition: service_healthy
