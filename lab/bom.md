@@ -85,6 +85,7 @@ another table probably needed to include the actual deployment info:
 * Intel Xeon Gold 6312U Processor 24-Core 2.4GHz 36MB Cache (185W)
 * 8 x 16GB PC4-25600 3200MHz DDR4 ECC RDIMM
 * 960GB Micron 7450 PRO Series M.2 PCIe 4.0 x4 NVMe Solid State Drive (80mm)
+* Connect X6 2x100G nic
 * Thinkmate Server Manager (Datacenter Management Package)
 * Thinkmate 3 Year Depot Warranty (Return for Repair)
 * ??? does it has PCIE 4/6/8 pin power adapter since some _PU needs it
