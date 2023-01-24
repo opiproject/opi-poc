@@ -73,7 +73,7 @@ services:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
 
   dhclient:
-    image: ghcr.io/opiproject/opi-dhcp-client:main@sha256:aaffa6b2a660985e26c702e5a26aaed1039d54eafceb641908d2adbe715e5ad2
+    image: ghcr.io/opiproject/opi-dhcp-client:main@sha256:28f99c710308edb6262bb7d426f415387e860bee2615e8934bc9990308c34bae
     cap_add:
       - CAP_NET_RAW
     volumes:
