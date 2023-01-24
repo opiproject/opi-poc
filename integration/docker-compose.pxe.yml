@@ -39,7 +39,7 @@ services:
     command: python3 -m http.server 8082
 
   bootstrap:
-    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:b93b5ca3ad3a8b35ea01fdcdd27bf30f2e3a4a6666454f7df9c8d12fd49e3e73
+    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:1bea59a62b225a329c18d412aa60c32ab29f14467365d749d464611c848c4121
     environment:
       SZTPD_INIT_PORT: 1080
       SZTPD_SBI_PORT: 9090
@@ -56,7 +56,7 @@ services:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
 
   redirecter:
-    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:b93b5ca3ad3a8b35ea01fdcdd27bf30f2e3a4a6666454f7df9c8d12fd49e3e73
+    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:1bea59a62b225a329c18d412aa60c32ab29f14467365d749d464611c848c4121
     environment:
       SZTPD_INIT_PORT: 1080
       SZTPD_SBI_PORT: 8080
