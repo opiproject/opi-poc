@@ -4,7 +4,7 @@ version: '3.7'
 services:
 
   dhcp:
-    image: ghcr.io/opiproject/opi-dhcp-server:main@sha256:ef2c534de4866de1684dd9c2d9a7639d35dbe62da6d2fc0c2c863dc1c41ec47c
+    image: ghcr.io/opiproject/opi-dhcp-server:main@sha256:c2dbd09e21004ded6707ff713c43f296eab00d4e94a72be20358364588f06e4a
     environment:
       NODE_IP_SUBNET: 10.127.127.0
       NODE_IP_NETMASK: 255.255.255.0
@@ -28,7 +28,7 @@ services:
     command: --script broadcast-dhcp-discover
 
   web:
-    image: ghcr.io/opiproject/opi-web:main@sha256:ef215818aa60b01442effe7de3f99410ee3f8d8d855c547f46233683216c5981
+    image: ghcr.io/opiproject/opi-web:main@sha256:758c0bb782be49c18832d5d6aa0fb45f5703ced8e0258464f22921bc277a7711
     ports:
       - 8082:8082
     networks:
@@ -39,7 +39,7 @@ services:
     command: python3 -m http.server 8082
 
   bootstrap:
-    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:a53c17fd92a2b236eb08debf2886e73d4bfc1af6c0f27a835bdef6e7d4971949
+    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:1bea59a62b225a329c18d412aa60c32ab29f14467365d749d464611c848c4121
     environment:
       SZTPD_INIT_PORT: 1080
       SZTPD_SBI_PORT: 9090
@@ -47,8 +47,7 @@ services:
       SZTPD_ACCEPT_CONTRACT: "Yes"
       SZTPD_INIT_ADDR: 0.0.0.0
       SZTPD_OPI_MODE: "running"
-    entrypoint: bash
-    command: -c "sed -i 's/1 10/1 20/g' /usr/local/bin/docker-entrypoint.sh && /usr/local/bin/docker-entrypoint.sh"
+      SZTPD_RETRY_ATTEMPTS: 30
     networks:
       xpu-cpu:
         ipv4_address: 10.127.127.11
@@ -56,7 +55,7 @@ services:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
 
   redirecter:
-    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:a53c17fd92a2b236eb08debf2886e73d4bfc1af6c0f27a835bdef6e7d4971949
+    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:1bea59a62b225a329c18d412aa60c32ab29f14467365d749d464611c848c4121
     environment:
       SZTPD_INIT_PORT: 1080
       SZTPD_SBI_PORT: 8080
@@ -66,6 +65,7 @@ services:
       BOOTSVR_PORT: 9090
       BOOTSVR_ADDR: "bootstrap"
       SZTPD_OPI_MODE: "redirect"
+      SZTPD_RETRY_ATTEMPTS: 30
     networks:
       xpu-cpu:
         ipv4_address: 10.127.127.12
@@ -73,7 +73,7 @@ services:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
 
   dhclient:
-    image: ghcr.io/opiproject/opi-dhcp-client:main@sha256:aaffa6b2a660985e26c702e5a26aaed1039d54eafceb641908d2adbe715e5ad2
+    image: ghcr.io/opiproject/opi-dhcp-client:main@sha256:91e6f6e8505ae17f308261bd281cae1b7811aa2a29c2bf8e309ef89379c2e6d7
     cap_add:
       - CAP_NET_RAW
     volumes:
@@ -82,9 +82,11 @@ services:
     command: dhclient -d -v
 
   agent:
-    image: ghcr.io/opiproject/opi-sztp-agent:main@sha256:3c247baf86eaba2ea9efca5e9a30ac33bf1ed8743780639c905ccdb9040cfb24
+    image: ghcr.io/opiproject/opi-sztp-agent:main@sha256:38db46d6e06d6831119880db8b10e11b00dca174d0b9b7a6684ff55f7fd775d1
     depends_on:
       bootstrap:
+        condition: service_healthy
+      redirecter:
         condition: service_healthy
     volumes_from:
       - dhclient:ro

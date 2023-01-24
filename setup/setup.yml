@@ -6,45 +6,45 @@
   hosts: all
   become: yes
   tasks:
-  - include: debian.yml
-    when: ansible_os_family == 'Debian'
+    - include: debian.yml
+      when: ansible_os_family == 'Debian'
 
-  - include: redhat.yml
-    when: ansible_os_family == 'RedHat'
+    - include: redhat.yml
+      when: ansible_os_family == 'RedHat'
 
-  - include: suse.yml
-    when: ansible_os_family == 'Suse'
+    - include: suse.yml
+      when: ansible_os_family == 'Suse'
 
-  # This is only needed for the first time to dynamically allocate huge pages
-  # Subsequent boots do not need this configuration, so do not use sysctl here
-  - name: Help ensure huge pages can be demand allocated
-    shell: echo 1 > /proc/sys/vm/drop_caches
+    # This is only needed for the first time to dynamically allocate huge pages
+    # Subsequent boots do not need this configuration, so do not use sysctl here
+    - name: Help ensure huge pages can be demand allocated
+      shell: echo 1 > /proc/sys/vm/drop_caches
 
-  - name: Check if hugetlbfs is mounted
-    shell: grep hugetlbfs /proc/mounts
-    register: result
-    ignore_errors: yes
+    - name: Check if hugetlbfs is mounted
+      shell: grep hugetlbfs /proc/mounts
+      register: result
+      ignore_errors: yes
 
-  - name: Is hugetlbfs mounted?
-    set_fact:
-      hugetlbfs_mounted: "{{ true if result.rc == 0 else false}}"
+    - name: Is hugetlbfs mounted?
+      set_fact:
+        hugetlbfs_mounted: "{{ true if result.rc == 0 else false}}"
 
-  - name: Mount hugetlbfs
-    mount:
-      path: /mnt/huge
-      src: nodev
-      fstype: hugetlbfs
-      state: mounted
-    when: hugetlbfs_mounted == false
+    - name: Mount hugetlbfs
+      mount:
+        path: /mnt/huge
+        src: nodev
+        fstype: hugetlbfs
+        state: mounted
+      when: hugetlbfs_mounted == false
 
-  - name: Set huge pages
-    sysctl:
-      name: vm.nr_hugepages
-      value: '1024'
-      sysctl_set: yes
-      state: present
-      reload: yes
+    - name: Set huge pages
+      sysctl:
+        name: vm.nr_hugepages
+        value: '1024'
+        sysctl_set: yes
+        state: present
+        reload: yes
 
-  # This will fail if we don't have exactly 1024 nr_hugepages
-  - name: Verify huge pages set
-    shell: grep 1024 /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+    # This will fail if we don't have exactly 1024 nr_hugepages
+    - name: Verify huge pages set
+      shell: grep 1024 /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
