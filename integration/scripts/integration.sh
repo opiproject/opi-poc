@@ -91,7 +91,7 @@ run_integration_tests() {
     if [ "${SZTP_AGENT_RC}" != "0" ]; then
         echo "${SZTP_AGENT_NAME} failed:"
         docker logs "${SZTP_AGENT_NAME}"
-        # TODO: exit 1
+        exit 1
     fi
 
     NETWORK_CLIENT_NAME=$(docker-compose ps | grep example-network-client | awk '{print $1}')
