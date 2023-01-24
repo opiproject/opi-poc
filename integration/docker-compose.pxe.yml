@@ -88,6 +88,8 @@ services:
     depends_on:
       bootstrap:
         condition: service_healthy
+      redirecter:
+        condition: service_healthy
     volumes_from:
       - dhclient:ro
     networks:
