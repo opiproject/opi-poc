@@ -48,7 +48,7 @@ services:
       SZTPD_INIT_ADDR: 0.0.0.0
       SZTPD_OPI_MODE: "running"
     entrypoint: bash
-    command: -c "sed -i 's/1 10/1 20/g' /usr/local/bin/docker-entrypoint.sh && /usr/local/bin/docker-entrypoint.sh"
+    command: -c "sed -i 's/1 10/1 30/g' /usr/local/bin/docker-entrypoint.sh && /usr/local/bin/docker-entrypoint.sh"
     networks:
       xpu-cpu:
         ipv4_address: 10.127.127.11
@@ -66,6 +66,8 @@ services:
       BOOTSVR_PORT: 9090
       BOOTSVR_ADDR: "bootstrap"
       SZTPD_OPI_MODE: "redirect"
+    entrypoint: bash
+    command: -c "sed -i 's/1 10/1 30/g' /usr/local/bin/docker-entrypoint.sh && /usr/local/bin/docker-entrypoint.sh"
     networks:
       xpu-cpu:
         ipv4_address: 10.127.127.12
