@@ -4,7 +4,7 @@ version: '3.7'
 services:
 
   dhcp:
-    image: ghcr.io/opiproject/opi-dhcp-server:main@sha256:c2dbd09e21004ded6707ff713c43f296eab00d4e94a72be20358364588f06e4a
+    image: ghcr.io/opiproject/opi-dhcp-server:main@sha256:a5efc31b0a3f4e9243fffc5d9e4a890a1d4db76d981c2fc90bdfdd8063cc96cf
     environment:
       NODE_IP_SUBNET: 10.127.127.0
       NODE_IP_NETMASK: 255.255.255.0
