@@ -28,7 +28,7 @@ services:
     command: --script broadcast-dhcp-discover
 
   web:
-    image: ghcr.io/opiproject/opi-web:main@sha256:7c27ec3d646b79f270bf9b2dc4349283b4d7ee3ffd341d251e52cbdcc5ff900b
+    image: ghcr.io/opiproject/opi-web:main@sha256:a3615f44965ccb5de94e6087cefbba252c89fe86b47f42c7c1e54ea47967c000
     ports:
       - 8082:8082
     networks:
