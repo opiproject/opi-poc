@@ -4,7 +4,7 @@ version: '3.7'
 services:
 
   dhcp:
-    image: ghcr.io/opiproject/opi-dhcp-server:main@sha256:c2dbd09e21004ded6707ff713c43f296eab00d4e94a72be20358364588f06e4a
+    image: ghcr.io/opiproject/opi-dhcp-server:main@sha256:46f390ecd53f79622052c703eb2fda25a6df4783207d30508af41c2d2cf308c2
     environment:
       NODE_IP_SUBNET: 10.127.127.0
       NODE_IP_NETMASK: 255.255.255.0
@@ -28,7 +28,7 @@ services:
     command: --script broadcast-dhcp-discover
 
   web:
-    image: ghcr.io/opiproject/opi-web:main@sha256:758c0bb782be49c18832d5d6aa0fb45f5703ced8e0258464f22921bc277a7711
+    image: ghcr.io/opiproject/opi-web:main@sha256:a3615f44965ccb5de94e6087cefbba252c89fe86b47f42c7c1e54ea47967c000
     ports:
       - 8082:8082
     networks:
@@ -39,7 +39,7 @@ services:
     command: python3 -m http.server 8082
 
   bootstrap:
-    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:1bea59a62b225a329c18d412aa60c32ab29f14467365d749d464611c848c4121
+    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:14920269d5fa5105bb7727d3c024f2a6d1fab78d14c42d464149f4d672655480
     environment:
       SZTPD_INIT_PORT: 1080
       SZTPD_SBI_PORT: 9090
@@ -55,7 +55,7 @@ services:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
 
   redirecter:
-    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:1bea59a62b225a329c18d412aa60c32ab29f14467365d749d464611c848c4121
+    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:14920269d5fa5105bb7727d3c024f2a6d1fab78d14c42d464149f4d672655480
     environment:
       SZTPD_INIT_PORT: 1080
       SZTPD_SBI_PORT: 8080
@@ -73,7 +73,7 @@ services:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
 
   dhclient:
-    image: ghcr.io/opiproject/opi-dhcp-client:main@sha256:91e6f6e8505ae17f308261bd281cae1b7811aa2a29c2bf8e309ef89379c2e6d7
+    image: ghcr.io/opiproject/opi-dhcp-client:main@sha256:83033e2de5ac9c89c0d67e611d7689827b19b58301d6481e9b793fe99826090c
     cap_add:
       - CAP_NET_RAW
     volumes:
@@ -82,7 +82,7 @@ services:
     command: dhclient -d -v
 
   agent:
-    image: ghcr.io/opiproject/opi-sztp-agent:main@sha256:38db46d6e06d6831119880db8b10e11b00dca174d0b9b7a6684ff55f7fd775d1
+    image: ghcr.io/opiproject/opi-sztp-agent:main@sha256:cb8959f3d235d20951b9ef5a134412b992bd06ea405b4a7eca246d0e1557e846
     depends_on:
       bootstrap:
         condition: service_healthy
