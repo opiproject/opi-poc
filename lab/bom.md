@@ -61,7 +61,7 @@ another table probably needed to include the actual deployment info:
 
 ## Phase 1 testbed diagram
 
-<img src="./opi-rack-phase1.svg" width="100%">
+![xPU Rack phase 1](./opi-rack-phase1.svg)
 
 ## Phase 1 bill of materials
 
