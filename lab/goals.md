@@ -50,6 +50,11 @@ In order to serve the OPI community, these properties should be targeted:
 - neutrality: same automatic tests and configurations on all HW/SW platforms
 - security: access is restricted to avoid unexpected changes
 
+## Hosting considerations
+
+- 2 years minimum engagement
+- 1 year billing intervals
+
 ## For consideration
 
 - ease to replicate the testbed
