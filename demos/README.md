@@ -8,4 +8,4 @@ PR128
 
 ## IPSec
 
-[how to](./ipsec/)
+[how to](./security/)
