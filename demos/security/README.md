@@ -84,7 +84,7 @@ python3
 # run the ipsec-config.py from this folder
 ```
 
-### ixload 
+### ixload
 
 - load `opi-ipsec-demo-1.rxf`
 - assign the ports
