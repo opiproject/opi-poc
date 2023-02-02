@@ -1,2 +1,2 @@
-FROM docker.io/library/telegraf:1.25.0
+FROM docker.io/library/telegraf:1.25.1
 COPY telegraf-redfish.conf /etc/telegraf/telegraf.conf
