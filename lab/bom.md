@@ -1,7 +1,6 @@
 # Lab Bill of Materials
 
-[PR515](https://github.com/opiproject/opi-poc/pull/515/files)
-[spending guidelines](https://github.com/opiproject/opi-poc/lab/spending_guidelines.md)
+[Spending Guidelines](https://github.com/opiproject/opi/blob/main/Policies/spending_guidelines.md)
 
 No vendor selection has happened yet, bellow table is for illustration/estimate only.
 
