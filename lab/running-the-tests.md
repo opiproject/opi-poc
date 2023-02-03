@@ -1,6 +1,6 @@
 # OPI test frmework
 
-will lbe using pytest
+will be using pytest
 
 ## to run the test cases
 
