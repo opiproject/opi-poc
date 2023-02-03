@@ -5,6 +5,10 @@
   ],
   "packageRules": [
     {
+        "matchUpdateTypes": ["digest"],
+        "automerge": true
+    },
+    {
       "matchPackagePatterns": ["opi-sztp-*"],
       "groupName": "OPI sztp dockers"
     }
