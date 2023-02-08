@@ -75,10 +75,10 @@ run_integration_tests() {
     docker-compose exec -T redirecter curl --fail -H 'Accept:application/yang-data+json' http://127.0.0.1:7080/.well-known/host-meta
     docker-compose exec -T bootstrap curl --fail -H 'Accept:application/yang-data+json' http://127.0.0.1:7080/.well-known/host-meta
 
-    docker-compose exec -T spdk-target /usr/local/bin/identify -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'
-    docker-compose exec -T xpu-spdk /usr/local/bin/identify    -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'
-    docker-compose exec -T spdk-target /usr/local/bin/perf     -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10
-    docker-compose exec -T xpu-spdk /usr/local/bin/perf         -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10
+    docker-compose exec -T spdk-target /usr/local/bin/spdk_nvme_identify -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'
+    docker-compose exec -T xpu-spdk /usr/local/bin/spdk_nvme_identify    -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420'
+    docker-compose exec -T spdk-target /usr/local/bin/spdk_nvme_perf     -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10
+    docker-compose exec -T xpu-spdk /usr/local/bin/spdk_nvme_perf        -r 'traddr:10.129.129.4 trtype:TCP adrfam:IPv4 trsvcid:4420' -c 0x1 -q 1 -o 4096 -w randread -t 10
 
     curl --fail http://127.0.0.1:9091/api/v1/query?query=mem_free | grep mem_free
     curl --fail http://127.0.0.1:9091/api/v1/query?query=cpu_usage_user | grep cpu_usage_user
