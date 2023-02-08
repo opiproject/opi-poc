@@ -41,7 +41,8 @@ services:
   bootstrap:
     image: ghcr.io/opiproject/opi-sztp-server:main@sha256:214c13c4f8de8181b92b8c13a98d8f639e829f508dd90a6b45ee8aacacf64f36
     environment:
-      SZTPD_INIT_PORT: 1080
+      SZTPD_INIT_PORT: 6080
+      SZTPD_NBI_PORT: 7080
       SZTPD_SBI_PORT: 9090
       SZTPD_INIT_MODE: 1
       SZTPD_ACCEPT_CONTRACT: "Yes"
@@ -52,12 +53,13 @@ services:
       xpu-cpu:
         ipv4_address: 10.127.127.11
     healthcheck:
-      test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
+      test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_NBI_PORT/.well-known/host-meta || exit 1"]
 
   redirecter:
     image: ghcr.io/opiproject/opi-sztp-server:main@sha256:214c13c4f8de8181b92b8c13a98d8f639e829f508dd90a6b45ee8aacacf64f36
     environment:
-      SZTPD_INIT_PORT: 1080
+      SZTPD_INIT_PORT: 6080
+      SZTPD_NBI_PORT: 7080
       SZTPD_SBI_PORT: 8080
       SZTPD_INIT_MODE: 1
       SZTPD_ACCEPT_CONTRACT: "Yes"
@@ -70,7 +72,7 @@ services:
       xpu-cpu:
         ipv4_address: 10.127.127.12
     healthcheck:
-      test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_INIT_PORT/.well-known/host-meta || exit 1"]
+      test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_NBI_PORT/.well-known/host-meta || exit 1"]
 
   dhclient:
     image: ghcr.io/opiproject/opi-dhcp-client:main@sha256:492af8b4c14e8f409fd47591554f6edc51882feae68f7ab3345cd295f4768251
