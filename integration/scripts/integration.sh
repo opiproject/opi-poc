@@ -39,7 +39,7 @@ run_integration_tests() {
     echo wait 5s... && sleep 5s
     curl --fail http://127.0.0.1:8001/redfish/v1/Systems/437XR1138R2
     curl --fail http://127.0.0.1:8002/redfish/v1/Systems/437XR1138R2
-    curl --fail http://127.0.0.1:8082/var/lib/misc/
+    curl --fail http://127.0.0.1:8082/
 
     for i in $(seq 1 20)
     do
