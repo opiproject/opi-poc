@@ -30,15 +30,16 @@ services:
     command: --script broadcast-dhcp-discover
 
   web:
-    image: ghcr.io/opiproject/opi-web:main@sha256:4626f2bec0eb9baf4a4293b58bcf0bd395e16cc07b2873f11b01c5d80d8623bc
+    image: docker.io/library/httpd:2.4.55-alpine3.17
     ports:
-      - 8082:8082
+      - 8082:80
+    volumes:
+      - ./sztp/my-boot-image.img:/usr/local/apache2/htdocs/my-boot-image.img
     networks:
       xpu-cpu:
         ipv4_address: 10.127.127.16
     healthcheck:
-      test: curl --silent --fail http://localhost:8082 || exit 1
-    command: python3 -m http.server 8082
+      test: wget --silent --fail http://localhost:80 || exit 1
 
   bootstrap:
     image: ghcr.io/opiproject/opi-sztp-server:main@sha256:90880032db7930cd02ad0922435bdfa676179527733bd6d505befddaefc5cd29
