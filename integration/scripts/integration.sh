@@ -68,7 +68,7 @@ run_integration_tests() {
     sshpass -p 123456 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2207  xpu@127.0.0.1 hostname
     sshpass -p 123456 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2209  bmc@127.0.0.1 hostname
 
-    docker-compose exec -T dhcp cat /var/lib/dhcpd/dhcpd.leases
+    docker-compose exec -T dhcp cat /var/lib/dhcp/dhcpd.leases
     docker-compose run nmap
     docker-compose run nmap | grep "Server Identifier: 10.127.127.3"
     # docker-compose exec -w /tmp/sztpd-simulator -T bootstrap ./run-sztpd-test.sh
