@@ -9,7 +9,7 @@
         "automerge": true
     },
     {
-      "matchPackagePatterns": ["opi-sztp-*"],
+      "matchPackagePatterns": ["sztp*"],
       "groupName": "OPI sztp dockers"
     }
   ]
