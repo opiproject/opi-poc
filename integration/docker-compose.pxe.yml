@@ -88,7 +88,7 @@ services:
     command: dhclient -d -v
 
   agent:
-    image: ghcr.io/opiproject/sztp:main@sha256:599ab988e08b65c253f692c58a70574432a96137fe7ac523426ba7b4e59353e1
+    image: ghcr.io/opiproject/sztp:main@sha256:41383bb6d2e2f45a00f7a4814cc9bcb0fd3bc354977eb9f011405af41a039c86
     depends_on:
       bootstrap:
         condition: service_healthy
