@@ -2,3 +2,4 @@ setup/inventory
 **/.idea
 **/*.iml
 *.pyc
+demos/tgen/passwords.py
