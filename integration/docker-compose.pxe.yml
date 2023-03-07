@@ -30,7 +30,7 @@ services:
     command: --script broadcast-dhcp-discover
 
   web:
-    image: docker.io/library/httpd:2.4.55-alpine3.17
+    image: docker.io/library/httpd:2.4.56-alpine3.17
     ports:
       - 8082:80
     volumes:
