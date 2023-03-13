@@ -1,3 +1,3 @@
-FROM docker.io/library/fedora:37
+FROM docker.io/library/fedora:39
 
 # not sure what we run in xPU yet...
