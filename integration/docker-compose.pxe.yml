@@ -42,7 +42,7 @@ services:
       test: wget --silent --fail http://localhost:80 || exit 1
 
   bootstrap:
-    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:3edb693cf40b086316ef501a3283694205846e159eb29a42d7e5a0bb2abe6985
+    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:aea5628f056107c80efd615fd24d4f7c817b8784c8d87469c03abbaef338101f
     environment:
       SZTPD_INIT_PORT: 6080
       SZTPD_NBI_PORT: 7080
@@ -59,7 +59,7 @@ services:
       test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_NBI_PORT/.well-known/host-meta || exit 1"]
 
   redirecter:
-    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:3edb693cf40b086316ef501a3283694205846e159eb29a42d7e5a0bb2abe6985
+    image: ghcr.io/opiproject/opi-sztp-server:main@sha256:aea5628f056107c80efd615fd24d4f7c817b8784c8d87469c03abbaef338101f
     environment:
       SZTPD_INIT_PORT: 6080
       SZTPD_NBI_PORT: 7080
@@ -88,7 +88,7 @@ services:
     command: dhclient -d -v
 
   agent:
-    image: ghcr.io/opiproject/opi-sztp-client:main@sha256:8b567199e5fd8ef1285f59fb7a28c25b9cb75a78f089f2f100d4ef278467b32d
+    image: ghcr.io/opiproject/opi-sztp-client:main@sha256:9bfbe411e804767ccac152ba7fe08a061637fddca1a21aa26c6505fd826f9bd3
     depends_on:
       bootstrap:
         condition: service_healthy
