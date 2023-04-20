@@ -25,7 +25,7 @@
 | 3M QSFP28 DAC cable        | Molex      | 12  | $125       |            |
 |                            |            |     |            |            |                                                                                                                |
 
-## Details:
+## Details
 
 ### AMD/Pensando DSC100
 
@@ -85,8 +85,7 @@ can be aquaired from both Dell and HPE at similar price in a qualified server.
 * [Vendor: Hula Networks](https://www.hulanetworks.com)
 
 ### Network PDU
-
-* [APC 885-1935 APDU9941](https://www.apc.com/us/en/product/APDU9941/apc-rack-pdu-9000-switched-0u-30a-200v-and-208v-21-c13-and-c15-3-c19-and-c21-sockets/?range=61799-netshelter-switched-rack-pdus&selected-node-id=27602435913) 
+* [APC 885-1935 APDU9941](https://www.apc.com/us/en/product/APDU9941/apc-rack-pdu-9000-switched-0u-30a-200v-and-208v-21-c13-and-c15-3-c19-and-c21-sockets/?range=61799-netshelter-switched-rack-pdus&selected-node-id=27602435913)
 * [Vendor: Provantage](https://www.provantage.com/apc-apdu9941~7AMP987M.htm)
 * TODO: validate that it can be controled from a python script
 
@@ -94,12 +93,12 @@ can be aquaired from both Dell and HPE at similar price in a qualified server.
 
 * [MergePoint Unity 8032](https://www.vertiv.com/en-us/products-catalog/monitoring-control-and-management/ip-kvm/avocent-mergepoint-unity-digital-kvm-switches)
 * [Vendor: Provantage](https://www.provantage.com/vertiv-mpu8032dac-400~7LBRT80Q.htm)
-* [KVM dongle](https://www.provantage.com/vertiv-mpuiq-vmchs-g01~7AVOE04X.htm)                                                                                                          
+* [KVM dongle](https://www.provantage.com/vertiv-mpuiq-vmchs-g01~7AVOE04X.htm)
 
 ### Terminal Server
 
 * [Avocent ACS8000 48p serial](https://www.vertiv.com/en-us/products-catalog/monitoring-control-and-management/serial-consoles-and-gateways/avocent-acs-8000-serial-consoles)
-* [Vendor: Amazon](https://www.amazon.com/Vertiv-Avocent-48-port-Console-ACS8048DAC-400/dp/B01N64R35P?th=1)        
+* [Vendor: Amazon](https://www.amazon.com/Vertiv-Avocent-48-port-Console-ACS8048DAC-400/dp/B01N64R35P?th=1)
 
 ### 3M QSFP28 DAC cable
 
