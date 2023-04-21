@@ -16,7 +16,7 @@
 | Nvidia Blue Field 2        | HPE        | 1   | $14000     |            |
 | Test Server                | Supermicro | 1-4?   | $10,262    |            |
 | 100G switch                | Arista     | 1   | $20,000    |            |
-| Network PDU                | APC        | 2   | $1,170     |            |
+| Network PDU                | APC        | 1   | $1,170     |            |
 | KVM server                 | Vertiv     | 1   | $8,942     |            |
 | KVM dongle                 | Vertiv     | 5   | $143       |            |
 | KVM to dongle cable 5m     |            | 10  | $10        |            |
@@ -40,7 +40,7 @@
 * Dell DPU, Pensando 100GbE Dual Port QSFP56, DSC100, PCIe
 * [Vendor: Dell](https://www.dell.com)
 
-can be aquaired from both Dell and HPE at similar price in a qualified server.
+can be acquired from both Dell and HPE at similar price in a qualified server.
 
 ### Intel Mount Evans
 
@@ -51,7 +51,8 @@ can be aquaired from both Dell and HPE at similar price in a qualified server.
 ### Marvel ?
 
 * TODO: get details
-* details TBD
+* Model: EV-CRB-CN106-A1-R1
+* Part:  EV-CRB-CN106-A1-R1
 
 ### Nvidia Blue Field 2 MBF2H536C-CECOT
 
@@ -64,7 +65,7 @@ can be aquaired from both Dell and HPE at similar price in a qualified server.
 * HPE DPU Nvidia Blue Field 2 MBF2H536C-CECOT 100GbE 2p SFP56 BMC Spl Adptr
 * [Vendor: HPE](https://www.hpe.com)
 
-can be aquaired from both Dell and HPE at similar price in a qualified server.
+can be acquired from both Dell and HPE at similar price in a qualified server.
 
 ### Test Server RAX XS4-11S3-10G
 
