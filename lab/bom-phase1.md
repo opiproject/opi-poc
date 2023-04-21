@@ -86,6 +86,7 @@ can be acquired from both Dell and HPE at similar price in a qualified server.
 * [Vendor: Hula Networks](https://www.hulanetworks.com)
 
 ### Network PDU
+
 * [APC 885-1935 APDU9941](https://www.apc.com/us/en/product/APDU9941/apc-rack-pdu-9000-switched-0u-30a-200v-and-208v-21-c13-and-c15-3-c19-and-c21-sockets/?range=61799-netshelter-switched-rack-pdus&selected-node-id=27602435913)
 * [Vendor: Provantage](https://www.provantage.com/apc-apdu9941~7AMP987M.htm)
 * TODO: validate that it can be controled from a python script
