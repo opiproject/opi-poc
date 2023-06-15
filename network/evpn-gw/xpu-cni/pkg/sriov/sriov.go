@@ -22,7 +22,6 @@ package sriov
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"time"
 
@@ -33,8 +32,6 @@ import (
 
 	"github.com/vishvananda/netlink"
 )
-
-const UnsupportedFields = "MinTxRate, MaxTxRate, SpoofChk, Trust, LinkState"
 
 type pciUtils interface {
 	GetSriovNumVfs(ifName string) (int, error)
@@ -304,13 +301,6 @@ func (s *sriovManager) ApplyVFConfig(conf *xputypes.NetConf) error {
 		}
 	}*/
 
-	// This block of code should be removed when the parameters are supported by XPU.
-	// Also uncomment the related code blocks for the supported fields
-	if conf.MinTxRate != nil || conf.MaxTxRate != nil || conf.SpoofChk != "" || conf.Trust != "" || conf.LinkState != "" {
-		log.Printf("ApplyVFConfig: The %s configuration fields are not supported currently", UnsupportedFields)
-		log.Printf("ApplyVFConfig: The %s configuration fields will be ignored", UnsupportedFields)
-	}
-
 	return nil
 }
 
@@ -391,13 +381,6 @@ func (s *sriovManager) ResetVFConfig(conf *xputypes.NetConf) error {
 			return fmt.Errorf("failed to restore spoofchk for vf %d: %v", conf.VFID, err)
 		}
 	}*/
-
-	// This block of code should be removed when the parameters are supported by XPU.
-	// Also uncomment the related code blocks for the supported fields
-	if conf.MinTxRate != nil || conf.MaxTxRate != nil || conf.SpoofChk != "" || conf.Trust != "" || conf.LinkState != "" {
-		log.Printf("ResetVFConfig: The %s configuration fields are not supported currently", UnsupportedFields)
-		log.Printf("ResetVFConfig: The %s configuration fields will be ignored", UnsupportedFields)
-	}
 
 	return nil
 }

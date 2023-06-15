@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -35,6 +36,8 @@ import (
 
 	"github.com/imdario/mergo"
 )
+
+const UnsupportedFields = "MinTxRate, MaxTxRate, SpoofChk, Trust, LinkState"
 
 var (
 	// DefaultCNIDir used for caching NetConf
@@ -136,8 +139,15 @@ func LoadConf(bytes []byte) (*xputypes.NetConf, error) {
 	}*/
 
 	// validate that link state is one of supported values
-	if n.LinkState != "" && n.LinkState != "auto" && n.LinkState != "enable" && n.LinkState != "disable" {
+	/*if n.LinkState != "" && n.LinkState != "auto" && n.LinkState != "enable" && n.LinkState != "disable" {
 		return nil, fmt.Errorf("LoadConf(): invalid link_state value: %s", n.LinkState)
+	}*/
+
+	// This block of code should be removed when the parameters are supported by XPU.
+	// Also uncomment the related code blocks for the supported fields here and in the sriov pkg
+	if n.MinTxRate != nil || n.MaxTxRate != nil || n.SpoofChk != "" || n.Trust != "" || n.LinkState != "" {
+		log.Printf("LoadConf(): The %s configuration fields are not supported currently", UnsupportedFields)
+		log.Printf("LoadConf(): The %s configuration fields will be ignored", UnsupportedFields)
 	}
 
 	return n, nil
