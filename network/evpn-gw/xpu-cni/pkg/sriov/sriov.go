@@ -22,6 +22,7 @@ package sriov
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"time"
 
@@ -32,6 +33,8 @@ import (
 
 	"github.com/vishvananda/netlink"
 )
+
+const UnsupportedFields = "MinTxRate, MaxTxRate, SpoofChk, Trust, LinkState"
 
 type pciUtils interface {
 	GetSriovNumVfs(ifName string) (int, error)
@@ -228,7 +231,7 @@ func (s *sriovManager) ApplyVFConfig(conf *xputypes.NetConf) error {
 		return fmt.Errorf("failed to lookup master %q: %v", conf.Master, err)
 	}
 
-	// 2. Set mac address
+	// 1. Set mac address
 	if conf.MAC != "" {
 		hwaddr, err := net.ParseMAC(conf.MAC)
 		if err != nil {
@@ -240,8 +243,8 @@ func (s *sriovManager) ApplyVFConfig(conf *xputypes.NetConf) error {
 		}
 	}
 
-	// 3. Set min/max tx link rate. 0 means no rate limiting. Support depends on NICs and driver.
-	var minTxRate, maxTxRate int
+	// 2. Set min/max tx link rate. 0 means no rate limiting. Support depends on NICs and driver.
+	/* var minTxRate, maxTxRate int
 	rateConfigured := false
 	if conf.MinTxRate != nil {
 		minTxRate = *conf.MinTxRate
@@ -260,7 +263,7 @@ func (s *sriovManager) ApplyVFConfig(conf *xputypes.NetConf) error {
 		}
 	}
 
-	// 4. Set spoofchk flag
+	// 3. Set spoofchk flag
 	if conf.SpoofChk != "" {
 		spoofChk := false
 		if conf.SpoofChk == "on" {
@@ -271,7 +274,7 @@ func (s *sriovManager) ApplyVFConfig(conf *xputypes.NetConf) error {
 		}
 	}
 
-	// 5. Set trust flag
+	// 4. Set trust flag
 	if conf.Trust != "" {
 		trust := false
 		if conf.Trust == "on" {
@@ -282,7 +285,7 @@ func (s *sriovManager) ApplyVFConfig(conf *xputypes.NetConf) error {
 		}
 	}
 
-	// 6. Set link state
+	// 5. Set link state
 	if conf.LinkState != "" {
 		var state uint32
 		switch conf.LinkState {
@@ -299,6 +302,13 @@ func (s *sriovManager) ApplyVFConfig(conf *xputypes.NetConf) error {
 		if err = s.nLink.LinkSetVfState(pfLink, conf.VFID, state); err != nil {
 			return fmt.Errorf("failed to set vf %d link state to %d: %v", conf.VFID, state, err)
 		}
+	}*/
+
+	// This block of code should be removed when the parameters are supported by XPU.
+	// Also uncomment the related code blocks for the supported fields
+	if conf.MinTxRate != nil || conf.MaxTxRate != nil || conf.SpoofChk != "" || conf.Trust != "" || conf.LinkState != "" {
+		log.Printf("ApplyVFConfig: The %s configuration fields are not supported currently", UnsupportedFields)
+		log.Printf("ApplyVFConfig: The %s configuration fields will be ignored", UnsupportedFields)
 	}
 
 	return nil
@@ -326,13 +336,6 @@ func (s *sriovManager) ResetVFConfig(conf *xputypes.NetConf) error {
 		return fmt.Errorf("failed to lookup master %q: %v", conf.Master, err)
 	}
 
-	// Restore spoofchk
-	if conf.SpoofChk != "" {
-		if err = s.nLink.LinkSetVfSpoofchk(pfLink, conf.VFID, conf.OrigVfState.SpoofChk); err != nil {
-			return fmt.Errorf("failed to restore spoofchk for vf %d: %v", conf.VFID, err)
-		}
-	}
-
 	// Restore the original administrative MAC address
 	if conf.MAC != "" {
 		hwaddr, err := net.ParseMAC(conf.OrigVfState.AdminMAC)
@@ -358,7 +361,7 @@ func (s *sriovManager) ResetVFConfig(conf *xputypes.NetConf) error {
 	}
 
 	// Restore VF trust
-	if conf.Trust != "" {
+	/*if conf.Trust != "" {
 		// TODO: netlink go implementation does not support getting VF trust, need to add support there first
 		// for now, just set VF trust to off if it was specified by the user in netconf
 		if err = s.nLink.LinkSetVfTrust(pfLink, conf.VFID, false); err != nil {
@@ -380,6 +383,20 @@ func (s *sriovManager) ResetVFConfig(conf *xputypes.NetConf) error {
 		if err = s.nLink.LinkSetVfState(pfLink, conf.VFID, conf.OrigVfState.LinkState); err != nil {
 			return fmt.Errorf("failed to set link state to auto for vf %d: %v", conf.VFID, err)
 		}
+	}
+
+	// Restore spoofchk
+	if conf.SpoofChk != "" {
+		if err = s.nLink.LinkSetVfSpoofchk(pfLink, conf.VFID, conf.OrigVfState.SpoofChk); err != nil {
+			return fmt.Errorf("failed to restore spoofchk for vf %d: %v", conf.VFID, err)
+		}
+	}*/
+
+	// This block of code should be removed when the parameters are supported by XPU.
+	// Also uncomment the related code blocks for the supported fields
+	if conf.MinTxRate != nil || conf.MaxTxRate != nil || conf.SpoofChk != "" || conf.Trust != "" || conf.LinkState != "" {
+		log.Printf("ResetVFConfig: The %s configuration fields are not supported currently", UnsupportedFields)
+		log.Printf("ResetVFConfig: The %s configuration fields will be ignored", UnsupportedFields)
 	}
 
 	return nil
