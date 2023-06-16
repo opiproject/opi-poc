@@ -24,7 +24,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"os"
 	"path/filepath"
@@ -269,11 +269,7 @@ func SaveNetConf(cid, dataDir, podIfName string, conf interface{}) error {
 	cRef := strings.Join(s, "-")
 
 	// save the rendered netconf for cmdDel
-	if err = saveScratchNetConf(cRef, dataDir, netConfBytes); err != nil {
-		return err
-	}
-
-	return nil
+	return saveScratchNetConf(cRef, dataDir, netConfBytes)
 }
 
 func saveScratchNetConf(containerID, dataDir string, netconf []byte) error {
@@ -411,7 +407,7 @@ func RetrieveMacFromPci(pciAddr string, pciToMacFile string) (string, error) {
 			return "", fmt.Errorf("open pciToMac file %s error: %v", pciToMacFile, err)
 		}
 		defer jsonFile.Close()
-		jsonBytes, err := ioutil.ReadAll(jsonFile)
+		jsonBytes, err := io.ReadAll(jsonFile)
 		if err != nil {
 			return "", fmt.Errorf("load pciToMac file %s: error: %v", pciToMacFile, err)
 		}

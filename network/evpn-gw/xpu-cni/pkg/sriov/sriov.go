@@ -60,8 +60,8 @@ func (p *pciUtilsImpl) EnableArpAndNdiscNotify(ifName string) error {
 
 // Manager provides interface invoke sriov nic related operations
 type Manager interface {
-	SetupVF(conf *xputypes.NetConf, podifName string, cid string, netns ns.NetNS) (string, error)
-	ReleaseVF(conf *xputypes.NetConf, podifName string, cid string, netns ns.NetNS) error
+	SetupVF(conf *xputypes.NetConf, podifName string, netns ns.NetNS) (string, error)
+	ReleaseVF(conf *xputypes.NetConf, podifName string, netns ns.NetNS) error
 	ResetVFConfig(conf *xputypes.NetConf) error
 	ApplyVFConfig(conf *xputypes.NetConf) error
 	FillOriginalVfInfo(conf *xputypes.NetConf) error
@@ -81,7 +81,7 @@ func NewSriovManager() Manager {
 }
 
 // SetupVF sets up a VF in Pod netns
-func (s *sriovManager) SetupVF(conf *xputypes.NetConf, podifName string, cid string, netns ns.NetNS) (string, error) {
+func (s *sriovManager) SetupVF(conf *xputypes.NetConf, podifName string, netns ns.NetNS) (string, error) {
 	linkName := conf.OrigVfState.HostIFName
 
 	linkObj, err := s.nLink.LinkByName(linkName)
@@ -162,7 +162,7 @@ func (s *sriovManager) SetupVF(conf *xputypes.NetConf, podifName string, cid str
 }
 
 // ReleaseVF reset a VF from Pod netns and return it to init netns
-func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, podifName string, cid string, netns ns.NetNS) error {
+func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, podifName string, netns ns.NetNS) error {
 	initns, err := ns.GetCurrentNS()
 	if err != nil {
 		return fmt.Errorf("failed to get init netns: %v", err)

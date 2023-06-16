@@ -40,7 +40,6 @@ func closeConnection(conn *grpc.ClientConn) {
 
 // getClient gets a BridgePort grpc client
 func getClient(conn *grpc.ClientConn) xpuMgr.BridgePortServiceClient {
-
 	client := xpuMgr.NewBridgePortServiceClient(conn)
 	return client
 }
@@ -104,7 +103,6 @@ func produceCreateBridgePortRequest(conf *xputypes.NetConf, mac string) *xpuMgr.
 	}
 
 	return createBridgePortRequest
-
 }
 
 // produceDeleteBridgePortRequest produces a DeleteBridgePortRequest object
@@ -118,7 +116,6 @@ func produceDeleteBridgePortRequest(conf *xputypes.NetConf) *xpuMgr.DeleteBridge
 
 // CreateBridgePort creates a bridge port
 func CreateBridgePort(conf *xputypes.NetConf, mac string) error {
-
 	//Init Connection
 	conn, err := initConnection(conf)
 	if err != nil {
@@ -156,7 +153,6 @@ func CreateBridgePort(conf *xputypes.NetConf, mac string) error {
 }
 
 func DeleteBridgePort(conf *xputypes.NetConf) error {
-
 	//Init Connection
 	conn, err := initConnection(conf)
 	if err != nil {

@@ -23,7 +23,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -217,7 +217,7 @@ func loadFlatNetConf(configPath string) (*xputypes.NetConf, error) {
 				return nil, fmt.Errorf("open xpu-cni config file %s error: %v", confFile, err)
 			}
 			defer jsonFile.Close()
-			jsonBytes, err := ioutil.ReadAll(jsonFile)
+			jsonBytes, err := io.ReadAll(jsonFile)
 			if err != nil {
 				return nil, fmt.Errorf("load xpu-cni config file %s: error: %v", confFile, err)
 			}
