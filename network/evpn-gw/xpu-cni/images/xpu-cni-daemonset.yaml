@@ -26,8 +26,8 @@ spec:
         effect: NoSchedule
       containers:
       - name: kube-xpu-cni
-        image: ghcr.io/k8snetworkplumbingwg/xpu-cni
-        imagePullPolicy: IfNotPresent
+        image: xpu-cni
+        imagePullPolicy: Never
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false
