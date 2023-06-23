@@ -24,7 +24,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -146,8 +145,8 @@ func LoadConf(bytes []byte) (*xputypes.NetConf, error) {
 	// This block of code should be removed when the parameters are supported by XPU.
 	// Also uncomment the related code blocks for the supported fields here and in the sriov pkg
 	if n.MinTxRate != nil || n.MaxTxRate != nil || n.SpoofChk != "" || n.Trust != "" || n.LinkState != "" {
-		log.Printf("LoadConf(): The %s configuration fields are not supported currently", UnsupportedFields)
-		log.Printf("LoadConf(): The %s configuration fields will be ignored", UnsupportedFields)
+		fmt.Printf("LoadConf(): The %s configuration fields are not supported currently", UnsupportedFields)
+		fmt.Printf("LoadConf(): The %s configuration fields will be ignored", UnsupportedFields)
 	}
 
 	return n, nil

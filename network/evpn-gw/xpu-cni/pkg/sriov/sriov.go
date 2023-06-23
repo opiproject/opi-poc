@@ -22,8 +22,6 @@ package sriov
 
 import (
 	"fmt"
-	"net"
-	"time"
 
 	"github.com/containernetworking/plugins/pkg/ns"
 
@@ -103,26 +101,32 @@ func (s *sriovManager) SetupVF(conf *xputypes.NetConf, podifName string, netns n
 	}
 
 	macAddress := linkObj.Attrs().HardwareAddr.String()
-	// 3. Set MAC address
 	if conf.MAC != "" {
-		hwaddr, err := net.ParseMAC(conf.MAC)
-		if err != nil {
-			return "", fmt.Errorf("failed to parse MAC address %s: %v", conf.MAC, err)
-		}
+		fmt.Printf("SetupVF(): MAC address configuration functionality is not supported currently")
+		fmt.Printf("SetupVF(): MAC address %s will be ignored", conf.MAC)
+	}
+	// 3. Set MAC address
+	//Identation is wrong here. Has been mixed up during the commenting out of functionality.
+	//Everything under if conf.Mac should be one level in
+	/*if conf.MAC != "" {
+	hwaddr, err := net.ParseMAC(conf.MAC)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse MAC address %s: %v", conf.MAC, err)
+	}
 
-		// Save the original effective MAC address before overriding it
-		conf.OrigVfState.EffectiveMAC = linkObj.Attrs().HardwareAddr.String()
+	// Save the original effective MAC address before overriding it
+	conf.OrigVfState.EffectiveMAC = linkObj.Attrs().HardwareAddr.String()*/
 
-		/* Some NIC drivers (i.e. i40e/iavf) set VF MAC address asynchronously
-		   via PF. This means that while the PF could already show the VF with
-		   the desired MAC address, the netdev VF may still have the original
-		   one. If in this window we issue a netdev VF MAC address set, the driver
-		   will return an error and the pod will fail to create.
-		   Other NICs (Mellanox) require explicit netdev VF MAC address so we
-		   cannot skip this part.
-		   Retry up to 5 times; wait 200 milliseconds between retries
-		*/
-		err = utils.Retry(5, 200*time.Millisecond, func() error {
+	/* Some NIC drivers (i.e. i40e/iavf) set VF MAC address asynchronously
+	   via PF. This means that while the PF could already show the VF with
+	   the desired MAC address, the netdev VF may still have the original
+	   one. If in this window we issue a netdev VF MAC address set, the driver
+	   will return an error and the pod will fail to create.
+	   Other NICs (Mellanox) require explicit netdev VF MAC address so we
+	   cannot skip this part.
+	   Retry up to 5 times; wait 200 milliseconds between retries
+	*/
+	/*err = utils.Retry(5, 200*time.Millisecond, func() error {
 			return s.nLink.LinkSetHardwareAddr(linkObj, hwaddr)
 		})
 
@@ -130,7 +134,7 @@ func (s *sriovManager) SetupVF(conf *xputypes.NetConf, podifName string, netns n
 			return "", fmt.Errorf("failed to set netlink MAC address to %s: %v", hwaddr, err)
 		}
 		macAddress = conf.MAC
-	}
+	}*/
 
 	// 4. Change netns
 	if err := s.nLink.LinkSetNsFd(linkObj, int(netns.Fd())); err != nil {
@@ -192,6 +196,10 @@ func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, podifName string, netns
 
 		// reset effective MAC address
 		if conf.MAC != "" {
+			fmt.Printf("ReleaseVF(): MAC address configuration functionality is not supported currently")
+			fmt.Printf("ReleaseVF(): MAC address %s will be ignored", conf.MAC)
+		}
+		/*if conf.MAC != "" {
 			hwaddr, err := net.ParseMAC(conf.OrigVfState.EffectiveMAC)
 			if err != nil {
 				return fmt.Errorf("failed to parse original effective MAC address %s: %v", conf.OrigVfState.EffectiveMAC, err)
@@ -200,7 +208,7 @@ func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, podifName string, netns
 			if err = s.nLink.LinkSetHardwareAddr(linkObj, hwaddr); err != nil {
 				return fmt.Errorf("failed to restore original effective netlink MAC address %s: %v", hwaddr, err)
 			}
-		}
+		}*/
 
 		// move VF device to init netns
 		if err = s.nLink.LinkSetNsFd(linkObj, int(initns.Fd())); err != nil {
@@ -223,7 +231,12 @@ func getVfInfo(link netlink.Link, id int) *netlink.VfInfo {
 
 // ApplyVFConfig configure a VF with parameters given in NetConf
 func (s *sriovManager) ApplyVFConfig(conf *xputypes.NetConf) error {
-	pfLink, err := s.nLink.LinkByName(conf.Master)
+	if conf.MAC != "" {
+		fmt.Printf("ApplyVFConfig(): MAC address configuration functionality is not supported currently")
+		fmt.Printf("ApplyVFConfig(): MAC address %s will be ignored", conf.MAC)
+	}
+
+	/*pfLink, err := s.nLink.LinkByName(conf.Master)
 	if err != nil {
 		return fmt.Errorf("failed to lookup master %q: %v", conf.Master, err)
 	}
@@ -241,7 +254,7 @@ func (s *sriovManager) ApplyVFConfig(conf *xputypes.NetConf) error {
 	}
 
 	// 2. Set min/max tx link rate. 0 means no rate limiting. Support depends on NICs and driver.
-	/* var minTxRate, maxTxRate int
+	var minTxRate, maxTxRate int
 	rateConfigured := false
 	if conf.MinTxRate != nil {
 		minTxRate = *conf.MinTxRate
@@ -305,7 +318,7 @@ func (s *sriovManager) ApplyVFConfig(conf *xputypes.NetConf) error {
 }
 
 // FillOriginalVfInfo fills the original vf info
-func (s *sriovManager) FillOriginalVfInfo(conf *xputypes.NetConf) error {
+/*func (s *sriovManager) FillOriginalVfInfo(conf *xputypes.NetConf) error {
 	pfLink, err := s.nLink.LinkByName(conf.Master)
 	if err != nil {
 		return fmt.Errorf("failed to lookup master %q: %v", conf.Master, err)
@@ -317,38 +330,49 @@ func (s *sriovManager) FillOriginalVfInfo(conf *xputypes.NetConf) error {
 	}
 	conf.OrigVfState.FillFromVfInfo(vfState)
 	return err
+}*/
+
+// FillOriginalVfInfo fills the original vf info
+func (s *sriovManager) FillOriginalVfInfo(conf *xputypes.NetConf) error {
+	return nil
 }
 
 // ResetVFConfig reset a VF to its original state
 func (s *sriovManager) ResetVFConfig(conf *xputypes.NetConf) error {
-	pfLink, err := s.nLink.LinkByName(conf.Master)
+	if conf.MAC != "" {
+		fmt.Printf("ResetVFConfig(): MAC address configuration functionality is not supported currently")
+		fmt.Printf("ResetVFConfig(): MAC address %s will be ignored", conf.MAC)
+	}
+	/*pfLink, err := s.nLink.LinkByName(conf.Master)
 	if err != nil {
 		return fmt.Errorf("failed to lookup master %q: %v", conf.Master, err)
-	}
+	}*/
 
 	// Restore the original administrative MAC address
-	if conf.MAC != "" {
-		hwaddr, err := net.ParseMAC(conf.OrigVfState.AdminMAC)
-		if err != nil {
-			return fmt.Errorf("failed to parse original administrative MAC address %s: %v", conf.OrigVfState.AdminMAC, err)
-		}
+	//Identation is wrong here. Has been mixed up during the commenting out of functionality.
+	//Everything under if conf.Mac should be one level in
+	/*if conf.MAC != "" {
+	hwaddr, err := net.ParseMAC(conf.OrigVfState.AdminMAC)
+	if err != nil {
+		return fmt.Errorf("failed to parse original administrative MAC address %s: %v", conf.OrigVfState.AdminMAC, err)
+	}*/
 
-		/* Some NIC drivers (i.e. i40e/iavf) set VF MAC address asynchronously
-		   via PF. This means that while the PF could already show the VF with
-		   the desired MAC address, the netdev VF may still have the original
-		   one. If in this window we issue a netdev VF MAC address set, the driver
-		   will return an error and the pod will fail to create.
-		   Other NICs (Mellanox) require explicit netdev VF MAC address so we
-		   cannot skip this part.
-		   Retry up to 5 times; wait 200 milliseconds between retries
-		*/
-		err = utils.Retry(5, 200*time.Millisecond, func() error {
+	/* Some NIC drivers (i.e. i40e/iavf) set VF MAC address asynchronously
+	   via PF. This means that while the PF could already show the VF with
+	   the desired MAC address, the netdev VF may still have the original
+	   one. If in this window we issue a netdev VF MAC address set, the driver
+	   will return an error and the pod will fail to create.
+	   Other NICs (Mellanox) require explicit netdev VF MAC address so we
+	   cannot skip this part.
+	   Retry up to 5 times; wait 200 milliseconds between retries
+	*/
+	/*err = utils.Retry(5, 200*time.Millisecond, func() error {
 			return s.nLink.LinkSetVfHardwareAddr(pfLink, conf.VFID, hwaddr)
 		})
 		if err != nil {
 			return fmt.Errorf("failed to restore original administrative MAC address %s: %v", hwaddr, err)
 		}
-	}
+	}*/
 
 	// Restore VF trust
 	/*if conf.Trust != "" {

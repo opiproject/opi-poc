@@ -28,15 +28,15 @@ import (
 // VfState represents the state of the VF
 type VfState struct {
 	HostIFName   string
-	SpoofChk     bool
-	AdminMAC     string
-	EffectiveMAC string
-	MinTxRate    int
-	MaxTxRate    int
-	LinkState    uint32
+	SpoofChk     bool   // Not Used
+	AdminMAC     string // Not Used
+	EffectiveMAC string // Not Used
+	MinTxRate    int    //Not Used
+	MaxTxRate    int    //Not Used
+	LinkState    uint32 //Not Used
 }
 
-// FillFromVfInfo - Fill attributes according to the provided netlink.VfInfo struct
+// FillFromVfInfo - Fill attributes according to the provided netlink.VfInfo struct - Not Used
 func (vs *VfState) FillFromVfInfo(info *netlink.VfInfo) {
 	vs.AdminMAC = info.Mac.String()
 	vs.LinkState = info.LinkState

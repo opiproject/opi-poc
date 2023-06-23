@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	//xpuMgr "xpu-cni/pkg/L2XPUInfraManager"
@@ -144,7 +143,7 @@ func CreateBridgePort(conf *xputypes.NetConf, mac string) error {
 		return errors.New("CreateBridgePort: The status of created BridgePort is not UP")
 	}
 
-	log.Printf("CreateBridgePort: The created BridgePort is: %+v", bridgePort)
+	fmt.Printf("CreateBridgePort: The created BridgePort is: %+v", bridgePort)
 
 	// storing the name of the created bridge port to the netconf object for caching purposes
 	conf.BridgePortName = bridgePort.GetName()
@@ -176,7 +175,7 @@ func DeleteBridgePort(conf *xputypes.NetConf) error {
 		return fmt.Errorf("DeleteBridgePort: Error occurred while Deleting Bridge Port %s : %q", conf.BridgePortName, err)
 	}
 
-	log.Printf("DeleteBridgePort: The %s BridgePort has been deleted successfully", conf.BridgePortName)
+	fmt.Printf("DeleteBridgePort: The %s BridgePort has been deleted successfully", conf.BridgePortName)
 
 	return nil
 }
