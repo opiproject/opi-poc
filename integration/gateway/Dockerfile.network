@@ -3,9 +3,9 @@
 
 FROM docker.io/library/python:3.11.4-slim
 RUN pip install grpcio-tools
-ADD https://github.com/grpc/grpc/archive/v1.49.x.tar.gz .
-RUN tar -zxvf v1.49.x.tar.gz
-WORKDIR grpc-1.49.x/examples/python/route_guide
+ADD https://github.com/grpc/grpc/archive/v1.56.x.tar.gz .
+RUN tar -zxvf v1.56.x.tar.gz
+WORKDIR grpc-1.56.x/examples/python/route_guide
 
 EXPOSE 50051
 CMD ["python", "route_guide_server.py"]
