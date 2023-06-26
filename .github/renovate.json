@@ -15,5 +15,14 @@
       "matchPackagePatterns": ["opi-sztp-*"],
       "groupName": "OPI sztp dockers"
     }
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": ["^Dockerfile.network$"],
+      "matchStrings": ["ARG TAG=(?<currentValue>.*?)\\n"],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "grpc/grpc",
+      "versioningTemplate": "loose"
+    }
   ]
 }
