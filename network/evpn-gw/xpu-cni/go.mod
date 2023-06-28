@@ -6,6 +6,7 @@ require (
 	github.com/containernetworking/cni v1.1.2
 	github.com/containernetworking/plugins v1.2.0
 	github.com/imdario/mergo v0.3.15
+	github.com/k8snetworkplumbingwg/sriovnet v1.2.0
 	github.com/opiproject/opi-api v0.0.0-00010101000000-000000000000
 	github.com/vishvananda/netlink v1.2.1-beta.2
 	golang.org/x/net v0.8.0
@@ -15,8 +16,10 @@ require (
 require (
 	github.com/coreos/go-iptables v0.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/safchain/ethtool v0.2.0 // indirect
-	github.com/vishvananda/netns v0.0.0-20210104183010-2eb08e3e575f // indirect
+	github.com/spf13/afero v1.9.4 // indirect
+	github.com/vishvananda/netns v0.0.4 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect

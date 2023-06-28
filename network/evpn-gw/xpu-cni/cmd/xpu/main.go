@@ -242,11 +242,6 @@ func cmdAdd(args *skel.CmdArgs) error {
 func cmdDel(args *skel.CmdArgs) error {
 	netConf, cRefPath, err := config.LoadConfFromCache(args)
 	if err != nil {
-		// Dimitris: 06/09/2023: I do not believe the below statement is correct. My understanding says
-		// that the Cached Netconf will not be deleted if the cmdDel fails because the error will be != nil and that means that the body
-		// of the defer function will not be executed. The only way for the body of the defer function to be executed is when the err == nil which means
-		// that the cmdDel hasn't failed.
-
 		// If cmdDel() fails, cached netconf is cleaned up by
 		// the followed defer call. However, subsequence calls
 		// of cmdDel() from kubelet fail in a dead loop due to
@@ -258,16 +253,10 @@ func cmdDel(args *skel.CmdArgs) error {
 	}
 
 	defer func() {
-		if err == nil && cRefPath != "" {
+		if cRefPath != "" {
 			_ = utils.CleanCachedNetConf(cRefPath)
 		}
 	}()
-
-	// Dimitris Updated Note: 09/06/2023: Do not write any defer function. No defer function is written also to other CNIs so maybe it doesn't make much sense.
-	// Write a defer function here where it will delete the bridge port without checking for error and will reset the VF without
-	// checking for error.
-	// After that if the netns exists will also try to release the VF without checking for error and close the netns. If the netns doesn't exist
-	// will do nothing.
 
 	if netConf.IPAM.Type != "" {
 		err = ipam.ExecDel(netConf.IPAM.Type, args.StdinData)
@@ -282,12 +271,6 @@ func cmdDel(args *skel.CmdArgs) error {
 		return fmt.Errorf("cmdDel() error deleting Bridge Port: %q", err)
 	}
 
-	// Not sure why this exist in sriov-cni code. I will keep it as a comment for now and see if we need it in the future.
-	// https://github.com/kubernetes/kubernetes/pull/35240
-	//if args.Netns == "" {
-	//	return nil
-	//}
-
 	sm := sriov.NewSriovManager()
 
 	/* ResetVFConfig resets a VF administratively. We must run ResetVFConfig
@@ -296,39 +279,41 @@ func cmdDel(args *skel.CmdArgs) error {
 	*/
 	err = sm.ResetVFConfig(netConf)
 	if err != nil {
-		return fmt.Errorf("cmdDel() error reseting VF: %q", err)
+		return fmt.Errorf("cmdDel() error resetting VF administratively: %q", err)
 	}
 
 	if !netConf.DPDKMode {
-		netns, err := ns.GetNS(args.Netns)
-		if err != nil {
-			// according to:
-			// https://github.com/kubernetes/kubernetes/issues/43014#issuecomment-287164444
-			// if provided path does not exist (e.x. when node was restarted)
-			// plugin should silently return with success after releasing
-			// IPAM resources
-			_, ok := err.(ns.NSPathNotExistErr)
-			if ok {
-				return nil
+		if args.Netns == "" {
+			// Reset netdev VF to its original state
+			err = sm.ResetVF(netConf)
+			if err != nil {
+				return fmt.Errorf("cmdDel() error Resetting VF to original state: %q", err)
+			}
+		} else {
+			var netns ns.NetNS
+			netns, err = ns.GetNS(args.Netns)
+			if err != nil {
+				return fmt.Errorf("cmdDell() failed to open netns %s: %q", netns, err)
 			}
 
-			return fmt.Errorf("failed to open netns %s: %q", netns, err)
-		}
-		defer netns.Close()
+			defer netns.Close()
 
-		err = sm.ReleaseVF(netConf, args.IfName, netns)
-		if err != nil {
-			return fmt.Errorf("cmdDel() error releasing VF: %q", err)
+			// Release VF form Pods namespace and rename it to the original name
+			err = sm.ReleaseVF(netConf, args.IfName, netns)
+			if err != nil {
+				return fmt.Errorf("cmdDel() error releasing VF: %q", err)
+			}
 		}
 	}
 
 	// Mark the pci address as released
 	allocator := utils.NewPCIAllocator(config.DefaultCNIDir)
 	if err = allocator.DeleteAllocatedPCI(netConf.DeviceID); err != nil {
-		return fmt.Errorf("error cleaning the pci allocation for vf pci address %s: %v", netConf.DeviceID, err)
+		return fmt.Errorf("cmdDel() error cleaning the pci allocation for vf pci address %s: %v", netConf.DeviceID, err)
 	}
 
 	return nil
+
 }
 
 func cmdCheck(_ *skel.CmdArgs) error {

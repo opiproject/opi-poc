@@ -24,6 +24,7 @@ import (
 	"fmt"
 
 	"github.com/containernetworking/plugins/pkg/ns"
+	"github.com/k8snetworkplumbingwg/sriovnet"
 
 	xputypes "xpu-cni/pkg/types"
 	"xpu-cni/pkg/utils"
@@ -61,6 +62,7 @@ type Manager interface {
 	SetupVF(conf *xputypes.NetConf, podifName string, netns ns.NetNS) (string, error)
 	ReleaseVF(conf *xputypes.NetConf, podifName string, netns ns.NetNS) error
 	ResetVFConfig(conf *xputypes.NetConf) error
+	ResetVF(conf *xputypes.NetConf) error
 	ApplyVFConfig(conf *xputypes.NetConf) error
 	FillOriginalVfInfo(conf *xputypes.NetConf) error
 }
@@ -192,6 +194,12 @@ func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, podifName string, netns
 		err = s.nLink.LinkSetName(linkObj, conf.OrigVfState.HostIFName)
 		if err != nil {
 			return fmt.Errorf("failed to rename link %s to host name %s: %q", podifName, conf.OrigVfState.HostIFName, err)
+		}
+
+		//Bring VF device UP
+		err = s.nLink.LinkSetUp(linkObj)
+		if err != nil {
+			return fmt.Errorf("failed to set link %s up: %q", podifName, err)
 		}
 
 		// reset effective MAC address
@@ -337,7 +345,7 @@ func (s *sriovManager) FillOriginalVfInfo(conf *xputypes.NetConf) error {
 	return nil
 }
 
-// ResetVFConfig reset a VF to its original state
+// ResetVFConfig reset a VF to its original administrative state
 func (s *sriovManager) ResetVFConfig(conf *xputypes.NetConf) error {
 	if conf.MAC != "" {
 		fmt.Printf("ResetVFConfig(): MAC address configuration functionality is not supported currently")
@@ -407,4 +415,51 @@ func (s *sriovManager) ResetVFConfig(conf *xputypes.NetConf) error {
 	}*/
 
 	return nil
+}
+
+// ResetVF resets a netdev VF to its original state
+func (s *sriovManager) ResetVF(conf *xputypes.NetConf) error {
+	// Maybe in this function we need to handle the OriginalVfState.EffectiveMac
+	// Check ReleaseVF func
+
+	// get VF netdevice from PCI
+	vfNetdevices, err := sriovnet.GetNetDevicesFromPci(conf.DeviceID)
+	if err != nil {
+		return fmt.Errorf("ResetVF(): failed to get VF netdevice from PCI %s : %v", conf.DeviceID, err)
+	}
+
+	if len(vfNetdevices) != 1 {
+		//This would happen if netdevice is not yet visible in default network namespace.
+		//we might need to change the behaviour a bit to retry sometimes until it gets the netdevice otherwise
+		//return error
+		return fmt.Errorf("ResetVF(): Link Not found")
+	}
+
+	curNetVFName := vfNetdevices[0]
+
+	// get VF device
+	linkObj, err := s.nLink.LinkByName(curNetVFName)
+	if err != nil {
+		return fmt.Errorf("ResetVF(): failed to get netlink device with name %s: %q", curNetVFName, err)
+	}
+
+	// shutdown VF device
+	if err = s.nLink.LinkSetDown(linkObj); err != nil {
+		return fmt.Errorf("ResetVF(): failed to set link %s down: %q", curNetVFName, err)
+	}
+
+	// rename VF device
+	err = s.nLink.LinkSetName(linkObj, conf.OrigVfState.HostIFName)
+	if err != nil {
+		return fmt.Errorf("ResetVF(): failed to rename link %s to host name %s: %q", curNetVFName, conf.OrigVfState.HostIFName, err)
+	}
+
+	//Bring VF device UP
+	err = s.nLink.LinkSetUp(linkObj)
+	if err != nil {
+		return fmt.Errorf("ResetVF(): failed to set link %s up: %q", curNetVFName, err)
+	}
+
+	return nil
+
 }
