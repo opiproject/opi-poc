@@ -23,6 +23,7 @@ package sriov
 import (
 	"fmt"
 
+	"github.com/containernetworking/plugins/pkg/ip"
 	"github.com/containernetworking/plugins/pkg/ns"
 	"github.com/k8snetworkplumbingwg/sriovnet"
 
@@ -60,7 +61,7 @@ func (p *pciUtilsImpl) EnableArpAndNdiscNotify(ifName string) error {
 // Manager provides interface invoke sriov nic related operations
 type Manager interface {
 	SetupVF(conf *xputypes.NetConf, podifName string, netns ns.NetNS) (string, error)
-	ReleaseVF(conf *xputypes.NetConf, podifName string, netns ns.NetNS) error
+	ReleaseVF(conf *xputypes.NetConf, netns ns.NetNS) error
 	ResetVFConfig(conf *xputypes.NetConf) error
 	ResetVF(conf *xputypes.NetConf) error
 	ApplyVFConfig(conf *xputypes.NetConf) error
@@ -168,38 +169,63 @@ func (s *sriovManager) SetupVF(conf *xputypes.NetConf, podifName string, netns n
 }
 
 // ReleaseVF reset a VF from Pod netns and return it to init netns
-func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, podifName string, netns ns.NetNS) error {
+func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, netns ns.NetNS) error {
 	initns, err := ns.GetCurrentNS()
 	if err != nil {
-		return fmt.Errorf("failed to get init netns: %v", err)
+		return fmt.Errorf("ReleaseVF(): failed to get init netns: %v", err)
 	}
 
 	if len(conf.ContIFNames) < 1 && len(conf.ContIFNames) != len(conf.OrigVfState.HostIFName) {
-		return fmt.Errorf("number of interface names mismatch ContIFNames: %d HostIFNames: %d", len(conf.ContIFNames), len(conf.OrigVfState.HostIFName))
+		return fmt.Errorf("ReleaseVF(): number of interface names mismatch ContIFNames: %d HostIFNames: %d", len(conf.ContIFNames), len(conf.OrigVfState.HostIFName))
+	}
+
+	// Here I am checking if the VF gas been moved to the host (default) namespace be a previous call of the
+	// ReleaseVF function.
+	// get VF netdevice from PCI (default namespace)
+	vfNetdevices, err := sriovnet.GetNetDevicesFromPci(conf.DeviceID)
+	if err != nil {
+		return fmt.Errorf("ReleaseVF(): failed to get VF netdevice from PCI in default namespace %s : %v", conf.DeviceID, err)
+	}
+
+	//The VF is already moved to the host namespace so no point to continue
+	if len(vfNetdevices) == 1 {
+		return nil
 	}
 
 	return netns.Do(func(_ ns.NetNS) error {
+		// get VF netdevice from PCI
+		vfNetdevices, err := sriovnet.GetNetDevicesFromPci(conf.DeviceID)
+		if err != nil {
+			return fmt.Errorf("ReleaseVF(): failed to get VF netdevice from PCI %s : %v", conf.DeviceID, err)
+		}
+
+		if len(vfNetdevices) != 1 {
+			return fmt.Errorf("ReleaseVF(): VF netdevice is not found for PCI %s : %v", conf.DeviceID, ip.ErrLinkNotFound)
+		}
+
+		podifName := vfNetdevices[0]
+
 		// get VF device
 		linkObj, err := s.nLink.LinkByName(podifName)
 		if err != nil {
-			return fmt.Errorf("failed to get netlink device with name %s: %q", podifName, err)
+			return fmt.Errorf("ReleaseVF(): failed to get netlink device with name %s: %q", podifName, err)
 		}
 
 		// shutdown VF device
 		if err = s.nLink.LinkSetDown(linkObj); err != nil {
-			return fmt.Errorf("failed to set link %s down: %q", podifName, err)
+			return fmt.Errorf("ReleaseVF(): failed to set link %s down: %q", podifName, err)
 		}
 
 		// rename VF device
 		err = s.nLink.LinkSetName(linkObj, conf.OrigVfState.HostIFName)
 		if err != nil {
-			return fmt.Errorf("failed to rename link %s to host name %s: %q", podifName, conf.OrigVfState.HostIFName, err)
+			return fmt.Errorf("ReleaseVF(): failed to rename link %s to host name %s: %q", podifName, conf.OrigVfState.HostIFName, err)
 		}
 
 		//Bring VF device UP
 		err = s.nLink.LinkSetUp(linkObj)
 		if err != nil {
-			return fmt.Errorf("failed to set link %s up: %q", podifName, err)
+			return fmt.Errorf("ReleaseVF(): failed to set link %s up: %q", podifName, err)
 		}
 
 		// reset effective MAC address
@@ -220,7 +246,7 @@ func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, podifName string, netns
 
 		// move VF device to init netns
 		if err = s.nLink.LinkSetNsFd(linkObj, int(initns.Fd())); err != nil {
-			return fmt.Errorf("failed to move interface %s to init netns: %v", conf.OrigVfState.HostIFName, err)
+			return fmt.Errorf("ReleaseVF(): failed to move interface %s to init netns: %v", conf.OrigVfState.HostIFName, err)
 		}
 
 		return nil
@@ -429,10 +455,10 @@ func (s *sriovManager) ResetVF(conf *xputypes.NetConf) error {
 	}
 
 	if len(vfNetdevices) != 1 {
-		//This would happen if netdevice is not yet visible in default network namespace.
-		//we might need to change the behaviour a bit to retry sometimes until it gets the netdevice otherwise
-		//return error
-		return fmt.Errorf("ResetVF(): Link Not found")
+		// This would happen if netdevice is not yet visible in default network namespace.
+		// so return ErrLinkNotFound error so that meta plugin can attempt multiple times
+		// until link is available.
+		return fmt.Errorf("ResetVF(): VF netdevice is not found for PCI %s : %v", conf.DeviceID, ip.ErrLinkNotFound)
 	}
 
 	curNetVFName := vfNetdevices[0]

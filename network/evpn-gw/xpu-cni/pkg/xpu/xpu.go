@@ -170,6 +170,8 @@ func DeleteBridgePort(conf *xputypes.NetConf) error {
 	// produce the deleteBridgePortRequest object
 	deleteBridgePortRequest := produceDeleteBridgePortRequest(conf)
 
+	// TODO: Make sure that servers idempotence. If error is BridgePort not found then return nil
+	// in order to serve idempotence
 	_, err = client.DeleteBridgePort(ctx, deleteBridgePortRequest)
 	if err != nil {
 		return fmt.Errorf("DeleteBridgePort: Error occurred while Deleting Bridge Port %s : %q", conf.BridgePortName, err)

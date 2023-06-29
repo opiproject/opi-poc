@@ -101,6 +101,7 @@ func cmdAdd(args *skel.CmdArgs) error {
 		return fmt.Errorf("failed to get original vf information: %v", err)
 	}
 	defer func() {
+		// TODO: Check here if the cleanup is correct for all the cases.
 		if err != nil {
 			// Check here if BridgePortName exists in netconf. If yes that means that the bridgeport is there
 			// and we need to delete it. If error occurs from delete operation then just let the flow going.
@@ -113,7 +114,7 @@ func cmdAdd(args *skel.CmdArgs) error {
 				return err
 			})
 			if err == nil {
-				_ = sm.ReleaseVF(netConf, args.IfName, netns)
+				_ = sm.ReleaseVF(netConf, netns)
 			}
 			// Reset the VF if failure occurs before the netconf is cached
 			_ = sm.ResetVFConfig(netConf)
@@ -242,18 +243,13 @@ func cmdAdd(args *skel.CmdArgs) error {
 func cmdDel(args *skel.CmdArgs) error {
 	netConf, cRefPath, err := config.LoadConfFromCache(args)
 	if err != nil {
-		// If cmdDel() fails, cached netconf is cleaned up by
-		// the followed defer call. However, subsequence calls
-		// of cmdDel() from kubelet fail in a dead loop due to
-		// cached netconf doesn't exist.
-		// Return nil when LoadConfFromCache fails since the rest
-		// of cmdDel() code relies on netconf as input argument
-		// and there is no meaning to continue.
+		// There is no point of continuing if there is no cached Netconf
+		// as all the subsequent calls depend on that.
 		return nil
 	}
 
 	defer func() {
-		if cRefPath != "" {
+		if err == nil && cRefPath != "" {
 			_ = utils.CleanCachedNetConf(cRefPath)
 		}
 	}()
@@ -293,15 +289,25 @@ func cmdDel(args *skel.CmdArgs) error {
 			var netns ns.NetNS
 			netns, err = ns.GetNS(args.Netns)
 			if err != nil {
-				return fmt.Errorf("cmdDell() failed to open netns %s: %q", netns, err)
-			}
+				_, ok := err.(ns.NSPathNotExistErr)
+				if ok {
+					// Reset netdev VF to its original state if NS Path not exist
+					err = sm.ResetVF(netConf)
+					if err != nil {
+						return fmt.Errorf("cmdDel() error Resetting VF to original state: %q", err)
+					}
+				} else {
+					return fmt.Errorf("cmdDell() failed to open netns %s: %q", netns, err)
+				}
+			} else {
 
-			defer netns.Close()
+				defer netns.Close()
 
-			// Release VF form Pods namespace and rename it to the original name
-			err = sm.ReleaseVF(netConf, args.IfName, netns)
-			if err != nil {
-				return fmt.Errorf("cmdDel() error releasing VF: %q", err)
+				// Release VF form Pods namespace and rename it to the original name
+				err = sm.ReleaseVF(netConf, netns)
+				if err != nil {
+					return fmt.Errorf("cmdDel() error releasing VF: %q", err)
+				}
 			}
 		}
 	}
