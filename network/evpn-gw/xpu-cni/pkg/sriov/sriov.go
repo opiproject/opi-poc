@@ -22,6 +22,8 @@ package sriov
 
 import (
 	"fmt"
+	"os/exec"
+	"strings"
 
 	"github.com/containernetworking/plugins/pkg/ip"
 	"github.com/containernetworking/plugins/pkg/ns"
@@ -472,6 +474,25 @@ func (s *sriovManager) ResetVF(conf *xputypes.NetConf) error {
 	// shutdown VF device
 	if err = s.nLink.LinkSetDown(linkObj); err != nil {
 		return fmt.Errorf("ResetVF(): failed to set link %s down: %q", curNetVFName, err)
+	}
+
+	// Delete the altname of the MEV VF.
+	// If the altname of the original name of the VF is not deleted the renaming will fail
+	// Note: We need installed on the host bash shell and ip executable for commands to be executed correctly
+	searchStr := "'altname "+conf.OrigVfState.HostIFName+"'"
+	showCmd := "ip link show "+curNetVFName+" | grep -o "+searchStr+" | cut -d ' ' -f 2"
+	altnameByte, err := exec.Command("bash", "-c", showCmd).Output()
+	if err != nil {
+		return fmt.Errorf("ResetVF(): failed to get the altname: %q", err)
+	}
+
+	altname := strings.TrimSpace(string(altnameByte))
+	if altname == conf.OrigVfState.HostIFName {
+		delCmd := "ip link property del dev "+curNetVFName+" altname "+conf.OrigVfState.HostIFName
+		_, err := exec.Command("bash", "-c", delCmd).Output()
+		if err != nil {
+			return fmt.Errorf("ResetVF(): failed to delete the altname: %q", err)
+		}
 	}
 
 	// rename VF device
