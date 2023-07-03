@@ -244,7 +244,7 @@ func GetVFLinkNamesFromVFID(pfName string, vfID int) ([]string, error) {
 // GetContainerNetDevFromPci returns a list of netdevices from PCI address
 // that is attached to container
 func GetContainerNetDevFromPci(netNSPath, pciAddress string) ([]string, error) {
-	PidSlice := strings.Split(netNSPath, "/")[:2]
+	PidSlice := strings.Split(netNSPath, "/")[1:3]
 	PidPath := strings.Join(PidSlice, "/")
 	containerPciNetPath := filepath.Join(PidPath, ContainerSysBusPci, pciAddress, "net")
 	return getFileNamesFromPath(containerPciNetPath)

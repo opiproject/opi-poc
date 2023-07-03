@@ -64,6 +64,15 @@ func (p *PCIAllocator) SaveAllocatedPCI(pciAddress, ns string) error {
 // return error if the file doesn't exist
 func (p *PCIAllocator) DeleteAllocatedPCI(pciAddress string) error {
 	path := filepath.Join(p.dataDir, pciAddress)
+	_, err := os.Stat(path)
+	if err != nil {
+	    if os.IsNotExist(err) {
+                    return nil
+	    } else {
+		    return fmt.Errorf("error stating PCI address lock file %s: %v", path, err)
+	    }
+        }
+
 	if err := os.Remove(path); err != nil {
 		return fmt.Errorf("error removing PCI address lock file %s: %v", path, err)
 	}

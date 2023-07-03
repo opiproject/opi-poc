@@ -254,16 +254,6 @@ func cmdDel(args *skel.CmdArgs) error {
 		}
 	}()
 
-	defer func() {
-		// Try to cleanup as much as possible.
-		// The functions are idempotent so should run correctly
-		// when you get an error or not from the cmdDel.
-		_ = xpu.DeleteBridgePort(netConf)
-		_ = sm.ResetVFConfig(netConf)
-		_ = sm.ResetVF(netConf)
-
-	}()
-
 	if netConf.IPAM.Type != "" {
 		err = ipam.ExecDel(netConf.IPAM.Type, args.StdinData)
 		if err != nil {
