@@ -31,14 +31,18 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	utilfs "github.com/k8snetworkplumbingwg/sriovnet/pkg/utils/filesystem"
 )
 
 var (
 	sriovConfigured = "/sriov_numvfs"
 	// NetDirectory sysfs net directory
 	NetDirectory = "/sys/class/net"
-	// SysBusPci is sysfs pci device directory
+	// SysBusPci is sysfs pci device directory for host
 	SysBusPci = "/sys/bus/pci/devices"
+	// ContainerSysBusPci is sysfs pci device directory for containers
+	ContainerSysBusPci = "/root/sys/bus/pci/devices"
 	// SysV4ArpNotify is the sysfs IPv4 ARP Notify directory
 	SysV4ArpNotify = "/proc/sys/net/ipv4/conf/"
 	// SysV6NdiscNotify is the sysfs IPv6 Neighbor Discovery Notify directory
@@ -235,6 +239,16 @@ func GetVFLinkNamesFromVFID(pfName string, vfID int) ([]string, error) {
 	}
 
 	return names, nil
+}
+
+// GetContainerNetDevFromPci returns a list of netdevices from PCI address
+// that is attached to container
+func GetContainerNetDevFromPci(netNSPath, pciAddress string) ([]string, error) {
+	PidSlice := strings.Split(netNSPath, "/")[:2]
+	PidPath := strings.Join(PidSlice, "/")
+	containerPciNetPath := filepath.Join(PidPath, ContainerSysBusPci, pciAddress, "net")
+	return getFileNamesFromPath(containerPciNetPath)
+
 }
 
 // HasDpdkDriver checks if a device is attached to dpdk supported driver
@@ -434,4 +448,23 @@ func PathExists(path string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+func getFileNamesFromPath(dir string) ([]string, error) {
+	//TODO: NVIDIA copyright for this
+	_, err := utilfs.Fs.Stat(dir)
+	if err != nil {
+		return nil, fmt.Errorf("could not stat the directory %s: %v", dir, err)
+	}
+
+	files, err := utilfs.Fs.ReadDir(dir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read directory %s: %v", dir, err)
+	}
+
+	netDevices := make([]string, 0, len(files))
+	for _, netDeviceFile := range files {
+		netDevices = append(netDevices, strings.TrimSpace(netDeviceFile.Name()))
+	}
+	return netDevices, nil
 }

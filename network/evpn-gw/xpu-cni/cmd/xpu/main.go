@@ -114,7 +114,7 @@ func cmdAdd(args *skel.CmdArgs) error {
 				return err
 			})
 			if err == nil {
-				_ = sm.ReleaseVF(netConf, netns)
+				_ = sm.ReleaseVF(netConf, netns, args.Netns)
 			}
 			// Reset the VF if failure occurs before the netconf is cached
 			_ = sm.ResetVFConfig(netConf)
@@ -243,15 +243,25 @@ func cmdAdd(args *skel.CmdArgs) error {
 func cmdDel(args *skel.CmdArgs) error {
 	netConf, cRefPath, err := config.LoadConfFromCache(args)
 	if err != nil {
-		// There is no point of continuing if there is no cached Netconf
-		// as all the subsequent calls depend on that.
-		return nil
+		return fmt.Errorf("cmdDel() error loading the cached Netconf: %q", err)
 	}
+
+	sm := sriov.NewSriovManager()
 
 	defer func() {
 		if err == nil && cRefPath != "" {
 			_ = utils.CleanCachedNetConf(cRefPath)
 		}
+	}()
+
+	defer func() {
+		// Try to cleanup as much as possible.
+		// The functions are idempotent so should run correctly
+		// when you get an error or not from the cmdDel.
+		_ = xpu.DeleteBridgePort(netConf)
+		_ = sm.ResetVFConfig(netConf)
+		_ = sm.ResetVF(netConf)
+
 	}()
 
 	if netConf.IPAM.Type != "" {
@@ -266,8 +276,6 @@ func cmdDel(args *skel.CmdArgs) error {
 	if err != nil {
 		return fmt.Errorf("cmdDel() error deleting Bridge Port: %q", err)
 	}
-
-	sm := sriov.NewSriovManager()
 
 	/* ResetVFConfig resets a VF administratively. We must run ResetVFConfig
 	   before ReleaseVF because some drivers will error out if we try to
@@ -297,14 +305,14 @@ func cmdDel(args *skel.CmdArgs) error {
 						return fmt.Errorf("cmdDel() error Resetting VF to original state: %q", err)
 					}
 				} else {
-					return fmt.Errorf("cmdDell() failed to open netns %s: %q", netns, err)
+					return fmt.Errorf("cmdDel() failed to open netns %s: %q", netns, err)
 				}
 			} else {
 
 				defer netns.Close()
 
 				// Release VF form Pods namespace and rename it to the original name
-				err = sm.ReleaseVF(netConf, netns)
+				err = sm.ReleaseVF(netConf, netns, args.Netns)
 				if err != nil {
 					return fmt.Errorf("cmdDel() error releasing VF: %q", err)
 				}

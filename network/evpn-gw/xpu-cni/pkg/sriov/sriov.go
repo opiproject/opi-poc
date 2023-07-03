@@ -63,7 +63,7 @@ func (p *pciUtilsImpl) EnableArpAndNdiscNotify(ifName string) error {
 // Manager provides interface invoke sriov nic related operations
 type Manager interface {
 	SetupVF(conf *xputypes.NetConf, podifName string, netns ns.NetNS) (string, error)
-	ReleaseVF(conf *xputypes.NetConf, netns ns.NetNS) error
+	ReleaseVF(conf *xputypes.NetConf, netns ns.NetNS, netNSPath string) error
 	ResetVFConfig(conf *xputypes.NetConf) error
 	ResetVF(conf *xputypes.NetConf) error
 	ApplyVFConfig(conf *xputypes.NetConf) error
@@ -171,7 +171,7 @@ func (s *sriovManager) SetupVF(conf *xputypes.NetConf, podifName string, netns n
 }
 
 // ReleaseVF reset a VF from Pod netns and return it to init netns
-func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, netns ns.NetNS) error {
+func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, netns ns.NetNS, netNSPath string) error {
 	initns, err := ns.GetCurrentNS()
 	if err != nil {
 		return fmt.Errorf("ReleaseVF(): failed to get init netns: %v", err)
@@ -181,31 +181,20 @@ func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, netns ns.NetNS) error {
 		return fmt.Errorf("ReleaseVF(): number of interface names mismatch ContIFNames: %d HostIFNames: %d", len(conf.ContIFNames), len(conf.OrigVfState.HostIFName))
 	}
 
-	// Here I am checking if the VF gas been moved to the host (default) namespace be a previous call of the
-	// ReleaseVF function.
-	// get VF netdevice from PCI (default namespace)
-	vfNetdevices, err := sriovnet.GetNetDevicesFromPci(conf.DeviceID)
+	// get VF netdevice from PCI that is attached to container. This is executed on the host namespace accessing
+	// the containers filesystem through the /proc/<PID> path on the host.
+	vfNetdevices, err := utils.GetContainerNetDevFromPci(netNSPath, conf.DeviceID)
 	if err != nil {
-		return fmt.Errorf("ReleaseVF(): failed to get VF netdevice from PCI in default namespace %s : %v", conf.DeviceID, err)
+		return fmt.Errorf("ReleaseVF(): failed to get VF netdevice from PCI %s : %v", conf.DeviceID, err)
 	}
 
-	//The VF is already moved to the host namespace so no point to continue
-	if len(vfNetdevices) == 1 {
-		return nil
+	if len(vfNetdevices) != 1 {
+		return fmt.Errorf("ReleaseVF(): VF netdevice is not found for PCI %s : %v", conf.DeviceID, ip.ErrLinkNotFound)
 	}
+
+	podifName := vfNetdevices[0]
 
 	return netns.Do(func(_ ns.NetNS) error {
-		// get VF netdevice from PCI
-		vfNetdevices, err := sriovnet.GetNetDevicesFromPci(conf.DeviceID)
-		if err != nil {
-			return fmt.Errorf("ReleaseVF(): failed to get VF netdevice from PCI %s : %v", conf.DeviceID, err)
-		}
-
-		if len(vfNetdevices) != 1 {
-			return fmt.Errorf("ReleaseVF(): VF netdevice is not found for PCI %s : %v", conf.DeviceID, ip.ErrLinkNotFound)
-		}
-
-		podifName := vfNetdevices[0]
 
 		// get VF device
 		linkObj, err := s.nLink.LinkByName(podifName)
@@ -479,8 +468,8 @@ func (s *sriovManager) ResetVF(conf *xputypes.NetConf) error {
 	// Delete the altname of the MEV VF.
 	// If the altname of the original name of the VF is not deleted the renaming will fail
 	// Note: We need installed on the host bash shell and ip executable for commands to be executed correctly
-	searchStr := "'altname "+conf.OrigVfState.HostIFName+"'"
-	showCmd := "ip link show "+curNetVFName+" | grep -o "+searchStr+" | cut -d ' ' -f 2"
+	searchStr := "'altname " + conf.OrigVfState.HostIFName + "'"
+	showCmd := "ip link show " + curNetVFName + " | grep -o " + searchStr + " | cut -d ' ' -f 2"
 	altnameByte, err := exec.Command("bash", "-c", showCmd).Output()
 	if err != nil {
 		return fmt.Errorf("ResetVF(): failed to get the altname: %q", err)
@@ -488,7 +477,7 @@ func (s *sriovManager) ResetVF(conf *xputypes.NetConf) error {
 
 	altname := strings.TrimSpace(string(altnameByte))
 	if altname == conf.OrigVfState.HostIFName {
-		delCmd := "ip link property del dev "+curNetVFName+" altname "+conf.OrigVfState.HostIFName
+		delCmd := "ip link property del dev " + curNetVFName + " altname " + conf.OrigVfState.HostIFName
 		_, err := exec.Command("bash", "-c", delCmd).Output()
 		if err != nil {
 			return fmt.Errorf("ResetVF(): failed to delete the altname: %q", err)
