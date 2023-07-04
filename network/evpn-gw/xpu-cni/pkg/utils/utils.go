@@ -313,6 +313,15 @@ func ReadScratchNetConf(cRefPath string) ([]byte, error) {
 
 // CleanCachedNetConf removed cached NetConf from disk
 func CleanCachedNetConf(cRefPath string) error {
+	_, err := os.Stat(cRefPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		} else {
+			return fmt.Errorf("error stating cached NetConf file %s: %v", cRefPath, err)
+		}
+	}
+
 	if err := os.Remove(cRefPath); err != nil {
 		return fmt.Errorf("error removing NetConf file %s: %v", cRefPath, err)
 	}

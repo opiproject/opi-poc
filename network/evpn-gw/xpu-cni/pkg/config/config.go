@@ -78,11 +78,11 @@ func LoadConf(bytes []byte) (*xputypes.NetConf, error) {
 	// This will block the new pod creation until the cmdDel is done.
 	isAllocated, err := allocator.IsAllocated(n.DeviceID)
 	if err != nil {
-		return n, err
+		return nil, err
 	}
 
 	if isAllocated {
-		return n, fmt.Errorf("pci address %s is already allocated", n.DeviceID)
+		return nil, fmt.Errorf("pci address %s is already allocated", n.DeviceID)
 	}
 
 	// Assuming VF is netdev interface; Get interface name(s)

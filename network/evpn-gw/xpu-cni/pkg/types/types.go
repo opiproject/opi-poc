@@ -61,7 +61,6 @@ type NetConf struct {
 	BridgePortName    string // Stores the "name" of the created Bridge Port
 	DeviceID          string `json:"deviceID"` // PCI address of a VF in valid sysfs format
 	VFID              int
-	ContIFNames       string // VF names after in the container; used during deletion
 	MinTxRate         *int   `json:"min_tx_rate"`          // Mbps, 0 = disable rate limiting (XPU Not supported)
 	MaxTxRate         *int   `json:"max_tx_rate"`          // Mbps, 0 = disable rate limiting (XPU Not supported)
 	SpoofChk          string `json:"spoofchk,omitempty"`   // on|off (XPU Not supported)

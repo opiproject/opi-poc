@@ -25,7 +25,6 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/containernetworking/plugins/pkg/ip"
 	"github.com/containernetworking/plugins/pkg/ns"
 	"github.com/k8snetworkplumbingwg/sriovnet"
 
@@ -165,7 +164,6 @@ func (s *sriovManager) SetupVF(conf *xputypes.NetConf, podifName string, netns n
 	}); err != nil {
 		return "", fmt.Errorf("error setting up interface in container namespace: %q", err)
 	}
-	conf.ContIFNames = podifName
 
 	return macAddress, nil
 }
@@ -177,10 +175,6 @@ func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, netns ns.NetNS, netNSPa
 		return fmt.Errorf("ReleaseVF(): failed to get init netns: %v", err)
 	}
 
-	if len(conf.ContIFNames) < 1 && len(conf.ContIFNames) != len(conf.OrigVfState.HostIFName) {
-		return fmt.Errorf("ReleaseVF(): number of interface names mismatch ContIFNames: %d HostIFNames: %d", len(conf.ContIFNames), len(conf.OrigVfState.HostIFName))
-	}
-
 	// get VF netdevice from PCI that is attached to container. This is executed on the host namespace accessing
 	// the containers filesystem through the /proc/<PID> path on the host.
 	vfNetdevices, err := utils.GetContainerNetDevFromPci(netNSPath, conf.DeviceID)
@@ -188,8 +182,9 @@ func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, netns ns.NetNS, netNSPa
 		return fmt.Errorf("ReleaseVF(): failed to get VF netdevice from PCI %s : %v", conf.DeviceID, err)
 	}
 
-	if len(vfNetdevices) != 1 {
-		return fmt.Errorf("ReleaseVF(): VF netdevice is not found for PCI %s : %v", conf.DeviceID, ip.ErrLinkNotFound)
+	if len(vfNetdevices) == 0 {
+		// The VF has not been found in the Container namespace so no point to continue
+		return nil
 	}
 
 	podifName := vfNetdevices[0]
@@ -445,11 +440,11 @@ func (s *sriovManager) ResetVF(conf *xputypes.NetConf) error {
 		return fmt.Errorf("ResetVF(): failed to get VF netdevice from PCI %s : %v", conf.DeviceID, err)
 	}
 
-	if len(vfNetdevices) != 1 {
-		// This would happen if netdevice is not yet visible in default network namespace.
-		// so return ErrLinkNotFound error so that meta plugin can attempt multiple times
-		// until link is available.
-		return fmt.Errorf("ResetVF(): VF netdevice is not found for PCI %s : %v", conf.DeviceID, ip.ErrLinkNotFound)
+	if len(vfNetdevices) == 0 {
+		// The VF has not been found in the host namespace so no point to continue.
+		// This is according to the idempotent logic where if something is not found
+		// then is considered that is not an error.
+		return nil
 	}
 
 	curNetVFName := vfNetdevices[0]

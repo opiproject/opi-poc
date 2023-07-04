@@ -27,6 +27,7 @@ import (
 
 	"xpu-cni/pkg/config"
 	"xpu-cni/pkg/sriov"
+	xputypes "xpu-cni/pkg/types"
 	"xpu-cni/pkg/utils"
 	"xpu-cni/pkg/xpu"
 
@@ -36,7 +37,6 @@ import (
 	"github.com/containernetworking/cni/pkg/version"
 	"github.com/containernetworking/plugins/pkg/ipam"
 	"github.com/containernetworking/plugins/pkg/ns"
-	"github.com/vishvananda/netlink"
 )
 
 type envArgs struct {
@@ -63,9 +63,104 @@ func getEnvArgs(envArgsString string) (*envArgs, error) {
 	return nil, nil
 }
 
+func deleteResources(args *skel.CmdArgs, netConf *xputypes.NetConf) error {
+	var err error
+
+	if netConf == nil {
+		// if there is no netConf object there is no point
+		// of continuing as all the subsequent calls depend on the
+		// netConf object
+		return nil
+	}
+
+	sm := sriov.NewSriovManager()
+
+	if netConf.IPAM.Type != "" {
+		err = ipam.ExecDel(netConf.IPAM.Type, args.StdinData)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Delete Bridge Port.
+	err = xpu.DeleteBridgePort(netConf)
+	if err != nil {
+		return fmt.Errorf("deleteResources() error deleting Bridge Port: %q", err)
+	}
+
+	/* ResetVFConfig resets a VF administratively. We must run ResetVFConfig
+	   before ReleaseVF because some drivers will error out if we try to
+	   reset netdev VF with trust off. So, reset VF MAC address via PF first.
+	*/
+	err = sm.ResetVFConfig(netConf)
+	if err != nil {
+		return fmt.Errorf("deleteResources() error resetting VF administratively: %q", err)
+	}
+
+	if !netConf.DPDKMode {
+		if args.Netns == "" {
+			// Reset netdev VF to its original state
+			err = sm.ResetVF(netConf)
+			if err != nil {
+				return fmt.Errorf("deleteResources() error Resetting VF to original state: %q", err)
+			}
+		} else {
+			var netns ns.NetNS
+			netns, err = ns.GetNS(args.Netns)
+			if err != nil {
+				_, ok := err.(ns.NSPathNotExistErr)
+				if ok {
+					// Reset netdev VF to its original state if NS Path not exist
+					err = sm.ResetVF(netConf)
+					if err != nil {
+						return fmt.Errorf("deleteResources() error Resetting VF to original state: %q", err)
+					}
+				} else {
+					return fmt.Errorf("deleteResources() failed to open netns %s: %q", netns, err)
+				}
+			} else {
+
+				defer netns.Close()
+
+				// Release VF from Pods namespace and rename it to the original name
+				err = sm.ReleaseVF(netConf, netns, args.Netns)
+				if err != nil {
+					return fmt.Errorf("deleteResources() error releasing VF: %q", err)
+				}
+				// Reset VF to its original state.
+				// This one will run mostly for the case where the VF is not found in the container NS from the previous function
+				// so we assume that the VF will be on the host namespace.
+				err = sm.ResetVF(netConf)
+				if err != nil {
+					return fmt.Errorf("deleteResources() error Resetting VF to original state: %q", err)
+				}
+			}
+		}
+	}
+
+	// Mark the pci address as released
+	allocator := utils.NewPCIAllocator(config.DefaultCNIDir)
+	if err = allocator.DeleteAllocatedPCI(netConf.DeviceID); err != nil {
+		return fmt.Errorf("deleteResources() error cleaning the pci allocation for vf pci address %s: %v", netConf.DeviceID, err)
+	}
+
+	return nil
+
+}
+
 func cmdAdd(args *skel.CmdArgs) error {
 	var macAddr string
-	netConf, err := config.LoadConf(args.StdinData)
+	var err error
+	var netConf *xputypes.NetConf
+
+	defer func() {
+		// Call deleteResources() in case of error.
+		if err != nil {
+			_ = deleteResources(args, netConf)
+		}
+	}()
+
+	netConf, err = config.LoadConf(args.StdinData)
 	if err != nil {
 		return fmt.Errorf("xpu-cni failed to load netconf: %v", err)
 	}
@@ -100,26 +195,7 @@ func cmdAdd(args *skel.CmdArgs) error {
 	if err != nil {
 		return fmt.Errorf("failed to get original vf information: %v", err)
 	}
-	defer func() {
-		// TODO: Check here if the cleanup is correct for all the cases.
-		if err != nil {
-			// Check here if BridgePortName exists in netconf. If yes that means that the bridgeport is there
-			// and we need to delete it. If error occurs from delete operation then just let the flow going.
-			if netConf.BridgePortName != "" {
-				// Delete BridgePort
-				_ = xpu.DeleteBridgePort(netConf)
-			}
-			err := netns.Do(func(_ ns.NetNS) error {
-				_, err := netlink.LinkByName(args.IfName)
-				return err
-			})
-			if err == nil {
-				_ = sm.ReleaseVF(netConf, netns, args.Netns)
-			}
-			// Reset the VF if failure occurs before the netconf is cached
-			_ = sm.ResetVFConfig(netConf)
-		}
-	}()
+
 	// Here I have removed the ":" from the err := sm.ApplyVFConfig
 	if err = sm.ApplyVFConfig(netConf); err != nil {
 		return fmt.Errorf("xpu-cni failed to configure VF %q", err)
@@ -166,12 +242,6 @@ func cmdAdd(args *skel.CmdArgs) error {
 		if err != nil {
 			return fmt.Errorf("failed to set up IPAM plugin type %q from the device %q: %v", netConf.IPAM.Type, netConf.Master, err)
 		}
-
-		defer func() {
-			if err != nil {
-				_ = ipam.ExecDel(netConf.IPAM.Type, args.StdinData)
-			}
-		}()
 
 		// Convert the IPAM result into the current Result type
 		var newResult *current.Result
@@ -223,97 +293,36 @@ func cmdAdd(args *skel.CmdArgs) error {
 		result = newResult
 	}
 
-	// Cache NetConf for CmdDel
-	if err = utils.SaveNetConf(args.ContainerID, config.DefaultCNIDir, args.IfName, netConf); err != nil {
-		return fmt.Errorf("error saving NetConf %q", err)
-	}
-
 	allocator := utils.NewPCIAllocator(config.DefaultCNIDir)
 	// Mark the pci address as in used
 	if err = allocator.SaveAllocatedPCI(netConf.DeviceID, args.Netns); err != nil {
 		return fmt.Errorf("error saving the pci allocation for vf pci address %s: %v", netConf.DeviceID, err)
 	}
 
+	// Cache NetConf for CmdDel
+	if err = utils.SaveNetConf(args.ContainerID, config.DefaultCNIDir, args.IfName, netConf); err != nil {
+		return fmt.Errorf("error saving NetConf %q", err)
+	}
+
 	return types.PrintResult(result, netConf.CNIVersion)
-	// I HAVE CHECKED THE CODE UP TO HERE. NO SIGNIFICANT CHANGES ARE NEEDED. Next steps to Check the cmdDel
-	// I would like to check again the VLAN, add the bridgeport section
-	// and update the caching netconf with vport_id (write also defer function for bridge port)
 }
 
 func cmdDel(args *skel.CmdArgs) error {
 	netConf, cRefPath, err := config.LoadConfFromCache(args)
 	if err != nil {
-		return fmt.Errorf("cmdDel() error loading the cached Netconf: %q", err)
+		// There is no point of continuing if there is no cached Netconf
+		// as all the subsequent calls depend on that.
+		return nil
 	}
 
-	sm := sriov.NewSriovManager()
-
-	defer func() {
-		if err == nil && cRefPath != "" {
-			_ = utils.CleanCachedNetConf(cRefPath)
-		}
-	}()
-
-	if netConf.IPAM.Type != "" {
-		err = ipam.ExecDel(netConf.IPAM.Type, args.StdinData)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Delete Bridge Port.
-	err = xpu.DeleteBridgePort(netConf)
+	err = deleteResources(args, netConf)
 	if err != nil {
-		return fmt.Errorf("cmdDel() error deleting Bridge Port: %q", err)
+		return fmt.Errorf("cmdDel() error deleting resources: %q", err)
 	}
 
-	/* ResetVFConfig resets a VF administratively. We must run ResetVFConfig
-	   before ReleaseVF because some drivers will error out if we try to
-	   reset netdev VF with trust off. So, reset VF MAC address via PF first.
-	*/
-	err = sm.ResetVFConfig(netConf)
+	err = utils.CleanCachedNetConf(cRefPath)
 	if err != nil {
-		return fmt.Errorf("cmdDel() error resetting VF administratively: %q", err)
-	}
-
-	if !netConf.DPDKMode {
-		if args.Netns == "" {
-			// Reset netdev VF to its original state
-			err = sm.ResetVF(netConf)
-			if err != nil {
-				return fmt.Errorf("cmdDel() error Resetting VF to original state: %q", err)
-			}
-		} else {
-			var netns ns.NetNS
-			netns, err = ns.GetNS(args.Netns)
-			if err != nil {
-				_, ok := err.(ns.NSPathNotExistErr)
-				if ok {
-					// Reset netdev VF to its original state if NS Path not exist
-					err = sm.ResetVF(netConf)
-					if err != nil {
-						return fmt.Errorf("cmdDel() error Resetting VF to original state: %q", err)
-					}
-				} else {
-					return fmt.Errorf("cmdDel() failed to open netns %s: %q", netns, err)
-				}
-			} else {
-
-				defer netns.Close()
-
-				// Release VF form Pods namespace and rename it to the original name
-				err = sm.ReleaseVF(netConf, netns, args.Netns)
-				if err != nil {
-					return fmt.Errorf("cmdDel() error releasing VF: %q", err)
-				}
-			}
-		}
-	}
-
-	// Mark the pci address as released
-	allocator := utils.NewPCIAllocator(config.DefaultCNIDir)
-	if err = allocator.DeleteAllocatedPCI(netConf.DeviceID); err != nil {
-		return fmt.Errorf("cmdDel() error cleaning the pci allocation for vf pci address %s: %v", netConf.DeviceID, err)
+		return fmt.Errorf("cmdDel() error cleaning up cached NetConf file: %q", err)
 	}
 
 	return nil
