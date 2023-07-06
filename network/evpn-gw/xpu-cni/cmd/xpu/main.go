@@ -119,7 +119,6 @@ func deleteResources(args *skel.CmdArgs, netConf *xputypes.NetConf) error {
 					return fmt.Errorf("deleteResources() failed to open netns %s: %q", netns, err)
 				}
 			} else {
-
 				defer netns.Close()
 
 				// Release VF from Pods namespace and rename it to the original name
@@ -145,7 +144,6 @@ func deleteResources(args *skel.CmdArgs, netConf *xputypes.NetConf) error {
 	}
 
 	return nil
-
 }
 
 func cmdAdd(args *skel.CmdArgs) error {
@@ -326,7 +324,6 @@ func cmdDel(args *skel.CmdArgs) error {
 	}
 
 	return nil
-
 }
 
 func cmdCheck(_ *skel.CmdArgs) error {

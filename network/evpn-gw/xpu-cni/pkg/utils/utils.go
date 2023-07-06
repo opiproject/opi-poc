@@ -248,7 +248,6 @@ func GetContainerNetDevFromPci(netNSPath, pciAddress string) ([]string, error) {
 	PidPath := strings.Join(PidSlice, "/")
 	containerPciNetPath := filepath.Join(PidPath, ContainerSysBusPci, pciAddress, "net")
 	return getFileNamesFromPath(containerPciNetPath)
-
 }
 
 // HasDpdkDriver checks if a device is attached to dpdk supported driver
@@ -317,9 +316,9 @@ func CleanCachedNetConf(cRefPath string) error {
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
-		} else {
-			return fmt.Errorf("error stating cached NetConf file %s: %v", cRefPath, err)
 		}
+
+		return fmt.Errorf("error stating cached NetConf file %s: %v", cRefPath, err)
 	}
 
 	if err := os.Remove(cRefPath); err != nil {

@@ -30,8 +30,7 @@ import (
 
 	xputypes "xpu-cni/pkg/types"
 	"xpu-cni/pkg/utils"
-
-	"github.com/vishvananda/netlink"
+	//"github.com/vishvananda/netlink"
 )
 
 type pciUtils interface {
@@ -188,9 +187,7 @@ func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, netns ns.NetNS, netNSPa
 	}
 
 	podifName := vfNetdevices[0]
-
 	return netns.Do(func(_ ns.NetNS) error {
-
 		// get VF device
 		linkObj, err := s.nLink.LinkByName(podifName)
 		if err != nil {
@@ -239,7 +236,9 @@ func (s *sriovManager) ReleaseVF(conf *xputypes.NetConf, netns ns.NetNS, netNSPa
 	})
 }
 
-func getVfInfo(link netlink.Link, id int) *netlink.VfInfo {
+// This is an unused function for now. Comment it out but keep it
+// in case is needed in the future
+/*func getVfInfo(link netlink.Link, id int) *netlink.VfInfo {
 	attrs := link.Attrs()
 	for _, vf := range attrs.Vfs {
 		if vf.ID == id {
@@ -247,7 +246,7 @@ func getVfInfo(link netlink.Link, id int) *netlink.VfInfo {
 		}
 	}
 	return nil
-}
+}*/
 
 // ApplyVFConfig configure a VF with parameters given in NetConf
 func (s *sriovManager) ApplyVFConfig(conf *xputypes.NetConf) error {
@@ -353,7 +352,7 @@ func (s *sriovManager) ApplyVFConfig(conf *xputypes.NetConf) error {
 }*/
 
 // FillOriginalVfInfo fills the original vf info
-func (s *sriovManager) FillOriginalVfInfo(conf *xputypes.NetConf) error {
+func (s *sriovManager) FillOriginalVfInfo(_ *xputypes.NetConf) error {
 	return nil
 }
 
@@ -492,5 +491,4 @@ func (s *sriovManager) ResetVF(conf *xputypes.NetConf) error {
 	}
 
 	return nil
-
 }

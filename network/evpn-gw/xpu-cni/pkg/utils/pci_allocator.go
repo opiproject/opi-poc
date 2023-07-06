@@ -68,9 +68,9 @@ func (p *PCIAllocator) DeleteAllocatedPCI(pciAddress string) error {
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
-		} else {
-			return fmt.Errorf("error stating PCI address lock file %s: %v", path, err)
 		}
+
+		return fmt.Errorf("error stating PCI address lock file %s: %v", path, err)
 	}
 
 	if err := os.Remove(path); err != nil {
