@@ -78,10 +78,14 @@ func LoadConf(bytes []byte) (*xputypes.NetConf, error) {
 	// This will block the new pod creation until the cmdDel is done.
 	isAllocated, err := allocator.IsAllocated(n.DeviceID)
 	if err != nil {
+		// Here the SRIOV CNI was returning the NetConf object instead of nil.
+		// I do not see the point of that so I have changed that to return nil
 		return nil, err
 	}
 
 	if isAllocated {
+		// Here the SRIOV CNI was returning the NetConf object instead of nil.
+		// I do not see the point of that so I have changed that to return nil
 		return nil, fmt.Errorf("pci address %s is already allocated", n.DeviceID)
 	}
 
