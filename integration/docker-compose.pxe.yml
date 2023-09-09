@@ -24,7 +24,7 @@ services:
     command: sh -e -u -x -c 'touch /var/lib/dhcp/dhcpd.leases && eval "echo \"$$(cat /opt/dhcpd.conf.template)\"" > /etc/dhcp/dhcpd.conf && dhcpd -d'
 
   nmap:
-    image: docker.io/instrumentisto/nmap:7.93
+    image: docker.io/instrumentisto/nmap:7.94
     networks:
       - xpu-cpu
     command: --script broadcast-dhcp-discover
