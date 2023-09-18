@@ -83,7 +83,7 @@ run_integration_tests() {
     curl --fail http://127.0.0.1:9091/api/v1/query?query=mem_free | grep mem_free
     curl --fail http://127.0.0.1:9091/api/v1/query?query=cpu_usage_user | grep cpu_usage_user
     curl --fail http://127.0.0.1:9091/api/v1/query?query=xpu_num_blocks | grep xpu_num_blocks
-    curl --fail http://127.0.0.1:9091/api/v1/query?query=net_bytes_recv | grep net_bytes_recv
+    curl --fail http://127.0.0.1:9091/api/v1/query?query=net_bytes_recv_total | grep net_bytes_recv_total
     curl --fail http://127.0.0.1:9091/api/v1/query?query=redfish_thermal_fans_reading_rpm | grep redfish_thermal_fans_reading_rpm
 
     # TODO Workaround for agent getting connection refused from the redirecter
