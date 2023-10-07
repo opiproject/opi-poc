@@ -58,7 +58,7 @@ services:
     privileged: true
 
   xpu-spdk:
-    image: ghcr.io/opiproject/spdk:main@sha256:9381a5fd3a2c0a9b96bd257680c9b17fb4ef03ea19795455ce779285d4d5b6bd
+    image: ghcr.io/opiproject/spdk:main@sha256:aec0957cf166afc52b9b6b5b1e30c2f58758be599f6226b94e74999e555c96aa
     volumes:
       - /dev/hugepages:/dev/hugepages
       - /dev/shm:/dev/shm
@@ -87,7 +87,7 @@ services:
       timeout: 10s
 
   xpu-spdk-web:
-    image: ghcr.io/opiproject/spdk:main@sha256:9381a5fd3a2c0a9b96bd257680c9b17fb4ef03ea19795455ce779285d4d5b6bd
+    image: ghcr.io/opiproject/spdk:main@sha256:aec0957cf166afc52b9b6b5b1e30c2f58758be599f6226b94e74999e555c96aa
     volumes_from:
       - xpu-spdk:rw
     network_mode: service:xpu-cpu-ssh
