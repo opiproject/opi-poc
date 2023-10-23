@@ -32,7 +32,9 @@ import (
 	xpuMgr "github.com/opiproject/opi-api/network/evpn-gw/v1alpha1/gen/go"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 )
 
 // initConnection initializes a connection to XPU Infra Manager
@@ -159,19 +161,27 @@ func CreateBridgePort(conf *xputypes.NetConf, mac string) error {
 		return fmt.Errorf("CreateBridgePort: Error occurred while creating Bridge Port: %q", err)
 	}
 
+	// storing the name of the created bridge port to the netconf object for caching purposes
+	conf.BridgePortName = bridgePort.GetName()
+
 	if bridgePort.GetStatus().GetOperStatus() != xpuMgr.BPOperStatus_BP_OPER_STATUS_UP {
 		return errors.New("CreateBridgePort: The status of created BridgePort is not UP")
 	}
-
-	fmt.Printf("CreateBridgePort: The created BridgePort is: %+v", bridgePort)
-
-	// storing the name of the created bridge port to the netconf object for caching purposes
-	conf.BridgePortName = bridgePort.GetName()
 
 	return nil
 }
 
 func DeleteBridgePort(conf *xputypes.NetConf) error {
+	// Check if the BridgePortName exists in the NetConf object.
+	// If it doesn't exist then we simply return nil as there is no point to continue
+	// as we need the BridgePortName for the BridgePort delete process to execute.
+	// The reason that we do not return error is because we want to give the chance
+	// to the delete process to continue with the rest of the tasks
+	// (e.g. ReleaseVFs, ResetVFs, etc...) so there is no leftovers in the system.
+	if conf.BridgePortName == "" {
+		return nil
+	}
+
 	//Init Connection
 	conn, err := initConnection(conf)
 	if err != nil {
@@ -190,15 +200,14 @@ func DeleteBridgePort(conf *xputypes.NetConf) error {
 	// produce the deleteBridgePortRequest object
 	deleteBridgePortRequest := produceDeleteBridgePortRequest(conf)
 
-	// TODO: Make sure that servers idempotence. If error is BridgePort not found then return nil
-	// in order to serve idempotence. In case that system doesn't support any NotFound type of error
-	// then check first if BridgePort exists and if not then return nil.
+	// If error is BridgePort not found then return nil in order to serve idempotence.
 	_, err = client.DeleteBridgePort(ctx, deleteBridgePortRequest)
 	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return nil
+		}
 		return fmt.Errorf("DeleteBridgePort: Error occurred while Deleting Bridge Port %s : %q", conf.BridgePortName, err)
 	}
-
-	fmt.Printf("DeleteBridgePort: The %s BridgePort has been deleted successfully", conf.BridgePortName)
 
 	return nil
 }
