@@ -1,22 +1,5 @@
-/*-
- * ============LICENSE_START=======================================================
- *  Copyright (C) 2023 Nordix Foundation.
- * ================================================================================
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * SPDX-License-Identifier: Apache-2.0
- * ============LICENSE_END=========================================================
- */
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2023 Nordix Foundation.
 
 package xpu
 
@@ -26,7 +9,6 @@ import (
 	"fmt"
 	"time"
 
-	//xpuMgr "xpu-cni/pkg/L2XPUInfraManager"
 	xputypes "xpu-cni/pkg/types"
 
 	xpuMgr "github.com/opiproject/opi-api/network/evpn-gw/v1alpha1/gen/go"
@@ -64,35 +46,6 @@ func getClient(conn *grpc.ClientConn) xpuMgr.BridgePortServiceClient {
 	client := xpuMgr.NewBridgePortServiceClient(conn)
 	return client
 }
-
-// createBPInfo creates a BridgePortInfo object
-/*func createBPInfo(conf *xputypes.NetConf, mac string) (*xpuMgr.BridgePortInfo, error) {
-	var typeOfPort xpuMgr.BridgePortInfo_BridgePortType
-	var vlans []uint32
-
-	switch conf.PortType {
-	case "access":
-		typeOfPort = xpuMgr.BridgePortInfo_ACCESS
-		vlans = []uint32{uint32(*conf.Vlan)}
-	case "trunk":
-		typeOfPort = xpuMgr.BridgePortInfo_TRUNK
-		if len(conf.TrunkIDs) > 0 {
-			vlans = make([]uint32, 0)
-			for _, vlan := range conf.TrunkIDs {
-				vlans = append(vlans, uint32(vlan))
-			}
-		}
-	default:
-		return nil, fmt.Errorf("Unknown port type: %v", conf.PortType)
-	}
-	bpInfo := &xpuMgr.BridgePortInfo{
-		MacAddress: mac,
-		Ptype:      typeOfPort,
-		VlanId:     vlans,
-	}
-	return bpInfo, nil
-}
-*/
 
 // produceCreateBridgePortRequest produces a CreateBridgePortRequest object
 func produceCreateBridgePortRequest(conf *xputypes.NetConf, mac string) *xpuMgr.CreateBridgePortRequest {

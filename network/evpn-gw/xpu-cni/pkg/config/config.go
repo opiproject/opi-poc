@@ -1,22 +1,5 @@
-/*-
- * ============LICENSE_START=======================================================
- *  Copyright (C) 2023 Nordix Foundation.
- * ================================================================================
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * SPDX-License-Identifier: Apache-2.0
- * ============LICENSE_END=========================================================
- */
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2023 Nordix Foundation.
 
 package config
 
@@ -29,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/containernetworking/cni/pkg/skel"
-	//TODO: Change this.
 	xputypes "xpu-cni/pkg/types"
 	"xpu-cni/pkg/utils"
 
@@ -108,38 +90,9 @@ func LoadConf(bytes []byte) (*xputypes.NetConf, error) {
 		return nil, fmt.Errorf("LoadConf(): the VF %s does not have a interface name or a dpdk driver", n.DeviceID)
 	}
 
-	/*if n.Vlan != nil && len(n.Trunk) > 0 {
-		return nil, fmt.Errorf("LoadConf(): can not define both vlan id and trunk id. Have to pick one of those")
-	}*/
 	if n.LogicalBridge != "" && len(n.LogicalBridges) > 0 {
 		return nil, fmt.Errorf("LoadConf(): can not define both LogicalBridge and LogicalBridges. Have to pick one of those")
 	}
-
-	/*if n.Vlan != nil {
-		// validate vlan id range
-		if *n.Vlan < 0 || *n.Vlan > 4094 {
-			return nil, fmt.Errorf("LoadConf(): vlan id %d invalid: value must be in the range 0-4094", *n.Vlan)
-		}
-		n.PortType = "access"
-	} else {
-		n.PortType = "trunk"
-		if len(n.Trunk) > 0 {
-			n.TrunkIDs, err = utils.SplitVlanIds(n.Trunk)
-			if err != nil {
-				return nil, fmt.Errorf("LoadConf():Error %q occurred while parsing the Trunk list %d", err, n.Trunk)
-			}
-		}
-	}*/
-
-	// The below has been moved to the xpu.go
-	/*if n.LogicalBridge != "" {
-		// Access case
-		n.PortType = "access"
-	} else {
-		// Trunk case
-		n.PortType = "trunk"
-
-	}*/
 
 	// validate that link state is one of supported values
 	/*if n.LinkState != "" && n.LinkState != "auto" && n.LinkState != "enable" && n.LinkState != "disable" {

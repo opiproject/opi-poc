@@ -3,7 +3,7 @@
 #   This makefile was adapted from: https://github.com/vincentbernat/hellogopher/blob/feature/glide/Makefile
 #
 
-#The code is based on: https://github.com/k8snetworkplumbingwg/sriov-cni/tree/v2.7.0
+# This Makefile is based on: https://github.com/k8snetworkplumbingwg/sriov-cni/tree/v2.7.0
 
 # Package related
 BINARY_NAME=xpu
@@ -25,7 +25,7 @@ export GO111MODULE=on
 # Docker
 IMAGEDIR=$(BASE)/images
 DOCKERFILE=$(CURDIR)/Dockerfile
-#TAG=ghcr.io/k8snetworkplumbingwg/sriov-cni
+#TAG=ghcr.io/k8snetworkplumbingwg/xpu-cni
 TAG=xpu-cni
 # Accept proxy settings for docker 
 DOCKERARGS=
