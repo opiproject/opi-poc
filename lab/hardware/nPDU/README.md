@@ -20,14 +20,9 @@ Upgradeable Switched Outlet Level Monitored rPDUs provide reliable power distrib
 
 https://www.geistglobal.com/sites/all/files/Manuals/vm1221_590-2196-501a.pdf
 
-# Config
-
-[Config](arista.config)
-
 # Pictures
 
-![front](vertiv_vp5n3000_top.png)
-
+![front](front.png)
 
 ![interface](interface.png)
 
