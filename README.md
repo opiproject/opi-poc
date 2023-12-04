@@ -22,6 +22,18 @@ In most cases, the PoC should
 * run on a variety of hardware configurations including virtual and multiple
   vendors' devices
 
+## Current PoCs
+
+* [Developer Platform / Integration Platform](integration/README.md) aka The CI
+* [Storage](storage/README.md)
+* [Security](security/README.md)
+* [Demos](demos/README.md)
+
+## LAB
+
+* [Lab hardware planning](lab/goals-and-requirements.md)
+* [LAB current state - Phase 1](lab/README.md)
+
 ## I Want To Contribute
 
 This project welcomes contributions and suggestions.  We are happy to have the
@@ -33,13 +45,3 @@ PRs can be reviewed by any number of people, and a maintainer may accept.
 See [CONTRIBUTING](https://github.com/opiproject/opi/blob/main/CONTRIBUTING.md)
 and [GitHub Basic Process](https://github.com/opiproject/opi/blob/main/doc-github-rules.md)
 for more details.
-
-## Current PoCs
-
-* [Developer Platform / Integration Platform](integration/README.md) aka The CI
-* [Storage](storage/README.md)
-* [Security](security/README.md)
-
-## Other Work
-
-* [Lab hardware planning](lab/lab_requirement.md)
