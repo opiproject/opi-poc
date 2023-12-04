@@ -7,9 +7,9 @@ When all hopes are lost bring down and up the power and you may recover your dev
 
 Upgradeable Switched Outlet Level Monitored rPDUs provide reliable power distribution to critical IT equipment while delivering individual outlet level control and a comprehensive view of outlet level power usage via remote network access.
 
-- Part NumberVP7N3001
-- Model NumberMNU3EGB1-24CF18-3TL6A0A10-S
-- Version5.10.8
+- Part Number: VP7N3001
+- Model Number: MNU3EGB1-24CF18-3TL6A0A10-S
+- Version: 5.10.8
 
 # Management
 
