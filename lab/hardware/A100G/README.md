@@ -20,6 +20,10 @@ Arista 7280R, 48x100GbE QSFP and 8x40GbE QSFP+ switch, front to rear air, 2 x AC
 
 https://www.arista.com/assets/data/pdf/Datasheets/7280R-DataSheet.pdf
 
+# Config
+
+[Config](arista.config)
+
 # Pictures
 
 ![front](front.jpg)
