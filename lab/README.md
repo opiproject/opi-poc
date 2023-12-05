@@ -11,6 +11,6 @@
   - [Server Software Setup](server-setup.md)
 - [Running the Test Cases](running-the-tests.md)
 
-## OPI Rack
+## Rack diagram
 
 ![lab cabling diagram](./images/opi-lab-cabling.drawio.svg)
