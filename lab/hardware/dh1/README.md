@@ -1,0 +1,1 @@
+change power to always on
