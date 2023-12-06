@@ -4,5 +4,9 @@ jobs:
   opi-lab-job:
     runs-on: self-hosted
     steps:
-      - name: pytest-run
-        run: pytest -s ./demos/tgen/test_tgen_demo.py
+        - name: pytest-run1
+          run: ls
+        - name: pytest-run2
+          run: pwd
+        - name: pytest-run3
+          run: pytest -s ./demos/tgen/test_tgen_demo.py
