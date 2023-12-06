@@ -2,7 +2,7 @@ name: Hello World
 on: workflow_dispatch
 jobs:
   example-job:
-    runs-on: opilab
+    runs-on: self-hosted
     steps:
       - name: example-step
         run: echo "Hello World!"
