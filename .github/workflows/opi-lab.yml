@@ -1,8 +1,8 @@
-name: Hello World
+name: OPI-lab
 on: workflow_dispatch
 jobs:
-  example-job:
+  opi-lab-job:
     runs-on: self-hosted
     steps:
-      - name: example-step
-        run: echo "Hello World!"
+      - name: pytest-run
+        run: pytest -s ./demos/tgen/test_tgen_demo.py
