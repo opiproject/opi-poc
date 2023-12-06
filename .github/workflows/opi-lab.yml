@@ -10,4 +10,8 @@ jobs:
         - name: pytest-run2
           run: pwd
         - name: pytest-run3
+          run: pip install -r ./demos/tgen/requirements.txt
+        - name: pytest-run4
           run: pytest -s ./demos/tgen/test_tgen_demo.py
+        # - name: pytest-run5
+        #   run: pytest -s ./demos/tgen/test_tgen_demo.py
