@@ -5,8 +5,9 @@ DPU_INTERFACES = ['enp3s0f1s0', 'enp3s0f0s0']
 
 # DPU HOST
 HOST_IP = '10.36.78.167'
-HOST_INTERFACES = ['enp101s0f0np0', 'enp101s0f1np1']
+HOST_INTERFACES = ['ens1f0np0', 'ens1f1np1']
 
 # TGEN SERVER
 SERVER_IP = '10.36.78.6'
-SERVER_INTERFACES = ['enp5s0f0np0', 'enp5s0f1np1']
+SERVER_INTERFACES = ['ens1f0np0', 'ens1f1np1']
+#SERVER_INTERFACES = ['enp138s0f0np0', 'enp138s0f1np1']
