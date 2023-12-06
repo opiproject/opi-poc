@@ -1,9 +1,10 @@
-name: OPI-lab
+name: opi-lab-regression
 on: workflow_dispatch
 jobs:
   opi-lab-job:
     runs-on: self-hosted
     steps:
+        - uses: actions/checkout@v1
         - name: pytest-run1
           run: ls
         - name: pytest-run2
