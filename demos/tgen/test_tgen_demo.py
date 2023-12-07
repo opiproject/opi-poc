@@ -3,8 +3,22 @@ import netmiko
 import pydpu
 import pytest
 import snappi
-from passwords import *
+
+
+import os
+
+for name, value in os.environ.items():
+    if name == 'SERVER_PASS':
+        print("{0}: {1}".format(name, '***********'))
+    else:
+        print("{0}: {1}".format(name, value))
+
+
+
 from testbed import *
+
+
+
 
 
 @pytest.fixture
