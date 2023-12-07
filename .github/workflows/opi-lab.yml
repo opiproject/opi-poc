@@ -11,6 +11,15 @@ jobs:
           run: pwd
         - name: pytest-run3
           run: pip install -r ./demos/tgen/requirements.txt
+        - name: load 1password secrets
+          uses: 1password/load-secrets-action@v1
+          with:
+            export-env: true 
+          env:
+            OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+            SERVER_IP: op://opi-lab/tgen1/URL
+            SERVER_USER: op://opi-lab/tgen1/username
+            SERVER_PASS: op://opi-lab/tgen1/password
         - name: pytest-run4
           run: pytest -s ./demos/tgen/test_tgen_demo.py
         # - name: pytest-run5
