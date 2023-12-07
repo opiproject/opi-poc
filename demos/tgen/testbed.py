@@ -3,7 +3,7 @@ DH1_IP = '172.22.1.1'
 DH1_INTERFACES = ['ens1f0np0', 'ens1f1np1']
 
 # AMD/Pensando
-PEN_IP = '172.22.3.1'
+PEN_IP = '172.22.2.1'
 PEN_INTERFACES = ['enp3s0f1s0', 'enp3s0f0s0']
 
 # DPU HOST 2
@@ -11,7 +11,7 @@ DH2_IP = '172.22.1.2'
 DH2_INTERFACES = ['ens1f0np0', 'ens1f1np1']
 
 # Nvidia BlueField2
-BF2_IP = '172.22.3.2'
+BF2_IP = '172.22.2.2'
 BF2_INTERFACES = ['enp3s0f1s0', 'enp3s0f0s0']
 
 # DPU HOST 3
