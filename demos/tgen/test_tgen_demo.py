@@ -102,7 +102,7 @@ def host():
     host_connect = netmiko.ConnectHandler(**host_info)
 
     scp_conn = netmiko.SCPConn(host_connect)
-    scp_conn.scp_put_file('./opi-poc/demos/tgen/deployment/tgen.yml', '~/tgen.yaml')
+    scp_conn.scp_put_file('./demos/tgen/deployment/tgen.yml', '~/tgen.yaml')
 
     output = host_connect.send_command('docker compose -f ~/tgen.yaml up -d', read_timeout=30)
     print(output)
