@@ -20,10 +20,9 @@ jobs:
         #     SERVER_IP: op://opi-lab/tgen1/URL
         #     SERVER_USER: op://opi-lab/tgen1/username
         #     SERVER_PASS: op://opi-lab/tgen1/password
-        - name: get-pass
+        - name: pytest-run4
           env:
             ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
-        - name: pytest-run4
           run: pytest -s ./demos/tgen/test_tgen_demo.py
         # - name: pytest-run5
         #   run: pytest -s ./demos/tgen/test_tgen_demo.py
