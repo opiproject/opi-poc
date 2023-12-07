@@ -76,12 +76,12 @@ def server():
         'password': ROOT_PASSWORD
     }
     server_connect = netmiko.ConnectHandler(**server_info)
-    output = server_connect.send_command('docker compose -f ./demos/tgen/deployment/tgen.yml up -d', read_timeout=30)
+    output = server_connect.send_command('docker compose -f /home/opi/actions-runner/_work/opi-poc/opi-poc/demos/tgen/deployment/tgen.yml up -d', read_timeout=30)
     print(output)
 
     yield server_connect
 
-    output = server_connect.send_command('docker compose -f ./demos/tgen/deployment/tgen.yml down')
+    output = server_connect.send_command('docker compose -f /home/opi/actions-runner/_work/opi-poc/opi-poc/demos/tgen/deployment/tgen.yml down')
     print(output)
 
 
@@ -102,7 +102,7 @@ def host():
     host_connect = netmiko.ConnectHandler(**host_info)
 
     scp_conn = netmiko.SCPConn(host_connect)
-    scp_conn.scp_put_file('./demos/tgen/deployment/tgen.yml', '~/tgen.yaml')
+    scp_conn.scp_put_file('/home/opi/actions-runner/_work/opi-poc/opi-poc/demos/tgen/deployment/tgen.yml', '~/tgen.yaml')
 
     output = host_connect.send_command('docker compose -f ~/tgen.yaml up -d', read_timeout=30)
     print(output)
