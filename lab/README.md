@@ -13,6 +13,7 @@
     - [DH3 - DPU Host 3 - HP RL300](./hardware/dh3/README.md)
     - [A100G - 100G Switch - Arista DCS-7280CR](./hardware/A100G/README.md)
     - [TGEN1 - Traffic Generator 1 - Supermicro](./hardware/tgen1/README.md)
+  - [LAB IPs allocation](./hardware/ips.md)
   - [Server Software Setup](server-setup.md)
 - [Running the Test Cases](running-the-tests.md)
 
