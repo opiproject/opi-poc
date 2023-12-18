@@ -1,0 +1,12 @@
+EVPN GW CNI
+Copyright (C) 2023 Nordix Foundation
+
+This product includes software developed at
+Nordix Foundation (http://www.nordix.org).
+
+This project contains code developed by the participants of the Network Plumbing Working Group
+(https://github.com/k8snetworkplumbingwg/community)
+
+The getFileNamesFromPath function in
+utils/utils.go was created by NVIDIA CORPORATION & AFFILIATES (http://www.nvidia.com/)
+Copyright 2023 NVIDIA CORPORATION & AFFILIATES
