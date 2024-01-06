@@ -4,7 +4,7 @@ version: "3.7"
 services:
 
   spdk-target:
-    image: ghcr.io/opiproject/spdk:main@sha256:48b1dee13d03d5e3e3f7116721ccdf015c264f9e5dc6e3e264045ae0f42ac3c0
+    image: ghcr.io/opiproject/spdk:main@sha256:d7c2e2bce2aaceaf6fd45d560a1a90804dd17cbb9b73102acd6e3ff64e898e8e
     volumes:
       - /dev/hugepages:/dev/hugepages
       - /dev/shm:/dev/shm
@@ -39,7 +39,7 @@ services:
       timeout: 10s
 
   spdk-target-web:
-    image: ghcr.io/opiproject/spdk:main@sha256:48b1dee13d03d5e3e3f7116721ccdf015c264f9e5dc6e3e264045ae0f42ac3c0
+    image: ghcr.io/opiproject/spdk:main@sha256:d7c2e2bce2aaceaf6fd45d560a1a90804dd17cbb9b73102acd6e3ff64e898e8e
     volumes_from:
       - spdk-target:rw
     ports:
