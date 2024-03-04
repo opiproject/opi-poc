@@ -15,7 +15,7 @@ Proposal is to use 172.22.0.0/16 network for all ip addresing in the lab, and ha
 ## Per Device IP allocation
 
 | IPv4                          | IPv6     | DEVICE           |
-|---------------------------    |------    |--------------- |
+|---------------------------    |------    |----------------- |
 | <public ip><br>172.22.0.1     |          | gateway          |
 | 172.22.0.10                   |          | Network PDU      |
 | 172.22.0.20                   |          | KVM              |
@@ -27,9 +27,9 @@ Proposal is to use 172.22.0.0/16 network for all ip addresing in the lab, and ha
 |                               |          |                  |
 | 172.22.1.2                    |          | DPU Host 2       |
 | 172.22.2.2                    |          | Nvidia BF2       |
-|                               |          | Nvidia BF2 bmc |
-| 172.22.3.2                    |          | DH2 iLO           |
-|                               |          |                   |
+|                               |          | Nvidia BF2 bmc   |
+| 172.22.3.2                    |          | DH2 iLO          |
+|                               |          |                  |
 | 172.22.1.3                    |          | DPU Host 3       |
 | 172.22.3.3                    |          | DH3 iLO          |
 |                               |          |                  |

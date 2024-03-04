@@ -4,7 +4,8 @@
 
 Used on servers that have management 10G/25G management nic.
 
-- HP 453154-B21
+- HP 453154-B21 - 1G SFP RJ-45 Transceiver
+- HP 813874-B21 - 10GBase-T SFP+ Transceiver
 
 ## 100G DAC cables
 
