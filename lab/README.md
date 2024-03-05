@@ -4,7 +4,7 @@
 - Setup
   - [Bill of Materials](bom.md)
   - [Physical Testbed Setup](physical-testbed.md)
-    - [ToR - zzzzz](./hardware/ToR/README.md)
+    - [ToR - Arista DCS-7280TR-48C6-R](./hardware/ToR/README.md)
     - [TS - Serial Consoles - Avocent ACS8000](./hardware/TS/README.md)
     - [KVM - KVM Switch - Avocent MPU8032DAC](./hardware/KVM/README.md)
     - [nPDU - Network PDU - Vertiv VP7N3001](./hardware/nPDU/README.md)
