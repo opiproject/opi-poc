@@ -21,3 +21,5 @@ https://www.arista.com/assets/data/pdf/Datasheets/7280R-DataSheet.pdf
 
 ![front](front.png)
 
+![back](back.png)
+
