@@ -18,6 +18,7 @@ Proposal is to use 172.22.0.0/16 network for all ip addresing in the lab, and ha
 | IPv4                          | IPv6     | DEVICE           |
 |---------------------------    |------    |----------------- |
 | <public ip><br>172.22.0.1     |          | gateway          |
+| 172.22.0.5                   |          | ToR               |
 | 172.22.0.10                   |          | Network PDU      |
 | 172.22.0.20                   |          | KVM              |
 | 172.22.0.30                   |          | TS               |
