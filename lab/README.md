@@ -7,7 +7,7 @@
     - [ToR - Arista DCS-7280TR-48C6-R](./hardware/ToR/README.md)
     - [TS - Serial Consoles - Avocent ACS8000](./hardware/TS/README.md)
     - [KVM - KVM Switch - Avocent MPU8032DAC](./hardware/KVM/README.md)
-    - [VPN - F5 BigIP](./hardware/VPN/README.md)
+    - [VPN - F5 BIG IP i4000](./hardware/VPN/README.md)
     - [nPDU - Network PDU - Vertiv VP7N3001](./hardware/nPDU/README.md)
     - [DH1 - DPU Host 1 - Dell R650](./hardware/dh1/README.md)
     - [DH2 - DPU Host 2 - HPE DL360](./hardware/dh2/README.md)
