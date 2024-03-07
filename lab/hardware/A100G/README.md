@@ -10,21 +10,20 @@ Arista 7280R, 48x100GbE QSFP and 8x40GbE QSFP+ switch, front to rear air, 2 x AC
 - Hardware version: 11.01
 - Software image version: 4.20.10M
 
-
-# Management
+## Management
 
 - serial port
 - 1G ethernet management port
 
-# Docs
+## Docs
 
 https://www.arista.com/assets/data/pdf/Datasheets/7280R-DataSheet.pdf
 
-# Config
+## Config
 
 [Config](arista.config)
 
-# Pictures
+## Pictures
 
 ![front](front.jpg)
 
