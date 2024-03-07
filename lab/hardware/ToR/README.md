@@ -1,6 +1,6 @@
 # Top of Rack
 
-ToR provides network conectivity for management and access to the lab devices. All non test traffic goes through this device.
+ToR switch/router provides network conectivity for management and access to the lab devices. All non test traffic goes through this device.
 
 ## HW spec
 
@@ -8,18 +8,17 @@ ToR provides network conectivity for management and access to the lab devices. A
 - Hardware version: 11.04
 - Software image version: 4.22.3M
 
-# Management
+## Management
 
 - serial port
 - 1G ethernet management port
 
-# Docs
+## Docs
 
-https://www.arista.com/assets/data/pdf/Datasheets/7280R-DataSheet.pdf
+[Data Sheet](https://www.arista.com/assets/data/pdf/Datasheets/7280R-DataSheet.pdf)
 
-# Pictures
+## Pictures
 
 ![front](front.png)
 
 ![back](back.png)
-
