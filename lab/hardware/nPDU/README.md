@@ -18,11 +18,10 @@ Upgradeable Switched Outlet Level Monitored rPDUs provide reliable power distrib
 
 ## Docs
 
-https://www.geistglobal.com/sites/all/files/Manuals/vm1221_590-2196-501a.pdf
+[User guide](https://www.geistglobal.com/sites/all/files/Manuals/vm1221_590-2196-501a.pdf)
 
 ## Pictures
 
 ![front](front.png)
 
 ![interface](interface.png)
-
