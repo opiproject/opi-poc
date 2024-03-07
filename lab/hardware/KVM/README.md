@@ -15,9 +15,8 @@ KVM switches provide remote management to access and control servers.
 
 ## Docs
 
-https://www.vertiv.com/4a6ff9/globalassets/shared/mergepoint-unity-kvm-over-ip-and-serial-console-switch-installeruser-guide_00.pdf
+[User guide](https://www.vertiv.com/4a6ff9/globalassets/shared/mergepoint-unity-kvm-over-ip-and-serial-console-switch-installeruser-guide_00.pdf)
 
 ## Pictures
 
 ![front](front.png)
-
