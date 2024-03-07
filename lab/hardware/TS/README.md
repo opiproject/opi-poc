@@ -8,21 +8,21 @@ ACS8000 48-port unit dual AC power supply
 - Part Number: ACS8048DAC-400
 - Firmware: 2.26.1.5874+902+37+17 (Nov 7 2023 - 11:53:23)
 
-# Management
+## Management
 
 - 1G ethernet management port
 
-# Docs
+## Docs
 
 https://www.vertiv.com/49db15/globalassets/shared/avocent-acs-8000-installer-userguide.pdf
 
-# Devices connected
+## Devices connected
 
 - Network PDU
 - 100G Switch
 - KVM
 
-# Pictures
+## Pictures
 
 ![front](front.png)
 
