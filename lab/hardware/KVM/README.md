@@ -8,16 +8,16 @@ KVM switches provide remote management to access and control servers.
 - Version: 2.12.4.26064
 - KVM dongle: MPUIQ-VMCHS
 
-# Management
+## Management
 
 - serial port (SETUP)
 - 1G ethernet management port
 
-# Docs
+## Docs
 
 https://www.vertiv.com/4a6ff9/globalassets/shared/mergepoint-unity-kvm-over-ip-and-serial-console-switch-installeruser-guide_00.pdf
 
-# Pictures
+## Pictures
 
 ![front](front.png)
 
