@@ -14,7 +14,7 @@ ACS8000 48-port unit dual AC power supply
 
 ## Docs
 
-[User guide}(https://www.vertiv.com/49db15/globalassets/shared/avocent-acs-8000-installer-userguide.pdf)
+[User guide](https://www.vertiv.com/49db15/globalassets/shared/avocent-acs-8000-installer-userguide.pdf)
 
 ## Devices connected
 
