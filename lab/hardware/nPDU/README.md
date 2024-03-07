@@ -11,16 +11,16 @@ Upgradeable Switched Outlet Level Monitored rPDUs provide reliable power distrib
 - Model Number: MNU3EGB1-24CF18-3TL6A0A10-S
 - Version: 5.10.8
 
-# Management
+## Management
 
 - serial port
 - 1G ethernet management port
 
-# Docs
+## Docs
 
 https://www.geistglobal.com/sites/all/files/Manuals/vm1221_590-2196-501a.pdf
 
-# Pictures
+## Pictures
 
 ![front](front.png)
 
