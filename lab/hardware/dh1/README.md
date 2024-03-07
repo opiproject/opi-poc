@@ -1,1 +1,4 @@
-change power to always on
+# DPU Host 1
+
+## BIOS settings
+- change power to always on
