@@ -27,4 +27,3 @@ https://www.vertiv.com/49db15/globalassets/shared/avocent-acs-8000-installer-use
 ![front](front.png)
 
 ![back](back.jpg)
-
