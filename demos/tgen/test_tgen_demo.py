@@ -3,8 +3,12 @@ import netmiko
 import pydpu
 import pytest
 import snappi
+import requests
 
 from testbed import *
+
+HOME_FOLDER = r'/home/opi/actions-runner/_work/opi-poc/opi-poc'
+#HOME_FOLDER = r'/home/opi/opi-poc'
 
 
 @pytest.fixture
@@ -60,12 +64,12 @@ def server():
         'key_file': '/home/opi/.ssh/id_rsa.pub'
     }
     server_connect = netmiko.ConnectHandler(**server_info)
-    output = server_connect.send_command('docker compose -f /home/opi/actions-runner/_work/opi-poc/opi-poc/demos/tgen/deployment/tgen.yml up -d', read_timeout=30)
+    output = server_connect.send_command('docker compose -f %s/demos/tgen/deployment/tgen.yml up -d' % HOME_FOLDER, read_timeout=30)
     print(output)
 
     yield server_connect
 
-    output = server_connect.send_command('docker compose -f /home/opi/actions-runner/_work/opi-poc/opi-poc/demos/tgen/deployment/tgen.yml down')
+    output = server_connect.send_command('docker compose -f %s/demos/tgen/deployment/tgen.yml down' % HOME_FOLDER)
     print(output)
 
 
@@ -87,7 +91,7 @@ def host():
     host_connect = netmiko.ConnectHandler(**host_info)
 
     scp_conn = netmiko.SCPConn(host_connect)
-    scp_conn.scp_put_file('/home/opi/actions-runner/_work/opi-poc/opi-poc/demos/tgen/deployment/tgen.yml', '~/tgen.yaml')
+    scp_conn.scp_put_file('%s/demos/tgen/deployment/tgen.yml' % HOME_FOLDER, '~/tgen.yaml')
 
     output = host_connect.send_command('docker compose -f ~/tgen.yaml up -d', read_timeout=30)
     print(output)
@@ -129,7 +133,13 @@ def test_server_to_server_via_dpu(dpu, server):
     udp2.dst_port.values = [8000, 8044, 8060, 8074, 8082, 8084]
 
     print('Pushing traffic configuration ...')
-    tgen.set_config(cfg)
+    for i in range(0,100):
+        while True:
+            try:
+                tgen.set_config(cfg)
+            except requests.exceptions.ConnectionError:
+                continue
+            break
 
     print('Starting transmit on all configured flows ...')
     cs = tgen.control_state()
