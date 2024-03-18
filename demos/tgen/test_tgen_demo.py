@@ -4,25 +4,7 @@ import pydpu
 import pytest
 import snappi
 
-
-import os
-
-# for name, value in os.environ.items():
-#     if name == 'TGEN1_PASS':
-#         print("{0}: {1}".format(name, '***********'))
-#     else:
-#         print("{0}: {1}".format(name, value))
-
-
-ROOT_PASSWORD = os.getenv('ROOT_PASSWORD')
-
-
-
-
 from testbed import *
-
-
-
 
 
 @pytest.fixture
@@ -31,7 +13,8 @@ def dpu():
         'device_type': 'linux',
         'host': BF2_IP,
         'username': 'root',
-        'password': ROOT_PASSWORD
+        'use_keys': True,
+        'key_file': '/home/opi/.ssh/id_rsa.pub'
     }
     dpu_connect = netmiko.ConnectHandler(**dpu_info)
     #prompt = dpu_connect.find_prompt()
@@ -73,7 +56,8 @@ def server():
         'device_type': 'linux',
         'host': TGEN1_IP,
         'username': 'root',
-        'password': ROOT_PASSWORD
+        'use_keys': True,
+        'key_file': '/home/opi/.ssh/id_rsa.pub'
     }
     server_connect = netmiko.ConnectHandler(**server_info)
     output = server_connect.send_command('docker compose -f /home/opi/actions-runner/_work/opi-poc/opi-poc/demos/tgen/deployment/tgen.yml up -d', read_timeout=30)
@@ -97,7 +81,8 @@ def host():
         'device_type': 'linux',
         'host': DH2_IP,
         'username': 'root',
-        'password': ROOT_PASSWORD
+        'use_keys': True,
+        'key_file': '/home/opi/.ssh/id_rsa.pub'
     }
     host_connect = netmiko.ConnectHandler(**host_info)
 
