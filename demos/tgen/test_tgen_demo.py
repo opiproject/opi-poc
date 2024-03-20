@@ -92,6 +92,7 @@ def host():
 
     scp_conn = netmiko.SCPConn(host_connect)
     scp_conn.scp_put_file('%s/demos/tgen/deployment/tgen.yml' % HOME_FOLDER, '~/tgen.yaml')
+    scp_conn.scp_put_file('%s/demos/tgen/deployment/.env' % HOME_FOLDER, '~/.env')
 
     output = host_connect.send_command('docker compose -f ~/tgen.yaml up -d', read_timeout=30)
     print(output)
@@ -133,13 +134,7 @@ def test_server_to_server_via_dpu(dpu, server):
     udp2.dst_port.values = [8000, 8044, 8060, 8074, 8082, 8084]
 
     print('Pushing traffic configuration ...')
-    for i in range(0,100):
-        while True:
-            try:
-                tgen.set_config(cfg)
-            except requests.exceptions.ConnectionError:
-                continue
-            break
+    tgen.set_config(cfg)
 
     print('Starting transmit on all configured flows ...')
     cs = tgen.control_state()
