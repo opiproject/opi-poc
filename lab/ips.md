@@ -18,7 +18,7 @@ Proposal is to use 172.22.0.0/16 network for all ip addresing in the lab, and ha
 
 | IPv4                          | IPv6     | DEVICE           |
 |---------------------------    |------    |----------------- |
-| public ip / 172.22.0.1        |          | gateway          |
+| public ip / 172.22.0.1        |          | gateway/mgmt     |
 | 172.22.0.5                    |          | ToR              |
 | 172.22.0.10                   |          | Network PDU      |
 | 172.22.0.20                   |          | KVM              |
@@ -39,6 +39,11 @@ Proposal is to use 172.22.0.0/16 network for all ip addresing in the lab, and ha
 | 172.22.1.3                    |          | DPU Host 3       |
 | 172.22.2.3                    |          | DH3 iLO          |
 | 172.22.3.3                    |          | Marvell CN106    |
+| 172.22.4.3                    |          | Marvell CN106 bmc |
+|                               |          |                  |
+| 172.22.1.4                    |          | DPU Host 4       |
+| 172.22.2.4                    |          | DH4 iDRAC        |
+| 172.22.4.4                    |          | Intel DYP imc    |
 |                               |          |                  |
 | 172.22.1.100                  |          | Tgen1            |
 | 172.22.2.100                  |          | Tgen1 bmc        |
