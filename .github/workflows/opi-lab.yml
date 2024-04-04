@@ -14,8 +14,6 @@ jobs:
         - name: pytest-run3
           run: pip install -r ./demos/tgen/requirements.txt
         - name: pytest-run4
-          env:
-            ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
           run: pytest -s ./demos/tgen/test_tgen_demo.py
 
   opi-ipsec:

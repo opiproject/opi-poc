@@ -3,26 +3,12 @@ import netmiko
 import pydpu
 import pytest
 import snappi
-
-
-import os
-
-# for name, value in os.environ.items():
-#     if name == 'TGEN1_PASS':
-#         print("{0}: {1}".format(name, '***********'))
-#     else:
-#         print("{0}: {1}".format(name, value))
-
-
-ROOT_PASSWORD = os.getenv('ROOT_PASSWORD')
-
-
-
+import requests
 
 from testbed import *
 
-
-
+HOME_FOLDER = r'/home/opi/actions-runner/_work/opi-poc/opi-poc'
+#HOME_FOLDER = r'/home/opi/opi-poc'
 
 
 @pytest.fixture
@@ -31,7 +17,8 @@ def dpu():
         'device_type': 'linux',
         'host': BF2_IP,
         'username': 'root',
-        'password': ROOT_PASSWORD
+        'use_keys': True,
+        'key_file': '/home/opi/.ssh/id_rsa.pub'
     }
     dpu_connect = netmiko.ConnectHandler(**dpu_info)
     #prompt = dpu_connect.find_prompt()
@@ -73,15 +60,16 @@ def server():
         'device_type': 'linux',
         'host': TGEN1_IP,
         'username': 'root',
-        'password': ROOT_PASSWORD
+        'use_keys': True,
+        'key_file': '/home/opi/.ssh/id_rsa.pub'
     }
     server_connect = netmiko.ConnectHandler(**server_info)
-    output = server_connect.send_command('docker compose -f /home/opi/actions-runner/_work/opi-poc/opi-poc/demos/tgen/deployment/tgen.yml up -d', read_timeout=30)
+    output = server_connect.send_command('docker compose -f %s/demos/tgen/deployment/tgen.yml up -d' % HOME_FOLDER, read_timeout=30)
     print(output)
 
     yield server_connect
 
-    output = server_connect.send_command('docker compose -f /home/opi/actions-runner/_work/opi-poc/opi-poc/demos/tgen/deployment/tgen.yml down')
+    output = server_connect.send_command('docker compose -f %s/demos/tgen/deployment/tgen.yml down' % HOME_FOLDER)
     print(output)
 
 
@@ -97,12 +85,14 @@ def host():
         'device_type': 'linux',
         'host': DH2_IP,
         'username': 'root',
-        'password': ROOT_PASSWORD
+        'use_keys': True,
+        'key_file': '/home/opi/.ssh/id_rsa.pub'
     }
     host_connect = netmiko.ConnectHandler(**host_info)
 
     scp_conn = netmiko.SCPConn(host_connect)
-    scp_conn.scp_put_file('/home/opi/actions-runner/_work/opi-poc/opi-poc/demos/tgen/deployment/tgen.yml', '~/tgen.yaml')
+    scp_conn.scp_put_file('%s/demos/tgen/deployment/tgen.yml' % HOME_FOLDER, '~/tgen.yaml')
+    scp_conn.scp_put_file('%s/demos/tgen/deployment/.env' % HOME_FOLDER, '~/.env')
 
     output = host_connect.send_command('docker compose -f ~/tgen.yaml up -d', read_timeout=30)
     print(output)
