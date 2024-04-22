@@ -3,3 +3,4 @@ setup/inventory
 **/*.iml
 *.pyc
 demos/tgen/passwords.py
+~$*
