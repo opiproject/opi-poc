@@ -1,3 +1,5 @@
+# from https://github.com/opiproject/opi-poc/blob/main/lab/ips.md
+
 # DPU HOST 1
 DH1_IP = '172.22.1.1'
 DH1_INTERFACES = ['ens1f0np0', 'ens1f1np1']

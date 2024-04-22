@@ -1,0 +1,69 @@
+[[inputs.gnmi]]
+  ## Address and port of the GNMI GRPC server
+  addresses = ["172.22.1.250:5900"]
+
+  ## credentials
+  username = "arista"
+  password = "arista"
+
+  ## redial in case of failures after
+  redial = "10s"
+
+  [[inputs.gnmi.subscription]]
+    ## Name of the measurement
+    name = "ifcounters"
+
+    origin = "openconfig"
+    path = "/interfaces/interface/state/counters"
+
+    subscription_mode = "sample"
+    sample_interval = "10s"
+
+  [[inputs.gnmi.subscription]]
+    ## Name of the measurement
+    name = "openconfig_bgp"
+
+    origin = "openconfig"
+    path = "/network-instances/network-instance/protocols/protocol/bgp/"
+
+    subscription_mode = "sample"
+    sample_interval = "10s"
+
+[[inputs.gnmi]]
+  ## Address and port of the GNMI GRPC server
+  addresses = ["172.22.1.250:5900"]
+
+  ## credentials
+  username = "arista"
+  password = "arista"
+
+  ## redial in case of failures after
+  redial = "10s"
+
+  [[inputs.gnmi.subscription]]
+    name = "eos_bgp"
+    origin = "eos_native"
+    subscription_mode = "sample"
+    path = "/Sysdb/routing/bgp/export/"
+    sample_interval = "10s"
+
+  [[inputs.gnmi.subscription]]
+    name = "CPU"
+    origin = "eos_native"
+    subscription_mode = "sample"
+    path = "/Kernel/proc/cpu/utilization/total"
+    sample_interval = "10s"
+
+  [[inputs.gnmi.subscription]]
+    name = "RAM"
+    origin = "eos_native"
+    subscription_mode = "sample"
+    path = "/Kernel/proc/meminfo"
+    sample_interval = "10s"
+
+[[outputs.file]]
+  files = ["stdout"]
+  data_format = "influx"
+
+[[outputs.opentelemetry]]
+  service_address = "172.22.0.1:4317"

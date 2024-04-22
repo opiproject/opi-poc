@@ -1,5 +1,15 @@
 # Prepare Server
 
+## Automation
+
+Then run the [playbook](./ansible) to automate all the lab steps:
+
+```bash
+ansible-playbook -i inventory setup.yml
+```
+
+## Manual
+
 * Install Ubuntu[^1] 22.04 x64 on the server. ([ubuntu-22.04.1-live-server-amd64.iso](https://releases.ubuntu.com/22.04/))
   * select all default options (unless otherwise noted bellow)
   * on disk setup: disable LVM (optional)
@@ -97,6 +107,8 @@ yamllint /etc/netplan/00-installer-config.yaml
 * reboot
   * ensure networking is ok
   * this is needed also for the permissions to be update, otherwise next step will fail
+
+## Testing
 
 * clone the `opiproject/testing` repository into your working directory:
 

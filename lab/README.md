@@ -14,6 +14,7 @@
     - [DH1 - DPU Host 1 - Dell R650](./hardware/dh1/README.md)
     - [DH2 - DPU Host 2 - HPE DL360](./hardware/dh2/README.md)
     - [DH3 - DPU Host 3 - HP RL300](./hardware/dh3/README.md)
+    - [DH4 - DPU Host 4 - Dell R760](./hardware/dh4/README.md)
     - [A100G - 100G Switch - Arista DCS-7280CR](./hardware/A100G/README.md)
     - [TGEN1 - Traffic Generator 1 - Supermicro](./hardware/tgen1/README.md)
     - [Cables/Fibers/transceivers](./hardware/cables.md)

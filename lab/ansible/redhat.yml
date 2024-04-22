@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2022 Red Hat
+---
+- name: Red Hat | Install package dependencies
+  dnf:
+    name: podman,podman-docker,podman-plugins,python3-pip,sshpass,git
+    state: present
+
+# docker-compose >=2 does not work with podman currently
+- name: Red Hat | Install docker-compose
+  pip:
+    name: docker-compose>=1.29,<2
+    state: present
+
+- name: Red Hat | Enable podman socket for docker-compose
+  systemd:
+    name: podman.socket
+    state: started

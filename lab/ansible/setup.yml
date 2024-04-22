@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2022 Dell Inc, or its subsidiaries.
+---
+- name: Set up for OPI LAB environment
+  hosts: all
+  become: yes
+  tasks:
+    - import_tasks: debian.yml
+      when: ansible_os_family == 'Debian'
+
+    - import_tasks: redhat.yml
+      when: ansible_os_family == 'RedHat'
+
+    #- import_tasks: suse.yml
+    #  when: ansible_os_family == 'Suse'
+
+    - name: Testing
+      shell: uname -a
+
+    # TODO: copy correct telegraf.conf file per host...
+
+    - name: Run telegraf container
+      community.docker.docker_container:
+        name: telegraf
+        image: docker.io/library/telegraf:1.29
+        state: started
+        restart: true
+        detach: true
+        network_mode: host
+        restart_policy: always
+        mounts:
+          - type: bind
+            source: /root/telegraf.conf
+            target: /etc/telegraf/telegraf.conf
+            read_only: true
+
+- name:
+  hosts: Management
+  become: yes
+  tasks:
+    - name: Run Monitoring OTEL, Prometheus, Grafana
+      community.docker.docker_compose_v2:
+        project_src: /root/opi-poc/lab/otel
+      register: output
+
+- name:
+  hosts: mev
+  become: yes
+  tasks:
+    - name: Install socat
+      ansible.builtin.package:
+        name: socat
+        state: present
+        sslverify: false
+    # TODO: copy socat-otel unit file
+    - name: Enable and Start service socat-otel
+      ansible.builtin.service:
+        name: socat-otel
+        enabled: yes
+        state: started
+

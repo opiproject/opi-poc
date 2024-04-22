@@ -10,14 +10,14 @@ Dell PowerEdge R760
 
 Intel Dayton Peak
 
-* to enable port forwarding for `OTEL` from `ACC` through `IMC`, run manually:
+- to enable port forwarding for `OTEL` from `ACC` through `IMC`, run manually:
 
 ```bash
 dnf install -y socat
 socat tcp-l:4317,fork,reuseaddr tcp:172.22.0.1:4317
 ```
 
-* or via systemctl
+- or via systemctl
 
 ```bash
 systemctl edit  --force --full socat-otel.service
