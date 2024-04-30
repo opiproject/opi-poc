@@ -1,64 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <mlt LC_NUMERIC="en_US.UTF-8" producer="main_bin" root="C:/github-keysight/opi-poc/demos/videos/ipsec/nvidia" version="7.23.0">
  <profile colorspace="709" description="4K UHD 2160p 60 fps" display_aspect_den="9" display_aspect_num="16" frame_rate_den="1" frame_rate_num="60" height="2160" progressive="1" sample_aspect_den="1" sample_aspect_num="1" width="3840"/>
- <chain id="chain2" out="00:02:51.167">
-  <property name="length">10271</property>
-  <property name="eof">pause</property>
-  <property name="resource">C:/github-keysight/opi-poc/demos/videos/ipsec/intel/demo-recording.mkv</property>
-  <property name="mlt_service">avformat-novalidate</property>
-  <property name="meta.media.nb_streams">2</property>
-  <property name="meta.media.0.stream.type">video</property>
-  <property name="meta.media.0.stream.frame_rate">60</property>
-  <property name="meta.media.0.stream.sample_aspect_ratio">0</property>
-  <property name="meta.media.0.codec.width">3840</property>
-  <property name="meta.media.0.codec.height">2160</property>
-  <property name="meta.media.0.codec.rotate">0</property>
-  <property name="meta.media.0.codec.pix_fmt">yuv420p</property>
-  <property name="meta.media.0.codec.sample_aspect_ratio">1</property>
-  <property name="meta.media.0.codec.colorspace">709</property>
-  <property name="meta.media.0.codec.color_trc">1</property>
-  <property name="meta.media.0.codec.name">h264</property>
-  <property name="meta.media.0.codec.long_name">H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10</property>
-  <property name="meta.media.0.codec.bit_rate">0</property>
-  <property name="meta.attr.0.stream.DURATION.markup">00:02:51.184000000</property>
-  <property name="meta.media.1.stream.type">audio</property>
-  <property name="meta.media.1.codec.sample_fmt">fltp</property>
-  <property name="meta.media.1.codec.sample_rate">48000</property>
-  <property name="meta.media.1.codec.channels">2</property>
-  <property name="meta.media.1.codec.layout">stereo</property>
-  <property name="meta.media.1.codec.name">aac</property>
-  <property name="meta.media.1.codec.long_name">AAC (Advanced Audio Coding)</property>
-  <property name="meta.media.1.codec.bit_rate">0</property>
-  <property name="meta.attr.1.stream.title.markup">simple_aac_recording0</property>
-  <property name="meta.attr.1.stream.DURATION.markup">00:02:51.114000000</property>
-  <property name="meta.attr.ENCODER.markup">Lavf60.16.100</property>
-  <property name="seekable">1</property>
-  <property name="meta.media.sample_aspect_num">1</property>
-  <property name="meta.media.sample_aspect_den">1</property>
-  <property name="audio_index">1</property>
-  <property name="video_index">0</property>
-  <property name="vstream">0</property>
-  <property name="meta.media.frame_rate_num">60</property>
-  <property name="meta.media.frame_rate_den">1</property>
-  <property name="meta.media.colorspace">709</property>
-  <property name="meta.media.color_trc">1</property>
-  <property name="meta.media.has_b_frames">2</property>
-  <property name="meta.media.width">3840</property>
-  <property name="meta.media.height">2160</property>
-  <property name="meta.media.aspect_ratio">1</property>
-  <property name="meta.media.color_range">mpeg</property>
-  <property name="astream">0</property>
-  <property name="meta.media.top_field_first">0</property>
-  <property name="meta.media.progressive">1</property>
-  <property name="kdenlive:folderid">-1</property>
-  <property name="kdenlive:id">7</property>
-  <property name="mute_on_pause">0</property>
-  <property name="kdenlive:clip_type">0</property>
-  <property name="kdenlive:file_size">23079547</property>
-  <property name="kdenlive:file_hash">5a7b169092467df4d099c2de8bfa46a7</property>
-  <property name="kdenlive:audio_max1">0</property>
-  <property name="kdenlive:monitorPosition">0</property>
- </chain>
  <producer id="producer4" in="00:00:00.000" out="00:01:17.183">
   <property name="length">4632</property>
   <property name="eof">pause</property>
@@ -91,7 +33,7 @@ OPI test script&lt;/content>
 </property>
   <property name="xml">was here</property>
   <property name="kdenlive:folderid">-1</property>
-  <property name="kdenlive:id">8</property>
+  <property name="kdenlive:id">5</property>
   <property name="kdenlive:clip_type">2</property>
   <property name="kdenlive:uniqueId">{316ce492-c463-4def-9b78-c01cbd3a775e}</property>
   <property name="kdenlive:file_hash">ef52fc282b49c9a3b03d5f9f252a9a92</property>
@@ -99,6 +41,90 @@ OPI test script&lt;/content>
   <property name="meta.media.width">3840</property>
   <property name="meta.media.height">2160</property>
   <property name="kdenlive:monitorPosition">1633</property>
+ </producer>
+ <producer id="producer2" in="00:00:00.000" out="00:00:04.983">
+  <property name="length">00:00:05.000</property>
+  <property name="eof">pause</property>
+  <property name="resource">pptexport/Slide4.PNG</property>
+  <property name="ttl">25</property>
+  <property name="aspect_ratio">1</property>
+  <property name="meta.media.progressive">1</property>
+  <property name="seekable">1</property>
+  <property name="format">1</property>
+  <property name="meta.media.width">4000</property>
+  <property name="meta.media.height">2250</property>
+  <property name="mlt_service">qimage</property>
+  <property name="kdenlive:duration">00:00:05:00</property>
+  <property name="xml">was here</property>
+  <property name="kdenlive:folderid">-1</property>
+  <property name="kdenlive:id">6</property>
+  <property name="kdenlive:clip_type">2</property>
+  <property name="kdenlive:file_size">351186</property>
+  <property name="kdenlive:file_hash">ce97751b2b78dfc449a40aa1c235edca</property>
+  <property name="kdenlive:monitorPosition">0</property>
+ </producer>
+ <producer id="producer3" in="00:00:00.000" out="00:00:04.983">
+  <property name="length">00:00:05.000</property>
+  <property name="eof">pause</property>
+  <property name="resource">pptexport/Slide1.PNG</property>
+  <property name="ttl">25</property>
+  <property name="aspect_ratio">1</property>
+  <property name="meta.media.progressive">1</property>
+  <property name="seekable">1</property>
+  <property name="format">1</property>
+  <property name="meta.media.width">4000</property>
+  <property name="meta.media.height">2250</property>
+  <property name="mlt_service">qimage</property>
+  <property name="kdenlive:duration">00:00:05:00</property>
+  <property name="xml">was here</property>
+  <property name="kdenlive:folderid">-1</property>
+  <property name="kdenlive:id">7</property>
+  <property name="kdenlive:clip_type">2</property>
+  <property name="kdenlive:file_size">1027689</property>
+  <property name="kdenlive:file_hash">e6aec0822cd1149047dd3f471e82f5f9</property>
+  <property name="kdenlive:monitorPosition">1</property>
+ </producer>
+ <producer id="producer1" in="00:00:00.000" out="00:00:04.983">
+  <property name="length">00:00:05.000</property>
+  <property name="eof">pause</property>
+  <property name="resource">pptexport/Slide2.PNG</property>
+  <property name="ttl">25</property>
+  <property name="aspect_ratio">1</property>
+  <property name="meta.media.progressive">1</property>
+  <property name="seekable">1</property>
+  <property name="format">1</property>
+  <property name="meta.media.width">4000</property>
+  <property name="meta.media.height">2250</property>
+  <property name="mlt_service">qimage</property>
+  <property name="kdenlive:duration">00:00:05:00</property>
+  <property name="xml">was here</property>
+  <property name="kdenlive:folderid">-1</property>
+  <property name="kdenlive:id">8</property>
+  <property name="kdenlive:clip_type">2</property>
+  <property name="kdenlive:file_size">4959077</property>
+  <property name="kdenlive:monitorPosition">0</property>
+  <property name="kdenlive:file_hash">9d0f50a2098acdbbfcb694143219b65d</property>
+ </producer>
+ <producer id="producer5" in="00:00:00.000" out="00:00:04.983">
+  <property name="length">00:00:05.000</property>
+  <property name="eof">pause</property>
+  <property name="resource">pptexport/Slide3.PNG</property>
+  <property name="ttl">25</property>
+  <property name="aspect_ratio">1</property>
+  <property name="meta.media.progressive">1</property>
+  <property name="seekable">1</property>
+  <property name="format">1</property>
+  <property name="meta.media.width">4000</property>
+  <property name="meta.media.height">2250</property>
+  <property name="mlt_service">qimage</property>
+  <property name="kdenlive:duration">00:00:05:00</property>
+  <property name="xml">was here</property>
+  <property name="kdenlive:folderid">-1</property>
+  <property name="kdenlive:id">9</property>
+  <property name="kdenlive:clip_type">2</property>
+  <property name="kdenlive:file_size">1450969</property>
+  <property name="kdenlive:monitorPosition">0</property>
+  <property name="kdenlive:file_hash">208e64a06b9e035106948cb710e969ef</property>
  </producer>
  <producer id="producer0" in="00:00:00.000" out="00:09:55.000">
   <property name="length">2147483647</property>
@@ -146,10 +172,10 @@ OPI test script&lt;/content>
    <property name="disable">1</property>
   </filter>
  </tractor>
- <chain id="chain0" out="00:02:51.167">
-  <property name="length">10271</property>
+ <chain id="chain0" out="00:02:27.633">
+  <property name="length">8859</property>
   <property name="eof">pause</property>
-  <property name="resource">C:/github-keysight/opi-poc/demos/videos/ipsec/intel/demo-recording.mkv</property>
+  <property name="resource">demo-recording.mkv</property>
   <property name="mlt_service">avformat-novalidate</property>
   <property name="seekable">1</property>
   <property name="audio_index">1</property>
@@ -157,13 +183,12 @@ OPI test script&lt;/content>
   <property name="vstream">0</property>
   <property name="astream">0</property>
   <property name="kdenlive:folderid">-1</property>
-  <property name="kdenlive:id">7</property>
+  <property name="kdenlive:id">10</property>
   <property name="mute_on_pause">0</property>
   <property name="kdenlive:clip_type">0</property>
-  <property name="kdenlive:file_size">23079547</property>
-  <property name="kdenlive:file_hash">5a7b169092467df4d099c2de8bfa46a7</property>
+  <property name="kdenlive:file_size">34837850</property>
+  <property name="kdenlive:file_hash">0e652a3c079034d8eae1f3ead6b25d38</property>
   <property name="kdenlive:audio_max1">0</property>
-  <property name="kdenlive:monitorPosition">0</property>
   <property name="meta.media.nb_streams">2</property>
   <property name="meta.media.0.stream.type">video</property>
   <property name="meta.media.0.stream.frame_rate">60</property>
@@ -175,10 +200,10 @@ OPI test script&lt;/content>
   <property name="meta.media.0.codec.sample_aspect_ratio">1</property>
   <property name="meta.media.0.codec.colorspace">709</property>
   <property name="meta.media.0.codec.color_trc">1</property>
-  <property name="meta.media.0.codec.name">h264</property>
-  <property name="meta.media.0.codec.long_name">H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10</property>
+  <property name="meta.media.0.codec.name">hevc</property>
+  <property name="meta.media.0.codec.long_name">HEVC (High Efficiency Video Coding)</property>
   <property name="meta.media.0.codec.bit_rate">0</property>
-  <property name="meta.attr.0.stream.DURATION.markup">00:02:51.184000000</property>
+  <property name="meta.attr.0.stream.DURATION.markup">00:02:27.650000000</property>
   <property name="meta.media.1.stream.type">audio</property>
   <property name="meta.media.1.codec.sample_fmt">fltp</property>
   <property name="meta.media.1.codec.sample_rate">48000</property>
@@ -188,7 +213,7 @@ OPI test script&lt;/content>
   <property name="meta.media.1.codec.long_name">AAC (Advanced Audio Coding)</property>
   <property name="meta.media.1.codec.bit_rate">0</property>
   <property name="meta.attr.1.stream.title.markup">simple_aac_recording0</property>
-  <property name="meta.attr.1.stream.DURATION.markup">00:02:51.114000000</property>
+  <property name="meta.attr.1.stream.DURATION.markup">00:02:27.584000000</property>
   <property name="meta.attr.ENCODER.markup">Lavf60.16.100</property>
   <property name="meta.media.sample_aspect_num">1</property>
   <property name="meta.media.sample_aspect_den">1</property>
@@ -210,17 +235,20 @@ OPI test script&lt;/content>
  <playlist id="playlist2">
   <property name="kdenlive:audio_track">1</property>
   <blank length="00:00:20.000"/>
-  <entry in="00:00:09.383" out="00:00:21.983" producer="chain0">
-   <property name="kdenlive:id">7</property>
+  <entry in="00:00:09.017" out="00:00:21.133" producer="chain0">
+   <property name="kdenlive:id">10</property>
   </entry>
-  <entry in="00:00:48.267" out="00:01:02.967" producer="chain0">
-   <property name="kdenlive:id">7</property>
+  <entry in="00:00:49.667" out="00:00:56.750" producer="chain0">
+   <property name="kdenlive:id">10</property>
   </entry>
-  <entry in="00:01:23.050" out="00:01:47.083" producer="chain0">
-   <property name="kdenlive:id">7</property>
+  <entry in="00:01:08.500" out="00:01:17.733" producer="chain0">
+   <property name="kdenlive:id">10</property>
   </entry>
-  <entry in="00:02:11.650" out="00:02:35.250" producer="chain0">
-   <property name="kdenlive:id">7</property>
+  <entry in="00:01:20.200" out="00:01:47.667" producer="chain0">
+   <property name="kdenlive:id">10</property>
+  </entry>
+  <entry in="00:01:59.583" out="00:02:18.600" producer="chain0">
+   <property name="kdenlive:id">10</property>
   </entry>
  </playlist>
  <playlist id="playlist3">
@@ -256,52 +284,10 @@ OPI test script&lt;/content>
    <property name="disable">1</property>
   </filter>
  </tractor>
- <producer id="producer1" in="00:00:00.000" out="00:00:04.983">
-  <property name="length">00:00:05.000</property>
+ <chain id="chain1" out="00:02:27.633">
+  <property name="length">8859</property>
   <property name="eof">pause</property>
-  <property name="resource">pptexport/Slide2.PNG</property>
-  <property name="ttl">25</property>
-  <property name="aspect_ratio">1</property>
-  <property name="meta.media.progressive">1</property>
-  <property name="seekable">1</property>
-  <property name="format">1</property>
-  <property name="meta.media.width">4000</property>
-  <property name="meta.media.height">2250</property>
-  <property name="mlt_service">qimage</property>
-  <property name="kdenlive:duration">00:00:05:00</property>
-  <property name="xml">was here</property>
-  <property name="kdenlive:folderid">-1</property>
-  <property name="kdenlive:id">14</property>
-  <property name="kdenlive:clip_type">2</property>
-  <property name="kdenlive:file_size">2424325</property>
-  <property name="kdenlive:file_hash">9e6f9760944856b7add41a10fcd27968</property>
-  <property name="kdenlive:monitorPosition">0</property>
- </producer>
- <producer id="producer2" in="00:00:00.000" out="00:00:04.983">
-  <property name="length">00:00:05.000</property>
-  <property name="eof">pause</property>
-  <property name="resource">pptexport/Slide4.PNG</property>
-  <property name="ttl">25</property>
-  <property name="aspect_ratio">1</property>
-  <property name="meta.media.progressive">1</property>
-  <property name="seekable">1</property>
-  <property name="format">1</property>
-  <property name="meta.media.width">4000</property>
-  <property name="meta.media.height">2250</property>
-  <property name="mlt_service">qimage</property>
-  <property name="kdenlive:duration">00:00:05:00</property>
-  <property name="xml">was here</property>
-  <property name="kdenlive:folderid">-1</property>
-  <property name="kdenlive:id">12</property>
-  <property name="kdenlive:clip_type">2</property>
-  <property name="kdenlive:file_size">351186</property>
-  <property name="kdenlive:file_hash">ce97751b2b78dfc449a40aa1c235edca</property>
-  <property name="kdenlive:monitorPosition">0</property>
- </producer>
- <chain id="chain1" out="00:02:51.167">
-  <property name="length">10271</property>
-  <property name="eof">pause</property>
-  <property name="resource">C:/github-keysight/opi-poc/demos/videos/ipsec/intel/demo-recording.mkv</property>
+  <property name="resource">demo-recording.mkv</property>
   <property name="mlt_service">avformat-novalidate</property>
   <property name="seekable">1</property>
   <property name="audio_index">1</property>
@@ -309,13 +295,12 @@ OPI test script&lt;/content>
   <property name="vstream">0</property>
   <property name="astream">0</property>
   <property name="kdenlive:folderid">-1</property>
-  <property name="kdenlive:id">7</property>
+  <property name="kdenlive:id">10</property>
   <property name="mute_on_pause">0</property>
   <property name="kdenlive:clip_type">0</property>
-  <property name="kdenlive:file_size">23079547</property>
-  <property name="kdenlive:file_hash">5a7b169092467df4d099c2de8bfa46a7</property>
+  <property name="kdenlive:file_size">34837850</property>
+  <property name="kdenlive:file_hash">0e652a3c079034d8eae1f3ead6b25d38</property>
   <property name="kdenlive:audio_max1">0</property>
-  <property name="kdenlive:monitorPosition">0</property>
   <property name="meta.media.nb_streams">2</property>
   <property name="meta.media.0.stream.type">video</property>
   <property name="meta.media.0.stream.frame_rate">60</property>
@@ -327,10 +312,10 @@ OPI test script&lt;/content>
   <property name="meta.media.0.codec.sample_aspect_ratio">1</property>
   <property name="meta.media.0.codec.colorspace">709</property>
   <property name="meta.media.0.codec.color_trc">1</property>
-  <property name="meta.media.0.codec.name">h264</property>
-  <property name="meta.media.0.codec.long_name">H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10</property>
+  <property name="meta.media.0.codec.name">hevc</property>
+  <property name="meta.media.0.codec.long_name">HEVC (High Efficiency Video Coding)</property>
   <property name="meta.media.0.codec.bit_rate">0</property>
-  <property name="meta.attr.0.stream.DURATION.markup">00:02:51.184000000</property>
+  <property name="meta.attr.0.stream.DURATION.markup">00:02:27.650000000</property>
   <property name="meta.media.1.stream.type">audio</property>
   <property name="meta.media.1.codec.sample_fmt">fltp</property>
   <property name="meta.media.1.codec.sample_rate">48000</property>
@@ -340,7 +325,7 @@ OPI test script&lt;/content>
   <property name="meta.media.1.codec.long_name">AAC (Advanced Audio Coding)</property>
   <property name="meta.media.1.codec.bit_rate">0</property>
   <property name="meta.attr.1.stream.title.markup">simple_aac_recording0</property>
-  <property name="meta.attr.1.stream.DURATION.markup">00:02:51.114000000</property>
+  <property name="meta.attr.1.stream.DURATION.markup">00:02:27.584000000</property>
   <property name="meta.attr.ENCODER.markup">Lavf60.16.100</property>
   <property name="meta.media.sample_aspect_num">1</property>
   <property name="meta.media.sample_aspect_den">1</property>
@@ -362,23 +347,26 @@ OPI test script&lt;/content>
  <playlist id="playlist4">
   <blank length="00:00:05.000"/>
   <entry in="00:00:00.000" out="00:00:04.983" producer="producer1">
-   <property name="kdenlive:id">14</property>
+   <property name="kdenlive:id">8</property>
   </entry>
   <blank length="00:00:05.000"/>
   <entry in="00:00:00.000" out="00:00:04.983" producer="producer2">
-   <property name="kdenlive:id">12</property>
+   <property name="kdenlive:id">6</property>
   </entry>
-  <entry in="00:00:09.383" out="00:00:21.983" producer="chain1">
-   <property name="kdenlive:id">7</property>
+  <entry in="00:00:09.017" out="00:00:21.133" producer="chain1">
+   <property name="kdenlive:id">10</property>
   </entry>
-  <entry in="00:00:48.267" out="00:01:02.967" producer="chain1">
-   <property name="kdenlive:id">7</property>
+  <entry in="00:00:49.667" out="00:00:56.750" producer="chain1">
+   <property name="kdenlive:id">10</property>
   </entry>
-  <entry in="00:01:23.050" out="00:01:47.083" producer="chain1">
-   <property name="kdenlive:id">7</property>
+  <entry in="00:01:08.500" out="00:01:17.733" producer="chain1">
+   <property name="kdenlive:id">10</property>
   </entry>
-  <entry in="00:02:11.650" out="00:02:35.250" producer="chain1">
-   <property name="kdenlive:id">7</property>
+  <entry in="00:01:20.200" out="00:01:47.667" producer="chain1">
+   <property name="kdenlive:id">10</property>
+  </entry>
+  <entry in="00:01:59.583" out="00:02:18.600" producer="chain1">
+   <property name="kdenlive:id">10</property>
   </entry>
  </playlist>
  <playlist id="playlist5"/>
@@ -391,59 +379,17 @@ OPI test script&lt;/content>
   <track hide="audio" producer="playlist4"/>
   <track hide="audio" producer="playlist5"/>
  </tractor>
- <producer id="producer3" in="00:00:00.000" out="00:00:04.983">
-  <property name="length">00:00:05.000</property>
-  <property name="eof">pause</property>
-  <property name="resource">pptexport/Slide1.PNG</property>
-  <property name="ttl">25</property>
-  <property name="aspect_ratio">1</property>
-  <property name="meta.media.progressive">1</property>
-  <property name="seekable">1</property>
-  <property name="format">1</property>
-  <property name="meta.media.width">4000</property>
-  <property name="meta.media.height">2250</property>
-  <property name="mlt_service">qimage</property>
-  <property name="kdenlive:duration">00:00:05:00</property>
-  <property name="xml">was here</property>
-  <property name="kdenlive:folderid">-1</property>
-  <property name="kdenlive:id">13</property>
-  <property name="kdenlive:clip_type">2</property>
-  <property name="kdenlive:file_size">1027689</property>
-  <property name="kdenlive:file_hash">e6aec0822cd1149047dd3f471e82f5f9</property>
-  <property name="kdenlive:monitorPosition">0</property>
- </producer>
- <producer id="producer5" in="00:00:00.000" out="00:00:04.983">
-  <property name="length">00:00:05.000</property>
-  <property name="eof">pause</property>
-  <property name="resource">pptexport/Slide3.PNG</property>
-  <property name="ttl">25</property>
-  <property name="aspect_ratio">1</property>
-  <property name="meta.media.progressive">1</property>
-  <property name="seekable">1</property>
-  <property name="format">1</property>
-  <property name="meta.media.width">4000</property>
-  <property name="meta.media.height">2250</property>
-  <property name="mlt_service">qimage</property>
-  <property name="kdenlive:duration">00:00:05:00</property>
-  <property name="xml">was here</property>
-  <property name="kdenlive:folderid">-1</property>
-  <property name="kdenlive:id">15</property>
-  <property name="kdenlive:clip_type">2</property>
-  <property name="kdenlive:file_size">1010423</property>
-  <property name="kdenlive:file_hash">666d67137e4996495298f6e5554989c5</property>
-  <property name="kdenlive:monitorPosition">0</property>
- </producer>
  <playlist id="playlist6">
   <entry in="00:00:00.000" out="00:00:04.983" producer="producer3">
-   <property name="kdenlive:id">13</property>
+   <property name="kdenlive:id">7</property>
   </entry>
   <blank length="00:00:05.000"/>
   <entry in="00:00:00.000" out="00:00:04.983" producer="producer5">
-   <property name="kdenlive:id">15</property>
+   <property name="kdenlive:id">9</property>
   </entry>
   <blank length="00:00:05.000"/>
   <entry in="00:00:00.000" out="00:01:14.983" producer="producer4">
-   <property name="kdenlive:id">8</property>
+   <property name="kdenlive:id">5</property>
   </entry>
  </playlist>
  <playlist id="playlist7"/>
@@ -467,13 +413,13 @@ OPI test script&lt;/content>
   <property name="kdenlive:clip_type">0</property>
   <property name="kdenlive:file_hash">eb2c739ab1e52463e16ae6b0623e1113</property>
   <property name="kdenlive:folderid">2</property>
-  <property name="kdenlive:sequenceproperties.activeTrack">2</property>
+  <property name="kdenlive:sequenceproperties.activeTrack">1</property>
   <property name="kdenlive:sequenceproperties.audioTarget">1</property>
   <property name="kdenlive:sequenceproperties.disablepreview">0</property>
   <property name="kdenlive:sequenceproperties.documentuuid">{76b5250c-b9e5-4efd-99e7-5b23a4fc45a8}</property>
   <property name="kdenlive:sequenceproperties.hasAudio">1</property>
   <property name="kdenlive:sequenceproperties.hasVideo">1</property>
-  <property name="kdenlive:sequenceproperties.position">1450</property>
+  <property name="kdenlive:sequenceproperties.position">5673</property>
   <property name="kdenlive:sequenceproperties.scrollPos">0</property>
   <property name="kdenlive:sequenceproperties.tracks">4</property>
   <property name="kdenlive:sequenceproperties.tracksCount">4</property>
@@ -481,32 +427,32 @@ OPI test script&lt;/content>
   <property name="kdenlive:sequenceproperties.videoTarget">2</property>
   <property name="kdenlive:sequenceproperties.zonein">0</property>
   <property name="kdenlive:sequenceproperties.zoneout">75</property>
-  <property name="kdenlive:sequenceproperties.zoom">10</property>
+  <property name="kdenlive:sequenceproperties.zoom">11</property>
   <property name="kdenlive:sequenceproperties.groups">[
     {
         "children": [
             {
-                "data": "1:1200",
+                "data": "2:4558",
                 "leaf": "clip",
                 "type": "Leaf"
             },
+            {
+                "data": "1:4558",
+                "leaf": "clip",
+                "type": "Leaf"
+            }
+        ],
+        "type": "AVSplit"
+    },
+    {
+        "children": [
             {
                 "data": "2:1200",
                 "leaf": "clip",
                 "type": "Leaf"
-            }
-        ],
-        "type": "AVSplit"
-    },
-    {
-        "children": [
-            {
-                "data": "1:1957",
-                "leaf": "clip",
-                "type": "Leaf"
             },
             {
-                "data": "2:1957",
+                "data": "1:1200",
                 "leaf": "clip",
                 "type": "Leaf"
             }
@@ -516,12 +462,12 @@ OPI test script&lt;/content>
     {
         "children": [
             {
-                "data": "1:2840",
+                "data": "2:2354",
                 "leaf": "clip",
                 "type": "Leaf"
             },
             {
-                "data": "2:2840",
+                "data": "1:2354",
                 "leaf": "clip",
                 "type": "Leaf"
             }
@@ -531,12 +477,27 @@ OPI test script&lt;/content>
     {
         "children": [
             {
-                "data": "1:4283",
+                "data": "1:2909",
                 "leaf": "clip",
                 "type": "Leaf"
             },
             {
-                "data": "2:4283",
+                "data": "2:2909",
+                "leaf": "clip",
+                "type": "Leaf"
+            }
+        ],
+        "type": "AVSplit"
+    },
+    {
+        "children": [
+            {
+                "data": "1:1928",
+                "leaf": "clip",
+                "type": "Leaf"
+            },
+            {
+                "data": "2:1928",
                 "leaf": "clip",
                 "type": "Leaf"
             }
@@ -604,6 +565,64 @@ OPI test script&lt;/content>
    <property name="disable">1</property>
   </filter>
  </tractor>
+ <chain id="chain2" out="00:02:27.633">
+  <property name="length">8859</property>
+  <property name="eof">pause</property>
+  <property name="resource">demo-recording.mkv</property>
+  <property name="mlt_service">avformat-novalidate</property>
+  <property name="meta.media.nb_streams">2</property>
+  <property name="meta.media.0.stream.type">video</property>
+  <property name="meta.media.0.stream.frame_rate">60</property>
+  <property name="meta.media.0.stream.sample_aspect_ratio">0</property>
+  <property name="meta.media.0.codec.width">3840</property>
+  <property name="meta.media.0.codec.height">2160</property>
+  <property name="meta.media.0.codec.rotate">0</property>
+  <property name="meta.media.0.codec.pix_fmt">yuv420p</property>
+  <property name="meta.media.0.codec.sample_aspect_ratio">1</property>
+  <property name="meta.media.0.codec.colorspace">709</property>
+  <property name="meta.media.0.codec.color_trc">1</property>
+  <property name="meta.media.0.codec.name">hevc</property>
+  <property name="meta.media.0.codec.long_name">HEVC (High Efficiency Video Coding)</property>
+  <property name="meta.media.0.codec.bit_rate">0</property>
+  <property name="meta.attr.0.stream.DURATION.markup">00:02:27.650000000</property>
+  <property name="meta.media.1.stream.type">audio</property>
+  <property name="meta.media.1.codec.sample_fmt">fltp</property>
+  <property name="meta.media.1.codec.sample_rate">48000</property>
+  <property name="meta.media.1.codec.channels">2</property>
+  <property name="meta.media.1.codec.layout">stereo</property>
+  <property name="meta.media.1.codec.name">aac</property>
+  <property name="meta.media.1.codec.long_name">AAC (Advanced Audio Coding)</property>
+  <property name="meta.media.1.codec.bit_rate">0</property>
+  <property name="meta.attr.1.stream.title.markup">simple_aac_recording0</property>
+  <property name="meta.attr.1.stream.DURATION.markup">00:02:27.584000000</property>
+  <property name="meta.attr.ENCODER.markup">Lavf60.16.100</property>
+  <property name="seekable">1</property>
+  <property name="meta.media.sample_aspect_num">1</property>
+  <property name="meta.media.sample_aspect_den">1</property>
+  <property name="audio_index">1</property>
+  <property name="video_index">0</property>
+  <property name="vstream">0</property>
+  <property name="meta.media.frame_rate_num">60</property>
+  <property name="meta.media.frame_rate_den">1</property>
+  <property name="meta.media.colorspace">709</property>
+  <property name="meta.media.color_trc">1</property>
+  <property name="meta.media.has_b_frames">2</property>
+  <property name="meta.media.width">3840</property>
+  <property name="meta.media.height">2160</property>
+  <property name="meta.media.aspect_ratio">1</property>
+  <property name="meta.media.color_range">mpeg</property>
+  <property name="astream">0</property>
+  <property name="meta.media.top_field_first">0</property>
+  <property name="meta.media.progressive">1</property>
+  <property name="kdenlive:folderid">-1</property>
+  <property name="kdenlive:id">10</property>
+  <property name="mute_on_pause">0</property>
+  <property name="kdenlive:clip_type">0</property>
+  <property name="kdenlive:file_size">34837850</property>
+  <property name="kdenlive:file_hash">0e652a3c079034d8eae1f3ead6b25d38</property>
+  <property name="kdenlive:audio_max1">0</property>
+  <property name="kdenlive:monitorPosition">0</property>
+ </chain>
  <playlist id="main_bin">
   <property name="kdenlive:folder.-1.2">Sequences</property>
   <property name="kdenlive:sequenceFolder">2</property>
@@ -678,7 +697,7 @@ OPI test script&lt;/content>
   <property name="kdenlive:docproperties.proxyminsize">1000</property>
   <property name="kdenlive:docproperties.proxyparams"/>
   <property name="kdenlive:docproperties.proxyresize">640</property>
-  <property name="kdenlive:docproperties.rendercategory">Ultra-High Definition (4K)</property>
+  <property name="kdenlive:docproperties.rendercategory">Generic (HD for web, mobile devices...)</property>
   <property name="kdenlive:docproperties.rendercustomquality">-1</property>
   <property name="kdenlive:docproperties.renderendguide">-1</property>
   <property name="kdenlive:docproperties.renderexportaudio">0</property>
@@ -686,7 +705,7 @@ OPI test script&lt;/content>
   <property name="kdenlive:docproperties.rendermode">0</property>
   <property name="kdenlive:docproperties.renderplay">0</property>
   <property name="kdenlive:docproperties.renderpreview">0</property>
-  <property name="kdenlive:docproperties.renderprofile">MP4-H265 (HEVC)</property>
+  <property name="kdenlive:docproperties.renderprofile">MP4-H264/AAC</property>
   <property name="kdenlive:docproperties.renderrescale">0</property>
   <property name="kdenlive:docproperties.renderrescaleheight">1080</property>
   <property name="kdenlive:docproperties.renderrescalewidth">1920</property>
@@ -695,7 +714,7 @@ OPI test script&lt;/content>
   <property name="kdenlive:docproperties.rendertcoverlay">0</property>
   <property name="kdenlive:docproperties.rendertctype">-1</property>
   <property name="kdenlive:docproperties.rendertwopass">0</property>
-  <property name="kdenlive:docproperties.renderurl">opi-demo-ipsec-nvidia.mp4</property>
+  <property name="kdenlive:docproperties.renderurl">opi-demo-ipsec-nvidia.h264.mp4</property>
   <property name="kdenlive:docproperties.seekOffset">30000</property>
   <property name="kdenlive:docproperties.uuid">{76b5250c-b9e5-4efd-99e7-5b23a4fc45a8}</property>
   <property name="kdenlive:docproperties.version">1.1</property>
@@ -707,13 +726,13 @@ OPI test script&lt;/content>
   <property name="kdenlive:binZoom">4</property>
   <property name="kdenlive:documentnotes"/>
   <property name="xml_retain">1</property>
-  <entry in="00:00:00.000" out="00:02:51.167" producer="chain2"/>
   <entry in="00:00:00.000" out="00:01:17.183" producer="producer4"/>
-  <entry in="00:00:00.000" out="00:01:29.983" producer="tractor4"/>
   <entry in="00:00:00.000" out="00:00:04.983" producer="producer2"/>
   <entry in="00:00:00.000" out="00:00:04.983" producer="producer3"/>
   <entry in="00:00:00.000" out="00:00:04.983" producer="producer1"/>
   <entry in="00:00:00.000" out="00:00:04.983" producer="producer5"/>
+  <entry in="00:00:00.000" out="00:01:34.983" producer="tractor4"/>
+  <entry in="00:00:00.000" out="00:02:27.633" producer="chain2"/>
  </playlist>
  <tractor id="tractor5" in="00:00:00.000" out="00:01:34.983">
   <property name="kdenlive:projectTractor">1</property>
