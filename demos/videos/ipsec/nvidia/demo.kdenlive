@@ -706,7 +706,7 @@ OPI test script&lt;/content>
   <property name="kdenlive:docproperties.renderplay">0</property>
   <property name="kdenlive:docproperties.renderpreview">0</property>
   <property name="kdenlive:docproperties.renderprofile">MP4-H264/AAC</property>
-  <property name="kdenlive:docproperties.renderrescale">0</property>
+  <property name="kdenlive:docproperties.renderrescale">1</property>
   <property name="kdenlive:docproperties.renderrescaleheight">1080</property>
   <property name="kdenlive:docproperties.renderrescalewidth">1920</property>
   <property name="kdenlive:docproperties.renderspeed">6</property>
@@ -714,7 +714,7 @@ OPI test script&lt;/content>
   <property name="kdenlive:docproperties.rendertcoverlay">0</property>
   <property name="kdenlive:docproperties.rendertctype">-1</property>
   <property name="kdenlive:docproperties.rendertwopass">0</property>
-  <property name="kdenlive:docproperties.renderurl">opi-demo-ipsec-nvidia.h264.mp4</property>
+  <property name="kdenlive:docproperties.renderurl">opi-demo-ipsec-nvidia.1080p.h264.mp4</property>
   <property name="kdenlive:docproperties.seekOffset">30000</property>
   <property name="kdenlive:docproperties.uuid">{76b5250c-b9e5-4efd-99e7-5b23a4fc45a8}</property>
   <property name="kdenlive:docproperties.version">1.1</property>

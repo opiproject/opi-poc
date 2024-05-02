@@ -100,6 +100,90 @@ OPI test script&lt;/content>
   <property name="meta.media.height">2160</property>
   <property name="kdenlive:monitorPosition">4498</property>
  </producer>
+ <producer id="producer2" in="00:00:00.000" out="00:00:04.983">
+  <property name="length">00:00:05.000</property>
+  <property name="eof">pause</property>
+  <property name="resource">pptexport/Slide4.PNG</property>
+  <property name="ttl">25</property>
+  <property name="aspect_ratio">1</property>
+  <property name="meta.media.progressive">1</property>
+  <property name="seekable">1</property>
+  <property name="format">1</property>
+  <property name="meta.media.width">4000</property>
+  <property name="meta.media.height">2250</property>
+  <property name="mlt_service">qimage</property>
+  <property name="kdenlive:duration">00:00:05.000</property>
+  <property name="xml">was here</property>
+  <property name="kdenlive:folderid">-1</property>
+  <property name="kdenlive:id">6</property>
+  <property name="kdenlive:clip_type">2</property>
+  <property name="kdenlive:file_size">346979</property>
+  <property name="kdenlive:file_hash">fd70c7a97e8f593b413b283c15be1f61</property>
+  <property name="kdenlive:monitorPosition">79</property>
+ </producer>
+ <producer id="producer3" in="00:00:00.000" out="00:00:04.983">
+  <property name="length">00:00:05.000</property>
+  <property name="eof">pause</property>
+  <property name="resource">pptexport/Slide1.PNG</property>
+  <property name="ttl">25</property>
+  <property name="aspect_ratio">1</property>
+  <property name="meta.media.progressive">1</property>
+  <property name="seekable">1</property>
+  <property name="format">1</property>
+  <property name="meta.media.width">4000</property>
+  <property name="meta.media.height">2250</property>
+  <property name="mlt_service">qimage</property>
+  <property name="kdenlive:duration">00:00:05.000</property>
+  <property name="xml">was here</property>
+  <property name="kdenlive:folderid">-1</property>
+  <property name="kdenlive:id">7</property>
+  <property name="kdenlive:clip_type">2</property>
+  <property name="kdenlive:file_size">1027689</property>
+  <property name="kdenlive:file_hash">e6aec0822cd1149047dd3f471e82f5f9</property>
+  <property name="kdenlive:monitorPosition">1</property>
+ </producer>
+ <producer id="producer1" in="00:00:00.000" out="00:00:04.983">
+  <property name="length">00:00:05.000</property>
+  <property name="eof">pause</property>
+  <property name="resource">pptexport/Slide2.PNG</property>
+  <property name="ttl">25</property>
+  <property name="aspect_ratio">1</property>
+  <property name="meta.media.progressive">1</property>
+  <property name="seekable">1</property>
+  <property name="format">1</property>
+  <property name="meta.media.width">4000</property>
+  <property name="meta.media.height">2250</property>
+  <property name="mlt_service">qimage</property>
+  <property name="kdenlive:duration">00:00:05.000</property>
+  <property name="xml">was here</property>
+  <property name="kdenlive:folderid">-1</property>
+  <property name="kdenlive:id">8</property>
+  <property name="kdenlive:clip_type">2</property>
+  <property name="kdenlive:file_size">4962956</property>
+  <property name="kdenlive:file_hash">8ff661fb0fa71ffe34b0a7949bafd8db</property>
+  <property name="kdenlive:monitorPosition">0</property>
+ </producer>
+ <producer id="producer4" in="00:00:00.000" out="00:00:04.983">
+  <property name="length">00:00:05.000</property>
+  <property name="eof">pause</property>
+  <property name="resource">pptexport/Slide3.PNG</property>
+  <property name="ttl">25</property>
+  <property name="aspect_ratio">1</property>
+  <property name="meta.media.progressive">1</property>
+  <property name="seekable">1</property>
+  <property name="format">1</property>
+  <property name="meta.media.width">4000</property>
+  <property name="meta.media.height">2250</property>
+  <property name="mlt_service">qimage</property>
+  <property name="kdenlive:duration">00:00:05.000</property>
+  <property name="xml">was here</property>
+  <property name="kdenlive:folderid">-1</property>
+  <property name="kdenlive:id">9</property>
+  <property name="kdenlive:clip_type">2</property>
+  <property name="kdenlive:file_size">2085230</property>
+  <property name="kdenlive:file_hash">6de395d2a62715a9e68d80b05bcce8a8</property>
+  <property name="kdenlive:monitorPosition">0</property>
+ </producer>
  <producer id="producer0" in="00:00:00.000" out="00:09:55.000">
   <property name="length">2147483647</property>
   <property name="eof">continue</property>
@@ -256,48 +340,6 @@ OPI test script&lt;/content>
    <property name="disable">1</property>
   </filter>
  </tractor>
- <producer id="producer1" in="00:00:00.000" out="00:00:04.983">
-  <property name="length">00:00:05.000</property>
-  <property name="eof">pause</property>
-  <property name="resource">pptexport/Slide2.PNG</property>
-  <property name="ttl">25</property>
-  <property name="aspect_ratio">1</property>
-  <property name="meta.media.progressive">1</property>
-  <property name="seekable">1</property>
-  <property name="format">1</property>
-  <property name="meta.media.width">4000</property>
-  <property name="meta.media.height">2250</property>
-  <property name="mlt_service">qimage</property>
-  <property name="kdenlive:duration">00:00:05.000</property>
-  <property name="xml">was here</property>
-  <property name="kdenlive:folderid">-1</property>
-  <property name="kdenlive:id">8</property>
-  <property name="kdenlive:clip_type">2</property>
-  <property name="kdenlive:file_size">4962956</property>
-  <property name="kdenlive:file_hash">8ff661fb0fa71ffe34b0a7949bafd8db</property>
-  <property name="kdenlive:monitorPosition">0</property>
- </producer>
- <producer id="producer2" in="00:00:00.000" out="00:00:04.983">
-  <property name="length">00:00:05.000</property>
-  <property name="eof">pause</property>
-  <property name="resource">pptexport/Slide4.PNG</property>
-  <property name="ttl">25</property>
-  <property name="aspect_ratio">1</property>
-  <property name="meta.media.progressive">1</property>
-  <property name="seekable">1</property>
-  <property name="format">1</property>
-  <property name="meta.media.width">4000</property>
-  <property name="meta.media.height">2250</property>
-  <property name="mlt_service">qimage</property>
-  <property name="kdenlive:duration">00:00:05.000</property>
-  <property name="xml">was here</property>
-  <property name="kdenlive:folderid">-1</property>
-  <property name="kdenlive:id">6</property>
-  <property name="kdenlive:clip_type">2</property>
-  <property name="kdenlive:file_size">346979</property>
-  <property name="kdenlive:file_hash">fd70c7a97e8f593b413b283c15be1f61</property>
-  <property name="kdenlive:monitorPosition">79</property>
- </producer>
  <chain id="chain1" out="00:02:51.167">
   <property name="length">10271</property>
   <property name="eof">pause</property>
@@ -391,48 +433,6 @@ OPI test script&lt;/content>
   <track hide="audio" producer="playlist4"/>
   <track hide="audio" producer="playlist5"/>
  </tractor>
- <producer id="producer3" in="00:00:00.000" out="00:00:04.983">
-  <property name="length">00:00:05.000</property>
-  <property name="eof">pause</property>
-  <property name="resource">pptexport/Slide1.PNG</property>
-  <property name="ttl">25</property>
-  <property name="aspect_ratio">1</property>
-  <property name="meta.media.progressive">1</property>
-  <property name="seekable">1</property>
-  <property name="format">1</property>
-  <property name="meta.media.width">4000</property>
-  <property name="meta.media.height">2250</property>
-  <property name="mlt_service">qimage</property>
-  <property name="kdenlive:duration">00:00:05.000</property>
-  <property name="xml">was here</property>
-  <property name="kdenlive:folderid">-1</property>
-  <property name="kdenlive:id">7</property>
-  <property name="kdenlive:clip_type">2</property>
-  <property name="kdenlive:file_size">1027689</property>
-  <property name="kdenlive:file_hash">e6aec0822cd1149047dd3f471e82f5f9</property>
-  <property name="kdenlive:monitorPosition">1</property>
- </producer>
- <producer id="producer4" in="00:00:00.000" out="00:00:04.983">
-  <property name="length">00:00:05.000</property>
-  <property name="eof">pause</property>
-  <property name="resource">pptexport/Slide3.PNG</property>
-  <property name="ttl">25</property>
-  <property name="aspect_ratio">1</property>
-  <property name="meta.media.progressive">1</property>
-  <property name="seekable">1</property>
-  <property name="format">1</property>
-  <property name="meta.media.width">4000</property>
-  <property name="meta.media.height">2250</property>
-  <property name="mlt_service">qimage</property>
-  <property name="kdenlive:duration">00:00:05.000</property>
-  <property name="xml">was here</property>
-  <property name="kdenlive:folderid">-1</property>
-  <property name="kdenlive:id">9</property>
-  <property name="kdenlive:clip_type">2</property>
-  <property name="kdenlive:file_size">2085230</property>
-  <property name="kdenlive:file_hash">6de395d2a62715a9e68d80b05bcce8a8</property>
-  <property name="kdenlive:monitorPosition">0</property>
- </producer>
  <playlist id="playlist6">
   <entry in="00:00:00.000" out="00:00:04.983" producer="producer3">
    <property name="kdenlive:id">7</property>
@@ -474,7 +474,7 @@ OPI test script&lt;/content>
   <property name="kdenlive:sequenceproperties.hasAudio">1</property>
   <property name="kdenlive:sequenceproperties.hasVideo">1</property>
   <property name="kdenlive:sequenceproperties.position">2180</property>
-  <property name="kdenlive:sequenceproperties.scrollPos">0</property>
+  <property name="kdenlive:sequenceproperties.scrollPos">169</property>
   <property name="kdenlive:sequenceproperties.tracks">4</property>
   <property name="kdenlive:sequenceproperties.tracksCount">4</property>
   <property name="kdenlive:sequenceproperties.verticalzoom">1</property>
@@ -687,7 +687,7 @@ OPI test script&lt;/content>
   <property name="kdenlive:docproperties.renderplay">0</property>
   <property name="kdenlive:docproperties.renderpreview">0</property>
   <property name="kdenlive:docproperties.renderprofile">MP4-H264/AAC</property>
-  <property name="kdenlive:docproperties.renderrescale">0</property>
+  <property name="kdenlive:docproperties.renderrescale">1</property>
   <property name="kdenlive:docproperties.renderrescaleheight">1080</property>
   <property name="kdenlive:docproperties.renderrescalewidth">1920</property>
   <property name="kdenlive:docproperties.renderspeed">6</property>
@@ -695,7 +695,7 @@ OPI test script&lt;/content>
   <property name="kdenlive:docproperties.rendertcoverlay">0</property>
   <property name="kdenlive:docproperties.rendertctype">-1</property>
   <property name="kdenlive:docproperties.rendertwopass">0</property>
-  <property name="kdenlive:docproperties.renderurl">opi-demo-ipsec-intel.h264.mp4</property>
+  <property name="kdenlive:docproperties.renderurl">opi-demo-ipsec-intel.1080p.h264.mp4</property>
   <property name="kdenlive:docproperties.seekOffset">30000</property>
   <property name="kdenlive:docproperties.uuid">{76b5250c-b9e5-4efd-99e7-5b23a4fc45a8}</property>
   <property name="kdenlive:docproperties.version">1.1</property>
@@ -709,11 +709,11 @@ OPI test script&lt;/content>
   <property name="xml_retain">1</property>
   <entry in="00:00:00.000" out="00:02:51.167" producer="chain2"/>
   <entry in="00:00:00.000" out="00:01:17.183" producer="producer5"/>
-  <entry in="00:00:00.000" out="00:01:34.983" producer="tractor4"/>
   <entry in="00:00:00.000" out="00:00:04.983" producer="producer2"/>
-  <entry in="00:00:00.000" out="00:00:04.983" producer="producer4"/>
   <entry in="00:00:00.000" out="00:00:04.983" producer="producer3"/>
   <entry in="00:00:00.000" out="00:00:04.983" producer="producer1"/>
+  <entry in="00:00:00.000" out="00:00:04.983" producer="producer4"/>
+  <entry in="00:00:00.000" out="00:01:34.983" producer="tractor4"/>
  </playlist>
  <tractor id="tractor5" in="00:00:00.000" out="00:01:34.983">
   <property name="kdenlive:projectTractor">1</property>
