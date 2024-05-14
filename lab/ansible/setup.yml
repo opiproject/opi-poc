@@ -27,22 +27,39 @@
   hosts: hostservers,DPUs
   become: yes
   tasks:
-    - import_tasks: debian.yml
-      when: ansible_os_family == 'Debian'
-
-    - import_tasks: redhat.yml
-      when: ansible_os_family == 'RedHat'
-
-    #- import_tasks: suse.yml
-    #  when: ansible_os_family == 'Suse'
-
-    - name: Install other generic packages
+    - name: Install usefull packages
       ansible.builtin.package:
         name: python3-pip,sshpass,git
         state: present
 
-    - name: Testing
-      shell: uname -a
+    - name: Debian | Docker
+      when: ansible_os_family == 'Debian'
+      block:
+        - name: Debian | Remove old docker
+          ansible.builtin.package:
+            name: docker.io,docker-doc,docker-compose,docker-compose-v2,podman-docker,containerd,runc
+            state: absent
+        - name: Debian | Install new docker
+          ansible.builtin.package:
+            name: docker-ce,docker-ce-cli,containerd.io,docker-buildx-plugin,docker-compose-plugin
+            state: present
+
+    - name: Red Hat | Docker
+      when: ansible_os_family == 'RedHat'
+      block:
+        - name: Red Hat | Install package dependencies
+          ansible.builtin.package:
+            name: podman,podman-docker,podman-plugins
+            state: present
+        # docker-compose >=2 does not work with podman currently
+        - name: Red Hat | Install docker-compose
+          ansible.builtin.pip:
+            name: docker-compose>=1.29,<2
+            state: present
+        - name: Red Hat | Enable podman socket for docker-compose
+          ansible.builtin.systemd:
+            name: podman.socket
+            state: started
 
     # TODO: copy correct telegraf.conf file per host...
 
