@@ -8,7 +8,7 @@ Took from <https://github.com/opiproject/otel>
 
 ### Configuration
 
-Create `telegraf.conf` file, see example [here](./config/telegraf.conf)
+Create `telegraf.conf` file, see example [here](./telegraf.d/telegraf.conf)
 
 - change `outputs.opentelemetry` to the management server name/ip
 - change `192.168.240.1` to the internal DPU/IPU AMC/BMC for redfish collection
@@ -19,7 +19,7 @@ Create `telegraf.conf` file, see example [here](./config/telegraf.conf)
 Run telegraf container:
 
 ```bash
-sudo docker run -d --restart=always --network=host -v ./config/telegraf.conf:/etc/telegraf/telegraf.conf docker.io/library/telegraf:1.29
+sudo docker run -d --restart=always --network=host -v ./telegraf.d/telegraf.conf:/etc/telegraf/telegraf.conf docker.io/library/telegraf:1.29
 ```
 
 ### Optional Temperature
