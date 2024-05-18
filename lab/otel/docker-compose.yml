@@ -39,7 +39,7 @@ services:
       - ./config/grafana.ini:/etc/grafana/grafana.ini
       - ./config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasource.yaml
       - ./config/grafana-dashboards.yaml:/etc/grafana/provisioning/dashboards/default.yaml
-      - ./config/grafana-dashboard.json:/var/lib/grafana/dashboards/myexample.json
+      - ./config/grafana-dashboard-servers.json:/var/lib/grafana/dashboards/servers.json
       - ./config/grafana-dashboard-switches.json:/var/lib/grafana/dashboards/switches.json
     ports:
       - "3000:3000"
