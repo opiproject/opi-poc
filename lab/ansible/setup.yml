@@ -96,7 +96,7 @@
   tasks:
 
     - name: Copy telegraf folder to remote
-      ansible.builtin.copy: src=../otel/telegraf.d dest=/root
+      ansible.builtin.copy: src=../telegraf.d dest=/root
 
     # TODO: create new telegraf container or use same for Marvell card
 
@@ -122,7 +122,7 @@
 
     # TODO: copy correct telegraf.conf file per host...
     #- name: Copy file to host
-    #  ansible.builtin.copy: src=../otel/telegraf.d/telegraf.conf.{{ inventory_hostname }} dest=/root/telegraf.conf.new
+    #  ansible.builtin.copy: src=../telegraf.d/telegraf.conf.{{ inventory_hostname }} dest=/root/telegraf.conf.new
 
     # TODO: re-enable MEV
 
@@ -150,7 +150,7 @@
   tasks:
     - name: Run Monitoring OTEL, Prometheus, Grafana
       community.docker.docker_compose_v2:
-        project_src: /root/opi-poc/lab/otel
+        project_src: /root/opi-poc/lab
       register: output
 
 - name:
