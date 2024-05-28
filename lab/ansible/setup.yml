@@ -179,22 +179,8 @@
         project_src: /root/opi-poc/lab
       register: output
 
-- name:
+- name: Intel | Upgrade Intel Mev IMC and ACC FWs
   hosts: mev
-  become: yes
-  tasks:
-    - name: Fetch Intel Mev ACC running version
-      block:
-        - ansible.builtin.shell: cat /etc/issue
-        - ansible.builtin.shell: cat /etc/issue.net
-          register: result
-        - ansible.builtin.set_fact: acc_run_version={{ result.stdout | trim }}
-        - ansible.builtin.debug: var=acc_run_version
-        - ansible.builtin.fail: msg="Could not find ACC string in the running {{ acc_run_version }}"
-          when: not '"ACC" in acc_run_version'
-
-- name:
-  hosts: mevbmc
   become: yes
   vars:
       imc_version: 1.4.0.8469
@@ -205,7 +191,19 @@
       acc_remote_file: /work/intel-ipu-acc-eval-image-{{ acc_version }}/ACC/OS/acc-os-kernel.bin
       ansible_remote_tmp: /tmp
   tasks:
+
+    - name: Fetch Intel Mev ACC running version
+      block:
+        - ansible.builtin.shell: cat /etc/issue
+        - ansible.builtin.shell: cat /etc/issue.net
+          register: result
+        - ansible.builtin.set_fact: acc_run_version={{ result.stdout | trim }}
+        - ansible.builtin.debug: var=acc_run_version
+        - ansible.builtin.fail: msg="Could not find ACC string in the running {{ acc_run_version }}"
+          when: not '"ACC" in acc_run_version'
+
     - name: Fetch Intel Mev IMC running version
+      delegate_to: mevbmc
       block:
         - ansible.builtin.shell: cat /etc/issue
         - ansible.builtin.shell: cat /etc/issue.net
@@ -213,12 +211,12 @@
         - ansible.builtin.set_fact: imc_run_version={{ result.stdout | trim }}
         - ansible.builtin.debug: var=imc_run_version
         - ansible.builtin.shell: /usr/bin/ipu-update -i
-        - ansible.builtin.debug: var=hostvars.mev.acc_run_version
         - ansible.builtin.fail: msg="Could not find IMC string in the running {{ imc_run_version }}"
           when: not '"IMC" in imc_run_version'
 
     - name: Upgrade Intel Mev IMC FW to {{ imc_version }}
       when: not imc_version in imc_run_version
+      delegate_to: mevbmc
       block:
         - name: Check if firmware image exists remotely {{ imc_remote_file }}
           ansible.builtin.stat: path={{ imc_remote_file }}
@@ -255,7 +253,8 @@
     # TODO: now update ACC using /usr/bin/imc-scripts/acc_os_partition_provision.sh
 
     - name: Upgrade Intel Mev ACC FW to {{ acc_version }}
-      when: not acc_version in hostvars.mev.acc_run_version
+      when: not acc_version in acc_run_version
+      delegate_to: mevbmc
       block:
         - name: Check if firmware image exists remotely {{ acc_remote_file }}
           ansible.builtin.stat: path={{ acc_remote_file }}
