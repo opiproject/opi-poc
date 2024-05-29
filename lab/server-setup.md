@@ -107,6 +107,22 @@ yamllint /etc/netplan/00-installer-config.yaml
 * reboot
   * ensure networking is ok
   * this is needed also for the permissions to be update, otherwise next step will fail
+ 
+## DHCP Server
+
+```Shell
+apt-get install -y isc-dhcp-server
+systemctl enable isc-dhcp-server
+systemctl start isc-dhcp-server
+
+git clone <opi-poc-repo>
+cp ./opi-poc/lab/hardware/mgmt/fs/etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf
+
+systemctl restart isc-dhcp-server
+```
+
+to see new devices use `cat /var/lib/dhcp/dhcpd.leases`
+
 
 ## Testing
 
