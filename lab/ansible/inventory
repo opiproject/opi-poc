@@ -1,7 +1,7 @@
 # from https://github.com/opiproject/opi-poc/blob/main/lab/ips.md
 
 [hostservers]
-dh1 ansible_host=172.22.0.1     ansible_connection=ssh        ansible_user=root
+dh1 ansible_host=172.22.1.1     ansible_connection=ssh        ansible_user=root
 dh2 ansible_host=172.22.1.2     ansible_connection=ssh        ansible_user=root
 dh3 ansible_host=172.22.1.3     ansible_connection=ssh        ansible_user=root
 dh4 ansible_host=172.22.1.4     ansible_connection=ssh        ansible_user=root
@@ -30,7 +30,7 @@ tgen1 ansible_host=172.22.1.100 ansible_connection=ssh        ansible_user=root
 tgen1bmc ansible_host=172.22.2.100 ansible_connection=local   ansible_user=ADMIN
 
 [Management]
-mgmt ansible_host=172.22.222.2  ansible_connection=ssh       ansible_user=root
+mgmt ansible_host=172.22.0.1    ansible_connection=ssh        ansible_user=root
 
 [switches]
 ToR    ansible_host=172.22.0.5   ansible_connection=ansible.netcommon.network_cli ansible_user=arista ansible_ssh_pass=arista ansible_network_os=arista.eos.eos

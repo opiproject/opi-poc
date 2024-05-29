@@ -124,6 +124,27 @@ systemctl restart isc-dhcp-server
 to see new devices use `cat /var/lib/dhcp/dhcpd.leases`
 
 
+## Others
+
+* install ansible
+
+```bash
+sudo apt -y install ansible-core
+```
+
+* make sure dhcp is running
+
+```bash
+systemctl status isc-dhcp-server
+```
+
+* Fix pasword-less access
+
+```bash
+ssh-keygen
+ssh-copy-id 172.22.X.X
+```
+
 ## Testing
 
 * clone the `opiproject/testing` repository into your working directory:

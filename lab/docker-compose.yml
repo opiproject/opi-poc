@@ -139,7 +139,7 @@ services:
     volumes:
       - ./sztp/my-boot-image.img:/usr/local/apache2/htdocs/my-boot-image.img
     ports:
-      - 8082:80
+      - 80:80
     networks:
       - opi
 
