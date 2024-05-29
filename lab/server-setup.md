@@ -115,7 +115,7 @@ apt-get install -y isc-dhcp-server
 systemctl enable isc-dhcp-server
 systemctl start isc-dhcp-server
 
-git clone <opi-poc-repo>
+git clone https://github.com/opiproject/opi-poc.git
 cp ./opi-poc/lab/hardware/mgmt/fs/etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf
 
 systemctl restart isc-dhcp-server
