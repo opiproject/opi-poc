@@ -58,6 +58,9 @@
 # Docker Input Plugin
 [[inputs.docker]]
 
+[[outputs.file]]
+  files = ["stdout"]
+  data_format = "influx"
 
 [[outputs.opentelemetry]]
-  listen = "172.22.0.1:4317"
+  service_address = "172.22.0.1:4317"
