@@ -108,6 +108,27 @@ yamllint /etc/netplan/00-installer-config.yaml
   * ensure networking is ok
   * this is needed also for the permissions to be update, otherwise next step will fail
 
+## Others
+
+* install ansible
+
+```bash
+sudo apt -y install ansible-core
+```
+
+* make sure dhcp is running
+
+```bash
+systemctl status isc-dhcp-server
+```
+
+* Fix pasword-less access
+
+```bash
+ssh-keygen
+ssh-copy-id 172.22.X.X
+```
+
 ## Testing
 
 * clone the `opiproject/testing` repository into your working directory:

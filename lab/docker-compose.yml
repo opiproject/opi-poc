@@ -115,6 +115,34 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
 
+  bootstrap:
+    image: ghcr.io/opiproject/opi-sztp-server:main
+    environment:
+      SZTPD_INIT_PORT: 6080
+      SZTPD_NBI_PORT: 7080
+      SZTPD_SBI_PORT: 8080
+      SZTPD_INIT_MODE: 1
+      SZTPD_ACCEPT_CONTRACT: "Yes"
+      SZTPD_INIT_ADDR: 0.0.0.0
+      SZTPD_OPI_MODE: "running"
+      SZTPD_RETRY_ATTEMPTS: 30
+    ports:
+      - 7080:7080
+      - 8080:8080
+    networks:
+      - opi
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail -H Accept:application/yang-data+json http://127.0.0.1:$$SZTPD_NBI_PORT/.well-known/host-meta || exit 1"]
+
+  web:
+    image: docker.io/library/httpd:2.4.57-alpine3.17
+    volumes:
+      - ./sztp/my-boot-image.img:/usr/local/apache2/htdocs/my-boot-image.img
+    ports:
+      - 80:80
+    networks:
+      - opi
+
 volumes:
   semaphore-mysql:
   portainer_data:

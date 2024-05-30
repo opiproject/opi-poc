@@ -179,22 +179,8 @@
         project_src: /root/opi-poc/lab
       register: output
 
-- name:
+- name: Intel | Upgrade Intel Mev IMC and ACC FWs
   hosts: mev
-  become: yes
-  tasks:
-    - name: Fetch Intel Mev ACC running version
-      block:
-        - ansible.builtin.shell: cat /etc/issue
-        - ansible.builtin.shell: cat /etc/issue.net
-          register: result
-        - ansible.builtin.set_fact: acc_run_version={{ result.stdout | trim }}
-        - ansible.builtin.debug: var=acc_run_version
-        - ansible.builtin.fail: msg="Could not find ACC string in the running {{ acc_run_version }}"
-          when: not '"ACC" in acc_run_version'
-
-- name:
-  hosts: mevbmc
   become: yes
   vars:
       imc_version: 1.4.0.8469
@@ -205,7 +191,19 @@
       acc_remote_file: /work/intel-ipu-acc-eval-image-{{ acc_version }}/ACC/OS/acc-os-kernel.bin
       ansible_remote_tmp: /tmp
   tasks:
+
+    - name: Fetch Intel Mev ACC running version
+      block:
+        - ansible.builtin.shell: cat /etc/issue
+        - ansible.builtin.shell: cat /etc/issue.net
+          register: result
+        - ansible.builtin.set_fact: acc_run_version={{ result.stdout | trim }}
+        - ansible.builtin.debug: var=acc_run_version
+        - ansible.builtin.fail: msg="Could not find ACC string in the running {{ acc_run_version }}"
+          when: not '"ACC" in acc_run_version'
+
     - name: Fetch Intel Mev IMC running version
+      delegate_to: mevbmc
       block:
         - ansible.builtin.shell: cat /etc/issue
         - ansible.builtin.shell: cat /etc/issue.net
@@ -213,12 +211,12 @@
         - ansible.builtin.set_fact: imc_run_version={{ result.stdout | trim }}
         - ansible.builtin.debug: var=imc_run_version
         - ansible.builtin.shell: /usr/bin/ipu-update -i
-        - ansible.builtin.debug: var=hostvars.mev.acc_run_version
         - ansible.builtin.fail: msg="Could not find IMC string in the running {{ imc_run_version }}"
           when: not '"IMC" in imc_run_version'
 
     - name: Upgrade Intel Mev IMC FW to {{ imc_version }}
       when: not imc_version in imc_run_version
+      delegate_to: mevbmc
       block:
         - name: Check if firmware image exists remotely {{ imc_remote_file }}
           ansible.builtin.stat: path={{ imc_remote_file }}
@@ -255,7 +253,8 @@
     # TODO: now update ACC using /usr/bin/imc-scripts/acc_os_partition_provision.sh
 
     - name: Upgrade Intel Mev ACC FW to {{ acc_version }}
-      when: not acc_version in hostvars.mev.acc_run_version
+      when: not acc_version in acc_run_version
+      delegate_to: mevbmc
       block:
         - name: Check if firmware image exists remotely {{ acc_remote_file }}
           ansible.builtin.stat: path={{ acc_remote_file }}
@@ -304,6 +303,7 @@
       bfb_url: https://content.mellanox.com/BlueField/BFBs/Ubuntu22.04/{{ bfb_local_file | basename }}
   tasks:
     - ansible.builtin.shell: lspci | grep BlueField
+    - ansible.builtin.service: name=rshim enabled=yes state=started
     - ansible.builtin.shell: cat /dev/rshim0/misc
 
     - name: Check if firmware image exists locally {{ bfb_local_file }}
@@ -349,3 +349,29 @@
     - ansible.builtin.shell: ls -l  /dev/ttyUSB*
 
     # TODO: update FW for Marvell CN106
+
+- name: Secure Zero Touch Provisioning
+  hosts: DPUs
+  become: yes
+  tasks:
+    # TODO: enable this
+    - name: Nvidia | Fix dhcp client config and then run sztp agent container
+      when: inventory_hostname == 'bf123'
+      block:
+        - ansible.builtin.lineinfile: backup=true path=/etc/dhcp/dhclient.conf insertbefore='^option(.*)code(.*)$' line='option sztp-redirect-urls code 143  = text;'
+        - ansible.builtin.lineinfile: backup=true path=/etc/dhcp/dhclient.conf regexp='^(request .*)' line='\g<1> sztp-redirect-urls,'
+        - name: Nvidia | Run sztp agent container on Nvidia BF
+          community.docker.docker_container:
+            name: sztp
+            image: ghcr.io/opiproject/opi-sztp-client:main
+            state: started
+            restart: true
+            detach: true
+            network_mode: host
+            restart_policy: always
+            mounts:
+              - type: bind
+                source: /var/lib/NetworkManager/dhclient-aa93b667-6aac-3804-91e9-4958e07fdb2f-oob_net0.lease
+                target: /var/lib/dhclient/dhclient.leases
+                read_only: true
+            command: /opi-sztp-agent daemon --bootstrap-trust-anchor-cert /mnt/opi.pem --device-end-entity-cert /mnt/opi_cert.pem --device-private-key /mnt/opi_private_key.pem
