@@ -1,0 +1,66 @@
+# Read metrics about cpu usage
+[[inputs.cpu]]
+  ## Whether to report per-cpu stats or not
+  percpu = true
+  ## Whether to report total system cpu stats or not
+  totalcpu = true
+  ## If true, collect raw CPU time metrics
+  collect_cpu_time = false
+  ## If true, compute and report the sum of all non-idle CPU states
+  ## NOTE: The resulting 'time_active' field INCLUDES 'iowait'!
+  report_active = false
+  ## If true and the info is available then add core_id and physical_id tags
+  core_tags = false
+
+# Diskio Input Plugin
+[[inputs.diskio]]
+
+# Disk Input Plugin
+[[inputs.disk]]
+
+# Internal Input Plugin
+[[inputs.internal]]
+
+# Kernel Input Plugin
+[[inputs.kernel]]
+
+# Linux Sysctl FS Input Plugin
+[[inputs.linux_sysctl_fs]]
+
+# Mem Input Plugin
+[[inputs.mem]]
+
+# Nstat Input Plugin
+[[inputs.nstat]]
+
+# Net Input Plugin
+[[inputs.net]]
+
+# Netstat Input Plugin
+[[inputs.netstat]]
+
+# Processes Input Plugin
+[[inputs.processes]]
+
+# Sensors Input Plugin
+[[inputs.sensors]]
+
+# Swap Input Plugin
+[[inputs.swap]]
+
+# System Input Plugin
+[[inputs.system]]
+
+# ZFS Input Plugin
+[[inputs.zfs]]
+  poolMetrics = true
+
+# Docker Input Plugin
+[[inputs.docker]]
+
+[[outputs.file]]
+  files = ["stdout"]
+  data_format = "influx"
+
+[[outputs.opentelemetry]]
+  service_address = "172.22.0.1:4317"
