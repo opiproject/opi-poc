@@ -1,5 +1,0 @@
----
-collections:
-  - community.docker
-  - community.general
-  - arista.eos

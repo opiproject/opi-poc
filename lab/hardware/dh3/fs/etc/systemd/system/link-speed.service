@@ -1,8 +1,0 @@
-[Unit]
-After=network.target
-
-[Service]
-ExecStart=/usr/local/bin/link-speed.sh
-
-[Install]
-WantedBy=default.target

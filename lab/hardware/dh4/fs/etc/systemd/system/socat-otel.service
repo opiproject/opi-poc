@@ -1,8 +1,0 @@
-[Unit]
-After=network.target
-
-[Service]
-ExecStart=socat tcp-l:4317,fork,reuseaddr tcp:172.22.0.1:4317
-
-[Install]
-WantedBy=default.target
