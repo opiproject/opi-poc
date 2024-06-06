@@ -1,7 +1,7 @@
 # OPI Lab
 
 - [Cables](../cables.md)
-- [LAB IPs allocation](../ips.md) and [Inventory](../ansible/inventory)
+- [LAB IPs allocation](../ips.md) and [Inventory](../ansible/src/inventory)
 - [Server Software Setup](../server-setup.md)
 - [Bill of Materials](../bom.md)
 - [Physical Testbed Setup](../physical-testbed.md)

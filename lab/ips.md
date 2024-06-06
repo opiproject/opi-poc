@@ -4,7 +4,7 @@ Proposal is to use 172.22.0.0/16 network for all ip addresing in the lab, and ha
 
 ## Code duplication
 
-:exclamation: with [ansible inventory](./ansible/inventory)
+:exclamation: with [ansible inventory](ansible/src/inventory)
 
 ## Device types ip allocation
 

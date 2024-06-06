@@ -1,0 +1,11 @@
+- name:
+  hosts: all
+  become: yes
+  environment: "{{ proxy_env | default({}) }}"
+  gather_facts: false
+  tasks:
+    - debug: msg={{hostvars[inventory_hostname].vars.proxy_env.http_proxy}}
+    - debug: msg={{hostvars[inventory_hostname].vars.proxy_env.https_proxy}}
+    - name: FetchEnv
+      ansible.builtin.debug:
+        msg: "{{ lookup('ansible.builtin.env', 'http_proxy', default=undef()) }} "

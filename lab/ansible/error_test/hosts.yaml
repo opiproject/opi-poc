@@ -1,0 +1,11 @@
+hostservers:
+  hosts:
+    dev-vm:
+      ansible_host: 10.227.239.138
+      ansible_connection: ssh
+      ansible_user: root
+      vars:
+        proxy_env:
+          http_proxy: 'http://192.168.0.1:3128'
+          https_proxy: 'https://192.168.0.1:3128'
+

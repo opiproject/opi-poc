@@ -54,7 +54,7 @@ Add static hostname resolution per certificate dns limitation:
 
 ```bash
 # add hostnames per certificate dns generation
-root@bf2:~# grep bootstrap /etc/hosts
+root@bf2:~# grep bootstrap /etc/hosts.yaml
 172.22.0.1      bootstrap web
 ```
 

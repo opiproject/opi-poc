@@ -3,7 +3,7 @@
 - [Goals and Requirments](goals-and-requirements.md)
 - Setup
   - [Cables/Fibers/transceivers](./cables.md)
-  - [LAB IPs allocation](./ips.md) and [Inventory](./ansible/inventory)
+  - [LAB IPs allocation](./ips.md) and [Inventory](ansible/src/inventory)
   - [Open Telemetry Observability](./otel.md)
   - [Server Software Setup](server-setup.md)
   - [Bill of Materials](bom.md)
