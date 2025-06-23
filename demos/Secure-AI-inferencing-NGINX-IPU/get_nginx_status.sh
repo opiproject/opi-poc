@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+#This file checks the status of nginx pod running on the IPU 
+#once for DURATION once every INTERVAL
 
 # Command to run
 CMD='curl --cacert /root/summit/server.crt https://172.16.3.200/nginx_status'

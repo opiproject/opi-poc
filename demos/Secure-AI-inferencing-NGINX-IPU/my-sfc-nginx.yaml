@@ -1,3 +1,4 @@
+#Yaml file for service function chaining, the first function here is NGINX
 apiVersion: config.openshift.io/v1
 kind: ServiceFunctionChain
 metadata:

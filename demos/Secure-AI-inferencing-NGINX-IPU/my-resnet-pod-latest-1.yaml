@@ -1,3 +1,5 @@
+#This file contains the OVS model attributes. This will run on the host. There are 3 files that identical functionally.
+#The name differentiates each instance
 apiVersion: v1
 kind: Pod
 metadata:

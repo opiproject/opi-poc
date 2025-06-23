@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+#This file contains commands to run the solution end to end on diff tmux sessions, 
+#while also displaying comments relevant to each session.
+
+
 # === Configuration ===
 session_name="ai_inference_server_offload_demo"            # tmux session name
 pause_seconds=5                 # seconds between commands

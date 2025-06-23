@@ -49,18 +49,18 @@ def main():
     if not images:
         parser.error(f"No JPEG files found in '{args.image_dir}'")
 
-    # 2) Launch 10 parallel workers, each with a random pick
+    # 2) Launch 10 parallel workers, each with a random picture
     num_threads = 10
     with ThreadPoolExecutor(max_workers=num_threads) as executor:
         futures = []
         # If you want _unique_ images per thread and you have enough files:
         if len(images) >= num_threads:
-            picks = random.sample(images, num_threads)
+            pictures = random.sample(images, num_threads)
         else:
             # fallback to allowing duplicates
-            picks = [random.choice(images) for _ in range(num_threads)]
+            pictures = [random.choice(images) for _ in range(num_threads)]
 
-        for i, img_path in enumerate(picks):
+        for i, img_path in enumerate(pictures):
             futures.append(executor.submit(worker, img_path, i))
 
         for future in as_completed(futures):
