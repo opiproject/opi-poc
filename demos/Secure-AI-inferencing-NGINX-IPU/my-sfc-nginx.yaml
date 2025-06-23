@@ -1,0 +1,11 @@
+#Yaml file for service function chaining, the first function here is NGINX
+apiVersion: config.openshift.io/v1
+kind: ServiceFunctionChain
+metadata:
+  name: sfc-test
+  namespace: openshift-dpu-operator
+spec:
+  networkFunctions:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent

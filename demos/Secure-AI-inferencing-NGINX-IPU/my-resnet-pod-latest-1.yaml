@@ -1,0 +1,57 @@
+#This file contains the OVS model attributes. This will run on the host. There are 3 files that identical functionally.
+#The name differentiates each instance
+apiVersion: v1
+kind: Pod
+metadata:
+  name: resnet50-model-server-1
+  namespace: default
+  annotations:
+    k8s.v1.cni.cncf.io/networks: default-sriov-net
+  labels:
+    app: resnet50-model-server-service
+spec:
+  securityContext:
+    runAsUser: 0
+  nodeSelector:
+    kubernetes.io/hostname: worker-238
+  volumes:
+    - name: model-volume
+      emptyDir: {}
+  initContainers:
+    - name: model-downloader
+      image: ubuntu:latest
+      securityContext:
+        runAsUser: 0
+      command:
+        - bash
+        - -c
+        - |
+          apt-get update && \
+          apt-get install -y wget ca-certificates && \
+          mkdir -p /models/1 && \
+          wget --no-check-certificate https://storage.openvinotoolkit.org/repositories/open_model_zoo/2022.1/models_bin/2/resnet50-binary-0001/FP32-INT1/resnet50-binary-0001.xml -O /models/1/model.xml && \
+          wget --no-check-certificate https://storage.openvinotoolkit.org/repositories/open_model_zoo/2022.1/models_bin/2/resnet50-binary-0001/FP32-INT1/resnet50-binary-0001.bin -O /models/1/model.bin
+      volumeMounts:
+        - name: model-volume
+          mountPath: /models
+  containers:
+    - name: ovms
+      image: openvino/model_server:latest
+      args:
+        - "--model_path=/models"
+        - "--model_name=resnet50"
+        - "--port=9000"
+        - "--rest_port=8000"
+      ports:
+        - containerPort: 8000
+        - containerPort: 9000
+      volumeMounts:
+        - name: model-volume
+          mountPath: /models
+      securityContext:
+          privileged: true
+      resources:
+        requests:
+          openshift.io/dpu: '1'
+        limits:
+          openshift.io/dpu: '1'
