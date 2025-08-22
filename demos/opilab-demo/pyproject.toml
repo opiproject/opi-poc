@@ -1,0 +1,7 @@
+[tool.mypy]
+strict = true
+files = "."
+
+[[tool.mypy.overrides]]
+module = "ovmsclient"
+ignore_missing_imports = true
