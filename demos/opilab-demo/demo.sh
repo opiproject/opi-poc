@@ -1205,6 +1205,35 @@ do_info() {
     show_info
 }
 
+# 1:main:5
+# [local]
+# Run inspect.sh script for a demo using tmux windows.
+#
+# By default runs via `remote inspect` on tgen1. Specify "local"
+# argument to force running locally.
+do_inspect() {
+    local _local=0
+
+    [ "$#" -le 1 ] || die "invalid arguments"
+    if [ "$#" -ge 1 ] ; then
+        case "$1" in
+            local)
+                _local=1
+                ;;
+            *)
+                die "invalid argument"
+                ;;
+        esac
+    fi
+
+    if [ "$_local" != 1 ] && ! is_tgen1 ; then
+        do_remote inspect
+        return 0
+    fi
+
+    /usr/bin/env bash "./inspect.sh"
+}
+
 # 3:extra helper:1
 #
 # Regenerate TLS certificate for the nginx pod. This overwrites
@@ -1397,6 +1426,7 @@ do_kubeconfig_microshift() {
 do_check() {
     _echo_p "Validate script via shellcheck"
     shellcheck "$SCRIPTNAME"
+    shellcheck "./inspect.sh"
 
     py_activate_venv
 
@@ -1435,6 +1465,7 @@ _main() {
             ;;
         etc_hosts | \
         exec | \
+        inspect | \
         kubeconfigs | \
         pods_setup | \
         reboot | \

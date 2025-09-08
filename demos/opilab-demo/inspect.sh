@@ -1,264 +1,232 @@
 #!/usr/bin/env bash
-#This file contains commands to run the solution end to end on diff tmux sessions, 
-#while also displaying comments relevant to each session.
+#
+# This file contains commands to run the solution end to end on diff tmux
+# sessions, while also displaying comments relevant to each session.
 
+cd "$(dirname "$0")" || exit 1
 
+###############################################################################
 # === Configuration ===
-session_name="ai_inference_server_offload_demo"            # tmux session name
-pause_seconds=5                 # seconds between commands
 
-# Commands & comments per pane
+session_name="ai_inference_server_offload_demo"
+
 pane0_commands=(
-  "ssh-keygen -R 172.16.3.16; sshpass -p 'redhat' ssh -o StrictHostKeyChecking=no root@172.16.3.16"
-  "cat /etc/os-release"
-  "ifconfig enp0s1f0d1"
-  "exit"
-  "ssh-keygen -R 172.16.3.16; sshpass -p '' ssh -o StrictHostKeyChecking=no root@10.26.16.111"
-  "cat /etc/issue"
-  "exit"
-  "export KUBECONFIG=/root/kubeconfig.microshift; oc get nodes -L kubernetes.io/hostname=worker-238 -o wide ; sleep 3; oc get pods -A"
-  "export KUBECONFIG=/root/kubeconfig.ocpcluster; oc get nodes -L kubernetes.io/hostname=worker-238 -o wide ; sleep 3; oc get pods"
-  "export KUBECONFIG=/root/kubeconfig.microshift"
-  "pod=\$(oc get pods -A -o name | grep 'vsp-p4' | head -n1) ; oc exec -it \${pod} -n openshift-dpu-operator -- /opt/p4/p4-cp-nws/bin/ovs-vsctl show"
-  "pod=\$(oc get pods -A -o name | grep 'vsp-p4' | head -n1) ; oc exec -it \${pod} -n openshift-dpu-operator -- /opt/p4/p4-cp-nws/bin/p4rt-ctl dump-entries br0"
+  "./demo.sh exec dh4-acc cat /etc/os-release"
+  "./demo.sh exec dh4-acc ifconfig enp0s1f0d1"
+  "./demo.sh exec dh4-imc cat /etc/issue"
+  "./demo.sh oc_msh get nodes -o wide ; sleep 3; ./demo.sh oc_msh get pods -A"
+  "./demo.sh oc_ocp get nodes -o wide ; sleep 3; ./demo.sh oc_ocp get pods -n default"
+  "export pod=\$(./demo.sh oc_msh get pods -A -o name | grep 'vsp-p4' | head -n1); echo \"podname: \$pod\""
+  "./demo.sh oc_msh exec -it \$pod -n openshift-dpu-operator -- /opt/p4/p4-cp-nws/bin/ovs-vsctl show"
+  "./demo.sh oc_msh exec -it \$pod -n openshift-dpu-operator -- /opt/p4/p4-cp-nws/bin/p4rt-ctl dump-entries br0 | tail -n 25"
 )
 pane0_comments=(
-  "###### Connect to Intel IPU Compute Complex (ACC) ######"
-  "###### Redhat OS running on Intel IPU Compuete Complex (ACC) ######"
-  "###### Intel IPU ACC Primary Network IP ######"
-  "###### Logout from ACC ######"
-  "###### Connect to Intel IPU Management Compute Complex (IMC) ######"
-  "###### IPU SDK Version ######"
-  "###### Logout from IMC ######"
-  "###### Redhat Microshift Cluster Information - Running on Intel IPU Compute Complex ######"
-  "###### Redhat Openshift Cluster Information - Running on Intel X86 Host Servers ######"
-  "###### Intel IPU Specific Redhat Microshift Cluster Key Components Required to Offload Network Workload ######"
-  ""
+  "Redhat OS running on Intel IPU Compuete Complex (ACC)"
+  "Intel IPU ACC Primary Network IP"
+  "IPU SDK Version on Intel IPU Management Compute Complex (IMC)"
+  "Redhat Microshift Cluster Information - Running on Intel IPU Compute Complex"
+  "Redhat Openshift Cluster Information - Running on Intel X86 Host Servers"
+  "Get name of vsp-p4 pod"
   "Intel IPU's VSP-OVS Bridge Configuration"
   "Intel IPU's Packet Processing Engine Flows - P4 Programming rules"
 )
 
 pane1_commands=(
-  "/root/summit/f5-redhat-on-intel-ipu/update_nginx_upstream_server_info.sh"
-  "export KUBECONFIG=/root/kubeconfig.microshift"
-  "oc exec -it nginx -n openshift-dpu-operator -- ifconfig"
-  "oc exec -it nginx -n openshift-dpu-operator -- cat /etc/nginx/nginx.conf"
-  "oc exec -it nginx -n openshift-dpu-operator -- tcpdump -ni net2"
+  "./demo.sh nginx_setup"
+  "./demo.sh oc_msh exec -n openshift-dpu-operator -it nginx -- ifconfig"
+  "./demo.sh oc_msh exec -n openshift-dpu-operator -it nginx -- bash -c 'grep -R ^ /etc/nginx/*.conf /etc/nginx/conf.d/*.conf'"
+  "nowait:./demo.sh oc_msh exec -n openshift-dpu-operator -it nginx -- tcpdump -ni net2"
 )
 pane1_comments=(
-  "###### Bring In NGINX Server Configuration Running at Microshift Cluster on Intel IPU ######"
-  ""
-  "###### Service Function Chaining(SFC): NGINX Attached With 2 Virtual Function Interfaces for SFC Packet Forwarding ######"
-  "###### NGINX Configured as a Proxy Server to the Backend AI Inference Workload Servers (OpenVino) Running on Intel X86 Processor Node ######"
-  "###### Enable TCPDUMP to Visualize the Packet Flows at NGINX Pod  ######"
+  "Bring In NGINX Server Configuration Running at Microshift Cluster on Intel IPU"
+  "Service Function Chaining(SFC): NGINX Attached With 2 Virtual Function Interfaces for SFC Packet Forwarding"
+  "NGINX Configured as a Proxy Server to the Backend AI Inference Workload Servers (OpenVino) Running on Intel X86 Processor Node"
+  "Enable TCPDUMP to Visualize the Packet Flows at NGINX Pod "
 )
 
 pane2_commands=(
-  "export KUBECONFIG=/root/kubeconfig.ocpcluster"
-  "oc exec -it resnet50-model-server-1 -- apt-get update"
-  "oc exec -it resnet50-model-server-1 -- apt-get install -y net-tools"
-  "oc exec -it resnet50-model-server-1 -- apt-get install -y tcpdump"
-  "oc exec -it resnet50-model-server-1 -- ifconfig"
-  "oc exec -it resnet50-model-server-1 -- tcpdump -ni net1"
+  "./demo.sh pods_setup 1"
+  "./demo.sh oc_ocp exec -n default -it resnet50-model-server-1 -- ifconfig"
+  "nowait:./demo.sh oc_ocp exec -n default -it resnet50-model-server-1 -- tcpdump -ni net1"
 )
 pane2_comments=(
-  "###### Bring In AI Workload Server resnet50-model-server-1 Configuration Running at Openshift Cluster on Intel X86 Host ######"
-  ""
-  ""
-  ""
-  "###### AI workload Pod Configured with 1 SRIOV-VF Interface to Receive Data Traffic from IPU ######"
-  "###### Enable TCPDUMP to Visualize the Packet Flows at AI Workload Pod (OpenVino) ######"
+  "Bring In AI Workload Server resnet50-model-server-1 Configuration Running at Openshift Cluster on Intel X86 Host"
+  "AI workload Pod Configured with 1 SRIOV-VF Interface to Receive Data Traffic from IPU"
+  "Enable TCPDUMP to Visualize the Packet Flows at AI Workload Pod (OpenVino)"
 )
 
 pane3_commands=(
-  "export KUBECONFIG=/root/kubeconfig.ocpcluster"
-  "oc exec -it resnet50-model-server-2 -- apt-get update"
-  "oc exec -it resnet50-model-server-2 -- apt-get install -y net-tools"
-  "oc exec -it resnet50-model-server-2 -- apt-get install -y tcpdump"
-  "oc exec -it resnet50-model-server-2 -- ifconfig"
-  "oc exec -it resnet50-model-server-2 -- tcpdump -ni net1"
+  "./demo.sh pods_setup 2"
+  "./demo.sh oc_ocp exec -n default -it resnet50-model-server-2 -- ifconfig"
+  "nowait:./demo.sh oc_ocp exec -n default -it resnet50-model-server-2 -- tcpdump -ni net1"
 )
 pane3_comments=(
-  "###### Bring In AI Workload Server resnet50-model-server-2 Configuration Running at Openshift Cluster on Intel X86 Host ######"
-  ""
-  ""
-  ""
-  "###### AI workload Pod Configured with 1 SRIOV-VF Interface to Receive Data Traffic from IPU ######"
-  "###### Enable TCPDUMP to Visualize the Packet Flows at AI Workload Pod (OpenVino) ######"
+  "Bring In AI Workload Server resnet50-model-server-2 Configuration Running at Openshift Cluster on Intel X86 Host"
+  "AI workload Pod Configured with 1 SRIOV-VF Interface to Receive Data Traffic from IPU"
+  "Enable TCPDUMP to Visualize the Packet Flows at AI Workload Pod (OpenVino)"
 )
 
 pane4_commands=(
-  "export KUBECONFIG=/root/kubeconfig.ocpcluster"
-  "oc exec -it resnet50-model-server-3 -- apt-get update"
-  "oc exec -it resnet50-model-server-3 -- apt-get install -y net-tools"
-  "oc exec -it resnet50-model-server-3 -- apt-get install -y tcpdump"
-  "oc exec -it resnet50-model-server-3 -- ifconfig"
-  "oc exec -it resnet50-model-server-3 -- tcpdump -ni net1"
+  "./demo.sh pods_setup 3"
+  "./demo.sh oc_ocp exec -n default -it resnet50-model-server-3 -- ifconfig"
+  "nowait:./demo.sh oc_ocp exec -n default -it resnet50-model-server-3 -- tcpdump -ni net1"
 )
 pane4_comments=(
-  "###### Bring In AI Workload Server resnet50-model-server-3 Configuration Running at Openshift Cluster on Intel X86 Host ######"
-  ""
-  ""
-  ""
-  "###### AI workload Pod Configured with 1 SRIOV-VF Interface to Receive Data Traffic from IPU ######"
-  "###### Enable TCPDUMP to Visualize the Packet Flows at AI Workload Pod (OpenVino) ######"
+  "Bring In AI Workload Server resnet50-model-server-3 Configuration Running at Openshift Cluster on Intel X86 Host"
+  "AI workload Pod Configured with 1 SRIOV-VF Interface to Receive Data Traffic from IPU"
+  "Enable TCPDUMP to Visualize the Packet Flows at AI Workload Pod (OpenVino)"
 )
 
-# Commands & comments per pane
 pane0_client_commands=(
-  "/root/summit/f5-redhat-on-intel-ipu/run_image_prediction_random.py"
+  "nowait:./demo.sh predict"
 )
-
 pane0_client_comments=(
-  "###### AI Inference (Image Prediction) Demonstration with Proxy Server Offload At Intel IPU (SmartNIC) ######"
+  "AI Inference (Image Prediction) Demonstration with Proxy Server Offload At Intel IPU (SmartNIC)"
 )
 
 pane_nginx_status_commands=(
-   "/root/summit/f5-redhat-on-intel-ipu/get_nginx_status.sh"
+   "nowait:watch -n1 ./demo.sh remote exec tgen1 curl -s --cacert /tmp/opilab-demo/server.crt https://172.16.3.200/nginx_status"
 )
-
 pane_nginx_status_comments=(
-  "###### Offloaded NGINX Proxy Server Realtime Stats - Running On Intel IPU (SmartNIC) ######"
+  "Offloaded NGINX Proxy Server Realtime Stats - Running On Intel IPU (SmartNIC)"
 )
 
-clear
-msg="Demonstration of an AI inference use case on Red Hat OpenShift and MicroShift cluster environments running on Intel x86 and IPU (Smart NIC) platforms.\n
-Spawning TMUX Sessions To Configure and Execute This Demonstration\n"
-sleep 3
+export OPI_DEMO_EXEC_SILENT=1
 
-# grab your terminal size
-cols=$(tput cols)
-lines=$(tput lines)
+_tmux_command_idx=0
 
-# compute vertical padding (half the remaining lines)
-vpad=$(( (lines - 1) / 2 ))
+_tmux_command() {
+    local window="$1"
+    local comment="$2"
+    local cmd="$3"
 
-# compute horizontal padding (half the remaining columns)
-hpad=$(( (cols - ${#msg}) / 2 ))
-(( hpad < 0 )) && hpad=0
+    tmux send-keys -t "$session_name:$window" "echo -e \"\e[30;43m###### $comment ######\e[0m\"" C-m
 
-# print blank lines for vertical centering
-for ((i=0; i<vpad; i++)); do
-  echo
-done
+    if [[ "$cmd" != 'nowait:'* ]] ; then
+        _tmux_command_idx="$((_tmux_command_idx + 1))"
+        tmux send-keys -t "$session_name:$window" "$cmd ; tmux wait-for -S \"$window:$_tmux_command_idx:done\"" C-m
+        tmux wait-for "$window:$_tmux_command_idx:done"
+    else
+        cmd="${cmd#nowait:}"
+        tmux send-keys -t "$session_name:$window" "$cmd" C-m
+        sleep 1
+    fi
+}
 
-# print spaces + colored message
-# \e[30;43m = black text on yellow background; \e[0m = reset
-printf '%*s\e[30;43m%s\e[0m\n' "$hpad" '' "$msg"
-sleep 5
+_title_screen() {
+    local msg1="Demonstration of an AI inference use case on Red Hat OpenShift and MicroShift cluster environments running on Intel x86 and IPU (Smart NIC) platforms."
+    local msg2="Spawning TMUX Sessions To Configure and Execute This Demonstration."
 
-# --- Setup tmux session with one window split into three panes ---
-if tmux has-session -t "$session_name" 2>/dev/null; then
-  tmux kill-session -t "$session_name"
-fi
+    clear
+    sleep 3
 
-# Create session with single window
-tmux new-session -d -s "$session_name" -n main
-# Split main window: first vertical, then horizontal on the right pane
-tmux split-window -h -t "$session_name:0"
-tmux split-window -v -t "$session_name:0.1"
-tmux split-window -v -t "$session_name:0.2"
-tmux split-window -v -t "$session_name:0.3"
-tmux split-window -v -t "$session_name:0.4"
+    local cols
+    local lines
 
-# --- Execute commands in their designated panes ---
-(
-  # Pane 0 (left) – zoom before running
-  tmux select-pane -t "${session_name}:0.0"
-  tmux resize-pane -Z -t "${session_name}:0.0"
+    # grab your terminal size
+    cols="$(tput cols)"
+    lines="$(tput lines)"
 
-  for i in "${!pane0_commands[@]}"; do
-    # print comment in pane 0
-    tmux send-keys -t "${session_name}:0.0" "echo -e \"\e[30;43m ${pane0_comments[i]} \e[0m\"" C-m
-    # run command in pane 0
-    cmd="${pane0_commands[i]}"
-    tmux send-keys -t "${session_name}:0.0" "$cmd" C-m
-    sleep "$pause_seconds"
-  done
+    # compute vertical padding (half the remaining lines)
+    local vpad="$(( (lines - 1) / 2 ))"
 
-  # Zoom out pane 0
-  sleep 3
-  tmux resize-pane -Z -t "${session_name}:0.0"
+    # compute horizontal padding (half the remaining columns)
+    local hpad="$(( (cols - "${#msg1}") / 2 ))"
+    (( hpad < 0 )) && hpad=0
 
-  # Pane 1 (top-right) – zoom before running
-  tmux select-pane -t "${session_name}:0.1"
-  tmux resize-pane -Z -t "${session_name}:0.1"
+    # print blank lines for vertical centering
+    for ((i=0; i<vpad; i++)); do
+      echo
+    done
 
-  for i in "${!pane1_commands[@]}"; do
-    tmux send-keys -t "${session_name}:0.1" "echo -e \"\e[30;43m ${pane1_comments[i]} \e[0m\"" C-m
-    cmd="${pane1_commands[i]}"
-    tmux send-keys -t "${session_name}:0.1" "$cmd" C-m
-    sleep "$pause_seconds"
-  done
-  sleep 3
-  tmux resize-pane -Z -t "${session_name}:0.1"
+    # print spaces + colored message
+    # \e[30;43m = black text on yellow background; \e[0m = reset
+    printf '%*s\e[30;43m%s\e[0m\n' "$hpad" '' "$msg1"
+    printf '%*s\e[30;43m%s\e[0m\n' "$hpad" '' "$msg2"
+    sleep 5
+}
 
-  # Pane 2 (bottom-right)
-  tmux select-pane -t "${session_name}:0.2"
-  tmux resize-pane -Z -t "${session_name}:0.2"
+_setup_tmux() {
+    # --- Setup tmux session with one window split into three panes ---
+    if tmux has-session -t "$session_name" 2>/dev/null; then
+      tmux kill-session -t "$session_name"
+    fi
 
-  for i in "${!pane2_commands[@]}"; do
-    tmux send-keys -t "${session_name}:0.2" "echo -e \"\e[30;43m ${pane2_comments[i]} \e[0m\"" C-m
-    cmd="${pane2_commands[i]}"
-    tmux send-keys -t "${session_name}:0.2" "$cmd" C-m
-    sleep "$pause_seconds"
-  done
-  sleep 3
-  tmux resize-pane -Z -t "${session_name}:0.2"
+    # Create session with single window
+    tmux new-session -d -s "$session_name" -n main
+    # Split main window: first vertical, then horizontal on the right pane
+    tmux split-window -h -t "$session_name:0"
+    tmux split-window -v -t "$session_name:0.1"
+    tmux split-window -v -t "$session_name:0.2"
+    tmux split-window -v -t "$session_name:0.3"
+    tmux split-window -v -t "$session_name:0.4"
+}
 
-  # Pane 3 (bottom-right)
-  tmux select-pane -t "${session_name}:0.3"
-  tmux resize-pane -Z -t "${session_name}:0.3"
+_run_in_background() {
+    # Pane 0 (left) – zoom before running
+    tmux select-pane -t "$session_name:0.0"
+    tmux resize-pane -Z -t "$session_name:0.0"
 
-  for i in "${!pane2_commands[@]}"; do
-    tmux send-keys -t "${session_name}:0.3" "echo -e \"\e[30;43m ${pane2_comments[i]} \e[0m\"" C-m
-    cmd="${pane2_commands[i]}"
-    tmux send-keys -t "${session_name}:0.3" "$cmd" C-m
-    sleep "$pause_seconds"
-  done
-  sleep 3
-  tmux resize-pane -Z -t "${session_name}:0.3"
-
-  # Pane 4 (bottom-right)
-  tmux select-pane -t "${session_name}:0.4"
-  tmux resize-pane -Z -t "${session_name}:0.4"
-
-  for i in "${!pane2_commands[@]}"; do
-    tmux send-keys -t "${session_name}:0.4" "echo -e \"\e[30;43m ${pane2_comments[i]} \e[0m\"" C-m
-    cmd="${pane2_commands[i]}"
-    tmux send-keys -t "${session_name}:0.4" "$cmd" C-m
-    sleep "$pause_seconds"
-  done
-  sleep 3
-  tmux resize-pane -Z -t "${session_name}:0.4"
-
-  for run in {0..2}; do
-    for i in "${!pane0_client_commands[@]}"; do
-      # print comment in pane 0
-      tmux send-keys -t "${session_name}:main.${run}" "echo -e \"\e[30;43m ${pane0_client_comments[i]} \e[0m\"" C-m
-      # run command in pane 0
-      cmd="${pane0_client_commands[i]}"
-      tmux send-keys -t "${session_name}:main.${run}" "$cmd" C-m
+    for i in "${!pane0_commands[@]}" ; do
+        _tmux_command "0.0" "${pane0_comments[i]}" "${pane0_commands[i]}"
     done
     sleep 3
-    tmux split-window -v -t "$session_name:main.${run}" 
-  done
+    tmux resize-pane -Z -t "$session_name:0.0"
 
-  sleep 5
-  tmux select-pane -t "${session_name}:main.3"
-  tmux resize-pane -Z -t "${session_name}:main.3"
-  for i in "${!pane_nginx_status_commands[@]}"; do
-    # print comment in pane 0
-    tmux send-keys -t "${session_name}:main.3" "echo -e \"\e[30;43m ${pane_nginx_status_comments[i]} \e[0m\"" C-m
-    # run command in pane 0
-    cmd="${pane_nginx_status_commands[i]}"
-    tmux send-keys -t "${session_name}:main.3" "$cmd" C-m
-  done
-  sleep 10
-  tmux select-pane -t "${session_name}:main.3"
-  tmux resize-pane -Z -t "${session_name}:main.3"
+    # Pane 1 (top-right) – zoom before running
+    tmux select-pane -t "$session_name:0.1"
+    tmux resize-pane -Z -t "$session_name:0.1"
+    for i in "${!pane1_commands[@]}"; do
+        _tmux_command "0.1" "${pane1_comments[i]}" "${pane1_commands[i]}"
+    done
+    sleep 3
+    tmux resize-pane -Z -t "$session_name:0.1"
 
-) &
+    # Pane 2 (bottom-right)
+    tmux select-pane -t "$session_name:0.2"
+    tmux resize-pane -Z -t "$session_name:0.2"
+    for i in "${!pane2_commands[@]}"; do
+        _tmux_command "0.2" "${pane2_comments[i]}" "${pane2_commands[i]}"
+    done
+    sleep 3
+    tmux resize-pane -Z -t "$session_name:0.2"
+
+    # Pane 3 (bottom-right)
+    tmux select-pane -t "$session_name:0.3"
+    tmux resize-pane -Z -t "$session_name:0.3"
+    for i in "${!pane3_commands[@]}"; do
+        _tmux_command "0.3" "${pane3_comments[i]}" "${pane3_commands[i]}"
+    done
+    sleep 3
+    tmux resize-pane -Z -t "$session_name:0.3"
+
+    # Pane 4 (bottom-right)
+    tmux select-pane -t "$session_name:0.4"
+    tmux resize-pane -Z -t "$session_name:0.4"
+    for i in "${!pane4_commands[@]}"; do
+        _tmux_command "0.4" "${pane4_comments[i]}" "${pane4_commands[i]}"
+    done
+    sleep 3
+    tmux resize-pane -Z -t "$session_name:0.4"
+
+    tmux split-window -v -t "$session_name:main.0" -p 25
+    tmux select-pane -t "$session_name:main.1"
+    for i in "${!pane_nginx_status_commands[@]}"; do
+        _tmux_command "main.1" "${pane_nginx_status_comments[i]}" "${pane_nginx_status_commands[i]}"
+    done
+    sleep 3
+
+    tmux select-pane -t "$session_name:main.0"
+    for i in "${!pane0_client_commands[@]}"; do
+        _tmux_command "main.0" "${pane0_client_comments[i]}" "${pane0_client_commands[i]}"
+    done
+}
+
+###############################################################################
+
+_title_screen
+_setup_tmux
+_run_in_background &
 
 # Attach session to view the layout
 tmux attach-session -t "$session_name"
