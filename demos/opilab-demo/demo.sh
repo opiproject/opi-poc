@@ -534,17 +534,22 @@ pods_wait_deleted() {
 nginx_setup_base() {
     _echo_p "Configure pod/nginx with base configuration"
 
+    # Install TLS key and certificate.
     oc_nginx_exec /bin/bash -c 'cat > /etc/nginx/server.crt' < ./server.crt
     oc_nginx_exec /bin/bash -c 'cat > /etc/nginx/server.key' < ./server.key
 
+    # Move conflicting default configuration.
     oc_nginx_exec /bin/bash -c '[ ! -f /etc/nginx/conf.d/default.conf ] || mv /etc/nginx/conf.d/default.conf "/etc/nginx/conf.d/default.conf~"'
 
+    # Install a "91-upstream.conf" configuration file. See function
+    # nginx_setup_upstream() which modifies this file.
     cat <<EOF | sed 's/^        //' | oc_nginx_exec /bin/bash -c 'cat > /etc/nginx/conf.d/91-upstream.conf'
         upstream model_servers {
             # Add "server $IP:9000;" entries to pods.
         }
 EOF
 
+    # Install a "90-base.conf" file for proxying requests to the model servers.
     cat <<'    EOF' | sed 's/^        //' | oc_nginx_exec /bin/bash -c 'cat > /etc/nginx/conf.d/90-base.conf'
         log_format main2 '$remote_addr:$remote_port > '
                          '[$time_iso8601.$msec] "$request" '
@@ -577,6 +582,12 @@ EOF
 }
 
 nginx_setup_ipaddr() {
+    # Install a few useful packages and configure static IP addresses
+    # inside the pod.
+    # - 10.56.217.3/24: IP address to talk with AI demo pods (see also
+    #   nad_ip_range() function).
+    # - 172.16.3.200/24: this IP address is reachable from external. HTTP
+    #   requests on this address will be load balanced by the nginx proxy.
     _echo_p "Configure pod/nginx with IP addresses"
     oc_nginx_exec bash -c "
         set -x && \\
@@ -605,6 +616,13 @@ nginx_setup_upstream() {
     local pod_name
     local ip
 
+    # Detect and configure the IP addresses of the AI pods as upstream for the
+    # nginx load balancer.
+    #
+    # See also nad_ip_range(). On the host side the network attachment
+    # definition is configured to hand out a certain 10.56.217.0/24 range to
+    # the pods.
+
     for pod_name in "${POD_NAMES[@]}" ; do
         ip="$(pod_detect_net1_ip "$pod_name")" \
             || { _echo_p "${C_RED}ERROR${C_RESET}: Failure to detect IP address in $pod_name"; return 1; }
@@ -625,6 +643,10 @@ nginx_setup_reload() {
 }
 
 nginx_setup() {
+    # We run the unmodified nginx pod from Docker Container Registry.
+    #
+    # For the demo setup, we must configure it in a suitable way. Primarily the
+    # nginx configuration.
     _echo_p "Setup nginx pod on dh4-acc"
     (
         # shellcheck disable=SC2030
@@ -954,9 +976,9 @@ nad_ip_range() {
     local value
     local new_value
 
-    # We want to manually configure an IP address in the nginx NF.
-    # To avoid clashes, restrict the range that gets automatically assigned
-    # to the resnet pods.
+    # We want to manually configure the 10.56.217.3 address in the nginx NF.
+    # To avoid clashes, restrict the range that gets automatically assigned to
+    # the resnet pods. We do that by patching the network attachment definition.
     #
     # See also https://github.com/openshift/dpu-operator/pull/514
 
