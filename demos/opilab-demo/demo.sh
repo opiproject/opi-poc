@@ -134,9 +134,10 @@ usage() {
 
     _echo "Usage $C_GREEN$SCRIPTNAME$C_RESET COMMAND..."
     _echo
-    _echo "Run with \`bash -x\` to see what the shell script does."
+    _echo "Inspect the script or run with \`bash -x\` to see what the shell script does."
     _echo "You may source the script and call the shell functions directly."
     _echo
+    _echo "Uses:"
     _echo "  export KC_OCP=$C_BLUE$(printf '%q' "$KC_OCP")$C_RESET"
     _echo "  export KC_MSH=$C_BLUE$(printf '%q' "$KC_MSH")$C_RESET"
     _echo
@@ -201,7 +202,7 @@ usage() {
     _echo
     _echo "Setup localhost:"
     _echo " - # connect to VPN (\`openconnect --protocol=f5 vpn.opiproject-lab.org\`)"
-    _echo " - $(printf '%q' "$SCRIPTNAME0") ssh_copy_id \$PUBKEY"
+    _echo " - $(printf '%q' "$SCRIPTNAME0") ssh_copy_id \$SSHKEY"
     _echo " - $(printf '%q' "$SCRIPTNAME0") etc_hosts update"
     _echo " - $(printf '%q' "$SCRIPTNAME0") kubeconfigs /tmp"
     _echo " - $(printf '%q' "$SCRIPTNAME0") info"
@@ -510,7 +511,7 @@ pods_setup() {
         oc_ocp -n default exec -i "pod/$pod_name" -- /bin/bash -c '
             set -x &&
             apt-get update &&
-            apt-get install -y iproute2 iputils-ping net-tools tcpdump &&
+            apt-get install -y procps iproute2 iputils-ping net-tools tcpdump &&
             true
         '
     done
@@ -545,8 +546,14 @@ nginx_setup_base() {
 EOF
 
     cat <<'    EOF' | sed 's/^        //' | oc_nginx_exec /bin/bash -c 'cat > /etc/nginx/conf.d/90-base.conf'
+        log_format main2 '$remote_addr:$remote_port > '
+                         '[$time_iso8601.$msec] "$request" '
+                         '$status $body_bytes_sent "$http_referer" '
+                         '"$http_user_agent" "$http_x_forwarded_for" '
+                         'rt=$request_time';
+
         server {
-            access_log /var/log/nginx/access.log;
+            access_log /var/log/nginx/access.log main2;
 
             listen *:443 ssl http2;
 
@@ -574,7 +581,7 @@ nginx_setup_ipaddr() {
     oc_nginx_exec bash -c "
         set -x && \\
         apt-get update && \\
-        apt-get install -y iproute2 iputils-ping net-tools tcpdump && \\
+        apt-get install -y procps iproute2 iputils-ping net-tools tcpdump && \\
         ip addr flush dev net1 && \\
         ip addr flush dev net2 && \\
         ip addr add 10.56.217.3/24 dev net2 && \\
@@ -649,6 +656,46 @@ do_nginx_setup() {
 do_pods_setup() {
     [ "$#" -le 1 ] || die "Invalid arguments"
     _OPI_DEMO_PODS_SETUP_POD="$1" pods_setup
+}
+
+_cmd_nginx_macs() {
+    oc_msh -n openshift-dpu-operator exec pod/nginx -- bash -c '(ip link show net1; ip link show net2) | sed -n "s/^.*link\/ether \+\([^ ]\+\) \+.*$/\1/p"'
+}
+
+# Check interface rx/tx statistics on dh4-ipu. Call via `watch`
+# shellcheck disable=SC2120
+_cmd_ipu_statistics() {
+    local watch="$1"
+    shift || :
+    local macs=( "$@" )
+    local macs_re
+    local cmd
+
+    if [ "${#macs[@]}" -eq 0 ] ; then
+        mapfile -t macs <<< "$(_cmd_nginx_macs)"
+    fi
+
+    macs_re="$(printf '%s\\|' "${macs[@]}")"
+    macs_re="${macs_re%\\|}"
+
+    cmd="$(cat <<EOF | sed 's/^ */ /' | tr -d '\n'
+            while read -r mac vsi_id ; do
+                printf "%s\\n" "Interface \$mac (\$vsi_id)" ;
+                cli_client -q -s -v "\$vsi_id" | sed -n "s/.*\\(ingress\\|egress\\) packet:.*/  \\0/p" ;
+            done < <(cli_client -c -q | sed -n "/$macs_re/ s/.*vsi_id: \\([0-9xa-fA-F]\\+\\) .*mac addr: \\([^ ]*\\).*/\\2 \\1/p") ;
+EOF
+    )"
+
+    local args=( bash -c "$cmd" )
+    local _notty=1
+    if [ "$watch" = 1 ] ; then
+        args=( watch -x -n 0.3 "${args[@]}" )
+        _notty=0
+    fi
+
+    _EXEC_NOTTY="$_notty" \
+    _EXEC_SILENT=1 \
+    _exec dh4-imc "${args[@]}"
 }
 
 # 2:check cluster:1
@@ -766,8 +813,17 @@ do_remote() {
         "root@$HOST_TGEN1_IP:$tdir/" \
         ;
 
+    local envs=()
+    if [ -n "$OPI_DEMO_SLEEP_TIME" ] ; then
+        envs+=( "OPI_DEMO_SLEEP_TIME=$OPI_DEMO_SLEEP_TIME" )
+    fi
+
     # shellcheck disable=SC2031
-    _exec tgen1 /usr/bin/env _ECHO_P_INDENT="$_ECHO_P_INDENT  " bash "${_OPI_BASH_X[@]}" "$tdir/$SCRIPTNAME" "$@"
+    _exec tgen1 \
+        /usr/bin/env \
+        _ECHO_P_INDENT="$_ECHO_P_INDENT  " \
+        "${envs[@]}" \
+        bash "${_OPI_BASH_X[@]}" "$tdir/$SCRIPTNAME" "$@"
 }
 
 exec_podman_k8stft_on_host() {
@@ -838,6 +894,7 @@ show_info() {
     _echo_p "Show ovs-vsctl inside VSP pod $pod on DPU side"
     oc_msh -n openshift-dpu-operator exec -i "$pod" -- /opt/p4/p4-cp-nws/bin/ovs-vsctl show || true
     oc_msh -n openshift-dpu-operator exec -i "$pod" -- /opt/p4/p4-cp-nws/bin/p4rt-ctl dump-entries br0 | head -n10 || true
+    _cmd_ipu_statistics
 }
 
 cleanup_all() {
@@ -1075,6 +1132,8 @@ _reboot_dh4_reload_idpf_reload_idpf() {
 # healthy again.
 #
 # With "full", also reboot provisioning host "tgen1" and the master VM nodes.
+#
+# Warning: this will take a while.
 do_reboot() {
     local full=0
 
@@ -1239,7 +1298,7 @@ do_inspect() {
 # Regenerate TLS certificate for the nginx pod. This overwrites
 # "server.{key,crt}" in the script directory and is used during redeploy.
 do_tls_generate_keys() {
-    _echo_p "Generate TLS keys ./server.key and ./server.crt"
+    _echo_p "Generate TLS keys $PWD/server.key and $PWD/server.crt"
 
     openssl genpkey -quiet -algorithm RSA -out server.key -pkeyopt rsa_keygen_bits:2048
 
@@ -1275,7 +1334,7 @@ do_tls_generate_keys() {
 # 3:extra helper:2
 # [update]
 # Show entries for your /etc/hosts to be able to locally access console. Pass
-# "update" to update the file with sudo.
+# "update" to update the file using sudo.
 do_etc_hosts() {
     set +x
     local content
@@ -1448,6 +1507,16 @@ do_check() {
 _main() {
     local cmd="$1"
     shift || true
+
+    # For convenience, accept the following aliases:
+    case "$cmd" in
+        'predict_images'|predict_images/)
+            cmd='predict'
+            ;;
+        'inspect.sh')
+            cmd='inspect'
+            ;;
+    esac
 
     case "$cmd" in
         check | \
