@@ -1399,25 +1399,61 @@ EOF
 }
 
 # 3:extra helper:3
-# SSHKEY
+# SSHKEY [WHERE]
 # Call ssh-copy-id to install SSH key in the demo cluster. Pass the SSH key.
+#
+# By default, the SSHKEY is only installed on "tgen1" host. This usually
+# suffices. If you want, set the WHERE parameter to "all" to install it on all
+# related hosts. Alternatively, WHERE can be one of the host names
+# tgen1, opicluster-master-[123], dh4, dh4-acc.
 do_ssh_copy_id() {
     local sshkey="$1"
     local rc=0
+    local i
 
     [ -f "$sshkey" ] || die "Command requires file to SSH key to install"
 
     shift
+
+    local where='tgen1'
+    case "$1" in
+        all|a|-a)
+            where='all'
+            shift
+            ;;
+        tgen1|opicluster-master-[123]|dh4|dh4-acc)
+            where="$1"
+            shift
+            ;;
+        master-[123])
+            where="opicluster-master-${1##*-}"
+            shift
+            ;;
+    esac
+
     [ "$#" -eq 0 ] || die "Invalid arguments"
 
-    _echo_p "Install SSH key $sshkey at tgen1 (root@$HOST_TGEN1_IP)"
-    ssh-copy-id -i "$sshkey" "root@$HOST_TGEN1_IP"
+    if [ "$where" = 'all' ] || [ "$where" = 'tgen1' ] ; then
+        _echo_p "Install SSH key $sshkey at tgen1 (root@$HOST_TGEN1_IP)"
+        ssh-copy-id -i "$sshkey" "root@$HOST_TGEN1_IP"
+    fi
 
-    _echo_p "Install SSH key $sshkey at dh4 (core@$HOST_DH4_IP)"
-    ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "core@$HOST_DH4_IP" || rc=1
+    for i in {1..3} ; do
+        if [ "$where" = 'all' ] || [ "$where" = "opicluster-master-$i" ] ; then
+            _echo_p "Install SSH key $sshkey at opicluster-master-$i (core@192.168.122.$(( i + 1 )))"
+            ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "core@192.168.122.$(( i + 1 ))" || rc=1
+        fi
+    done
 
-    _echo_p "Install SSH key $sshkey at dh4-acc (root@172.16.3.16)"
-    ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "root@172.16.3.16" || rc=1
+    if [ "$where" = 'all' ] || [ "$where" = 'dh4' ] ; then
+        _echo_p "Install SSH key $sshkey at dh4 (core@$HOST_DH4_IP)"
+        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "core@$HOST_DH4_IP" || rc=1
+    fi
+
+    if [ "$where" = 'all' ] || [ "$where" = 'dh4-acc' ] ; then
+        _echo_p "Install SSH key $sshkey at dh4-acc (root@172.16.3.16)"
+        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "root@172.16.3.16" || rc=1
+    fi
 
     return "$rc"
 }
