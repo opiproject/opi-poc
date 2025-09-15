@@ -700,8 +700,8 @@ EOF
 
 # 2:check cluster:1
 # HOST CMD...
-# Run command on host. First argument is the host (localhost, tgen1, dh4,
-# dh4-acc, dh4-imc), followed by the command.
+# Run command on host. First argument is the host (localhost, tgen1,
+# opicluster-master-[123], dh4, dh4-acc, dh4-imc), followed by the command.
 do_exec() {
     _EXEC_SILENT="$OPI_DEMO_EXEC_SILENT" \
     _exec "$@"
@@ -709,10 +709,8 @@ do_exec() {
 
 _exec() {
     local host="$1"
-    local ssh_cmd=()
     local args=()
     local cmd
-    local _ssh_t=( "${_OPI_SSH_T[@]}" )
 
     [ -n "$host" ] || die "missing name of target host for exec"
 
@@ -720,19 +718,18 @@ _exec() {
 
     [ "$#" -gt 0 ] || die "missing command to execute on host $host"
 
-    if [ "$_EXEC_NOTTY" = 1 ] ; then
-        _ssh_t=()
-    fi
-
-    if ! is_tgen1 ; then
-        ssh_cmd=( ssh "${_ssh_t[@]}" "root@$HOST_TGEN1_IP" )
-    fi
-
     args=( "$@" )
 
-    if [ "$host" = 'dh4' ] ; then
-        args=( sudo -- "${args[@]}" )
-    fi
+
+    case "$host" in
+        master-[123]|opicluster-master-[123])
+            host="opicluster-master-${host##*-}"
+            args=( sudo -- bash -c "cd &&$(printf ' %q' "${args[@]}")" )
+            ;;
+        dh4)
+            args=( sudo -- bash -c "cd &&$(printf ' %q' "${args[@]}")" )
+            ;;
+    esac
 
     cmd="$(printf '%q ' "${args[@]}")"
     cmd="${cmd% }"
@@ -741,47 +738,56 @@ _exec() {
         _echo_p "Run on $host: $cmd"
     fi
 
+    local _ssh_t=()
+    if [ "$_EXEC_NOTTY" != 1 ] ; then
+        _ssh_t=( "${_OPI_SSH_T[@]}" )
+    fi
+
+    local ssh_cmd_tgen1=()
+    if ! is_tgen1 ; then
+        # If we are not on tgen1, we progably will first remote the call via
+        # ssh. that has two reasons:
+        # - some hosts (dh4-acc) are not directly accessible via the SSH. We
+        #   Need to go through tgen1
+        # - by going through tgen1, we only need authentication via that host.
+        #   tgen1 can from there password-less login to the other hosts.
+        ssh_cmd_tgen1=( ssh "${_ssh_t[@]}" "root@$HOST_TGEN1_IP" )
+    fi
+
     case "$host" in
         localhost)
+            ssh_cmd_tgen1=()
             ;;
         tgen1)
-            if [ "${#ssh_cmd[@]}" -gt 0 ] ; then
-                args=( "${ssh_cmd[@]}" "$cmd" )
+            if [ "${#ssh_cmd_tgen1[@]}" -gt 0 ] ; then
+                args=( "${ssh_cmd_tgen1[@]}" "$cmd" )
             fi
+            ssh_cmd_tgen1=()
+            ;;
+        opicluster-master-[123])
+            args=( ssh "${_ssh_t[@]}" "core@192.168.122.$(( "${host##*-}" + 1 ))" "$cmd" )
             ;;
         dh4-acc)
             args=( ssh "${_ssh_t[@]}" "root@172.16.3.16" "$cmd" )
-
-            if [ "${#ssh_cmd[@]}" -gt 0 ] ; then
-                cmd="$(printf '%q ' "${args[@]}")"
-                cmd="${cmd% }"
-                args=( "${ssh_cmd[@]}" "$cmd" )
-            fi
             ;;
         dh4-imc)
             args=( ssh "${_ssh_t[@]}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR "root@172.22.4.4" "$cmd" )
-
-            if [ "${#ssh_cmd[@]}" -gt 0 ] ; then
-                cmd="$(printf '%q ' "${args[@]}")"
-                cmd="${cmd% }"
-                args=( "${ssh_cmd[@]}" "$cmd" )
-            fi
             ;;
         dh4)
             args=( ssh "${_ssh_t[@]}" "core@$HOST_DH4_IP" "$cmd" )
-
-            # We use ssh here. Maybe should should instead use
-            #   oc_ocp debug -q node/dh4 -- chroot /host ...
-            if [ "${#ssh_cmd[@]}" -gt 0 ] ; then
-                cmd="$(printf '%q ' "${args[@]}")"
-                cmd="${cmd% }"
-                args=( "${ssh_cmd[@]}" "$cmd" )
-            fi
             ;;
         *)
             die "Invalid host $host for exec"
             ;;
     esac
+
+    if [ "${#ssh_cmd_tgen1[@]}" -gt 0 ] ; then
+        local cmd2
+
+        cmd2="$(printf '%q ' "${args[@]}")"
+        cmd2="${cmd2% }"
+        args=( "${ssh_cmd_tgen1[@]}" "$cmd2" )
+    fi
 
     (
         cd "$ORIGINAL_PWD"
