@@ -119,7 +119,7 @@ _retry_with_timeout() {
             return 0
         fi
 
-        if (( "$(_now)" > deadline )) ; then
+        if (( "$(_now)" >= deadline )) ; then
             return 124
         fi
 
@@ -211,6 +211,20 @@ usage() {
 is_tgen1() {
     [ "$(hostname)" = "tgen1" ] || return 1
     return 0
+}
+
+get_podname() {
+    local pod_name="$1"
+
+    case "$pod_name" in
+        [0-9]|[0-9][0-9])
+            pod_name="resnet50-model-server-$pod_name"
+            ;;
+        *)
+            ;;
+    esac
+
+    _echo "$pod_name"
 }
 
 # 2:check cluster:5
@@ -448,33 +462,40 @@ pod_create() {
 EOF
 }
 
-pod_detect_net1_ip() {
-    local pod_name
+_pod_detect_net1_ip() {
+    local pod_name="$1"
+    local rc=0
     local ip
-    local rc
 
-    pod_name="$1"
+    ip="$(
+        oc_ocp -n default get pod "$pod_name" \
+            -o jsonpath='{.metadata.annotations.k8s\.v1\.cni\.cncf\.io/network-status}' \
+            | jq -r '
+                   .[]
+                   | select(.interface == "net1")
+                   | .ips[0]
+            ' \
+        )" \
+        || rc=1
 
-    for _ in {1..200} ; do
-        rc=0
-        ip="$(
-            oc_ocp -n default get pod "$pod_name" \
-                -o jsonpath='{.metadata.annotations.k8s\.v1\.cni\.cncf\.io/network-status}' \
-                | jq -r '
-                       .[]
-                       | select(.interface == "net1")
-                       | .ips[0]
-                ' \
-            )" \
-            || rc=1
-        if [ "$rc" -eq 0 ] && [ -n "$ip" ] ; then
-            printf '%s' "$ip"
-            return 0
-        fi
-        sleep 1
-    done
+    if [ "$rc" -eq 0 ] && [ -n "$ip" ] ; then
+        printf '%s' "$ip"
+        return 0
+    fi
 
     return 1
+}
+
+pod_detect_net1_ip() {
+    local timeout="$1"
+    local pod_name="$2"
+    local rc
+
+    pod_name="$(get_podname "$pod_name")"
+    rc="0"
+    _retry_with_timeout "$timeout" \
+        _pod_detect_net1_ip "$pod_name" || rc="$?"
+    return "$rc"
 }
 
 pods_create() {
@@ -500,13 +521,7 @@ pods_setup() {
     fi
 
     for pod_name in "${pod_names[@]}" ; do
-        case "$pod_name" in
-            [0-9]|[0-9][0-9])
-                pod_name="resnet50-model-server-$pod_name"
-                ;;
-            *)
-                ;;
-        esac
+        pod_name="$(get_podname "$pod_name")"
         _echo_p "Install tcpdump and tools in resnet pod $pod_name"
         oc_ocp -n default exec -i "pod/$pod_name" -- /bin/bash -c '
             set -x &&
@@ -624,7 +639,7 @@ nginx_setup_upstream() {
     # the pods.
 
     for pod_name in "${POD_NAMES[@]}" ; do
-        ip="$(pod_detect_net1_ip "$pod_name")" \
+        ip="$(pod_detect_net1_ip 180 "$pod_name")" \
             || { _echo_p "${C_RED}ERROR${C_RESET}: Failure to detect IP address in $pod_name"; return 1; }
 
         if ! _validate_ip "$ip" ; then
@@ -678,6 +693,16 @@ do_nginx_setup() {
 do_pods_setup() {
     [ "$#" -le 1 ] || die "Invalid arguments"
     _OPI_DEMO_PODS_SETUP_POD="$1" pods_setup
+}
+
+# 2:check cluster:9
+# POD
+# Lookup the IP address on the secondary network net1 of the AI pod on the OCP
+# side. This is the upstream IP address for the nginx load balancer.
+do_pod_detect_net1_ip() {
+    [ "$#" -le 1 ] || die "Invalid arguments"
+    [ "$#" -eq 1 ] || die "Missing pod name"
+    pod_detect_net1_ip 0 "$1"
 }
 
 _cmd_nginx_macs() {
@@ -884,13 +909,7 @@ do_tcpdump_pod() {
 
     shift
 
-    case "$pod_name" in
-        [0-9]|[0-9][0-9])
-            pod_name="resnet50-model-server-$pod_name"
-            ;;
-        *)
-            ;;
-    esac
+    pod_name="$(get_podname "$pod_name")"
 
     args=( -i net1 -n "$@" )
 
@@ -1600,6 +1619,7 @@ _main() {
         exec | \
         inspect | \
         kubeconfigs | \
+        pod_detect_net1_ip | \
         pods_setup | \
         reboot | \
         remote | \
