@@ -746,9 +746,11 @@ EOF
 }
 
 # 2:check cluster:1
-# HOST CMD...
+# HOST [CMD...]
 # Run command on host. First argument is the host (localhost, tgen1,
 # opicluster-master-[123], dh4, dh4-acc, dh4-imc), followed by the command.
+#
+# If no command is given, default to an interactive "bash" session.
 do_exec() {
     _EXEC_SILENT="$OPI_DEMO_EXEC_SILENT" \
     _exec "$@"
@@ -763,10 +765,11 @@ _exec() {
 
     shift
 
-    [ "$#" -gt 0 ] || die "missing command to execute on host $host"
-
-    args=( "$@" )
-
+    if [ "$#" -gt 0 ] ; then
+        args=( "$@" )
+    else
+        args=( bash )
+    fi
 
     case "$host" in
         master-[123]|opicluster-master-[123])
