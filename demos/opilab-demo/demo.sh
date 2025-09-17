@@ -748,7 +748,8 @@ EOF
 # 2:check cluster:1
 # HOST [CMD...]
 # Run command on host. First argument is the host (localhost, tgen1,
-# opicluster-master-[123], dh4, dh4-acc, dh4-imc), followed by the command.
+# opicluster-master-[123], dh4, dh4-acc, dh4-imc, mgmt), followed by the
+# command.
 #
 # If no command is given, default to an interactive "bash" session.
 do_exec() {
@@ -825,6 +826,9 @@ _exec() {
             ;;
         dh4)
             args=( ssh "${_ssh_t[@]}" "core@$HOST_DH4_IP" "$cmd" )
+            ;;
+        mgmt)
+            args=( ssh "${_ssh_t[@]}" "root@172.22.0.1" "$cmd" )
             ;;
         *)
             die "Invalid host $host for exec"
