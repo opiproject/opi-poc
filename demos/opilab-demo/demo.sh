@@ -991,8 +991,10 @@ cleanup_all() {
     pods_delete
 
     _echo_p "Wait for SFC and Pods to be gone"
-    sfc_wait_deleted
-    pods_wait_deleted
+    sfc_wait_deleted \
+        || _echo_p "  Failed"
+    pods_wait_deleted \
+        || _echo_p "  Failed"
 }
 
 py_pip_install() {
@@ -1061,14 +1063,16 @@ _wait_node_ready_ocp_masters() {
     _echo_p "Wait for master nodes in opicluster to be ready"
     KUBECONFIG="$KC_OCP" \
     _retry_with_timeout 180 \
-        oc_node_in_state '^opicluster-master-[0-9]+$' all True
+        oc_node_in_state '^opicluster-master-[0-9]+$' all True \
+        || { _echo_p "  not ready"; return 1; }
 }
 
 _wait_node_ready_ocp_dh4() {
     _echo_p "Wait for worker node dh4 in opicluster to be ready"
     KUBECONFIG="$KC_OCP" \
     _retry_with_timeout 180 \
-        oc_node_in_state '^dh4$' all True
+        oc_node_in_state '^dh4$' all True \
+        || { _echo_p "  not ready"; return 1; }
 }
 
 _wait_node_ready_microshift() {
@@ -1132,7 +1136,7 @@ _reboot_dh4_acc_one() {
     _EXEC_CMDSILENT=1 \
     _indent2 _exec dh4-imc \
         bash -c "$_opidemo_poweroffcmd" \
-        || return 1
+        || { _echo_p "  ${C_YELLOW}power off command for dh4-imc failed$C_RESET"; return 1 ; }
 
     sleep 60
 
