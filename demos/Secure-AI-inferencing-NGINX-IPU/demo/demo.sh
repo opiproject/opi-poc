@@ -28,10 +28,8 @@ if [ -z "$KC_MSH" ] ; then
     if [ ! -f "$KC_MSH" ] && [ -f "/tmp/kubeconfig.microshift"  ] ; then KC_MSH="/tmp/kubeconfig.microshift"  ; fi
     if [ ! -f "$KC_MSH" ] && [ -f "/root/kubeconfig.microshift" ] ; then KC_MSH="/root/kubeconfig.microshift" ; fi
 fi
-POD_NAMES=()
-for i in $(seq 1 "$NUM_PODS") ; do
-    POD_NAMES+=( "resnet50-model-server-$i" )
-done
+
+POD_NAME_BASE="resnet50-model-server"
 
 INFERENCE_VENV="/tmp/opilab-demo-inference-venv"
 
@@ -213,18 +211,27 @@ is_tgen1() {
     return 0
 }
 
+get_podnames() {
+    oc_ocp -n default get pods \
+        -l app="$POD_NAME_BASE-service" \
+        -o custom-columns=:metadata.name --no-headers \
+        --sort-by=.metadata.name
+}
+
 get_podname() {
     local pod_name="$1"
 
     case "$pod_name" in
-        [0-9]|[0-9][0-9])
-            pod_name="resnet50-model-server-$pod_name"
+        [0-9] | \
+        [0-9][0-9] | \
+        pod-[0-9] | \
+        pod-[0-9][0-9] )
+            get_podnames | sed -n "${pod_name##*-} p"
             ;;
         *)
+            _echo "$pod_name"
             ;;
     esac
-
-    _echo "$pod_name"
 }
 
 # 2:check cluster:5
@@ -398,67 +405,72 @@ sfc_wait_deleted() {
     oc_msh -n openshift-dpu-operator wait --for="delete" "pod/nginx" --timeout=15m
 }
 
-pod_create() {
-    local pod_name="$1"
-
-    _echo_p "Create resnet pod \"$pod_name\" in default namespace"
+pod_deployment_create() {
+    _echo_p "Create resnet deployment \"$POD_NAME_BASE\" in default namespace"
 
     cat <<EOF | sed 's/^        //' | oc_ocp create -f -
-        apiVersion: v1
-        kind: Pod
+        apiVersion: apps/v1
+        kind: Deployment
         metadata:
-          name: $pod_name
+          name: $POD_NAME_BASE
           namespace: default
-          annotations:
-            k8s.v1.cni.cncf.io/networks: default-sriov-net
-          labels:
-            app: resnet50-model-server-service
         spec:
-          securityContext:
-            runAsUser: 0
-          nodeSelector:
-            kubernetes.io/hostname: dh4
-          volumes:
-            - name: model-volume
-              emptyDir: {}
-          initContainers:
-            - name: model-downloader
-              image: ubuntu:latest
+          replicas: $NUM_PODS
+          selector:
+            matchLabels:
+              app: $POD_NAME_BASE-service
+          template:
+            metadata:
+              annotations:
+                k8s.v1.cni.cncf.io/networks: default-sriov-net
+              labels:
+                app: $POD_NAME_BASE-service
+            spec:
               securityContext:
                 runAsUser: 0
-              command:
-                - bash
-                - -c
-                - |
-                  apt-get update && \
-                  apt-get install -y wget ca-certificates && \
-                  mkdir -p /models/1 && \
-                  wget --no-check-certificate https://storage.openvinotoolkit.org/repositories/open_model_zoo/2022.1/models_bin/2/resnet50-binary-0001/FP32-INT1/resnet50-binary-0001.xml -O /models/1/model.xml && \
-                  wget --no-check-certificate https://storage.openvinotoolkit.org/repositories/open_model_zoo/2022.1/models_bin/2/resnet50-binary-0001/FP32-INT1/resnet50-binary-0001.bin -O /models/1/model.bin
-              volumeMounts:
+              nodeSelector:
+                dpu: "true"
+              volumes:
                 - name: model-volume
-                  mountPath: /models
-          containers:
-            - name: ovms
-              image: openvino/model_server:latest
-              args:
-                - "--model_path=/models"
-                - "--model_name=resnet50"
-                - "--port=9000"
-                - "--rest_port=8000"
-              ports:
-                - containerPort: 8000
-                - containerPort: 9000
-              volumeMounts:
-                - name: model-volume
-                  mountPath: /models
-              securityContext:
-                  privileged: true
-              resources:
-                requests:
-                  openshift.io/dpu: '1'
-                limits:
-                  openshift.io/dpu: '1'
+                  emptyDir: {}
+              initContainers:
+                - name: model-downloader
+                  image: ubuntu:latest
+                  securityContext:
+                    runAsUser: 0
+                  command:
+                    - bash
+                    - -c
+                    - |
+                      apt-get update && \
+                      apt-get install -y wget ca-certificates && \
+                      mkdir -p /models/1 && \
+                      wget --no-check-certificate https://storage.openvinotoolkit.org/repositories/open_model_zoo/2022.1/models_bin/2/resnet50-binary-0001/FP32-INT1/resnet50-binary-0001.xml -O /models/1/model.xml && \
+                      wget --no-check-certificate https://storage.openvinotoolkit.org/repositories/open_model_zoo/2022.1/models_bin/2/resnet50-binary-0001/FP32-INT1/resnet50-binary-0001.bin -O /models/1/model.bin
+                  volumeMounts:
+                    - name: model-volume
+                      mountPath: /models
+              containers:
+                - name: ovms
+                  image: openvino/model_server:latest
+                  args:
+                    - "--model_path=/models"
+                    - "--model_name=resnet50"
+                    - "--port=9000"
+                    - "--rest_port=8000"
+                  ports:
+                    - containerPort: 8000
+                    - containerPort: 9000
+                  volumeMounts:
+                    - name: model-volume
+                      mountPath: /models
+                  securityContext:
+                      privileged: true
+                  resources:
+                    requests:
+                      openshift.io/dpu: '1'
+                    limits:
+                      openshift.io/dpu: '1'
 EOF
 }
 
@@ -498,26 +510,19 @@ pod_detect_net1_ip() {
     return "$rc"
 }
 
-pods_create() {
-    for pod_name in "${POD_NAMES[@]}" ; do
-        pod_create "$pod_name"
-    done
-}
-
 pods_wait() {
     _echo_p "Wait for resnet pods to be ready"
-    for pod_name in "${POD_NAMES[@]}" ; do
-         oc_ocp -n default wait --for="condition=Ready" "pod/$pod_name" --timeout=15m
-    done
+    oc_ocp -n default wait --for="condition=Ready" -l app="$POD_NAME_BASE-service" pod  --timeout=15m
 }
 
 pods_setup() {
+    local pod_name
     local pod_names
 
     if [ -n "$_OPI_DEMO_PODS_SETUP_POD" ] ; then
         mapfile -t pod_names <<< "$_OPI_DEMO_PODS_SETUP_POD"
     else
-        pod_names=( "${POD_NAMES[@]}" )
+        mapfile -t pod_names < <(get_podnames)
     fi
 
     for pod_name in "${pod_names[@]}" ; do
@@ -532,18 +537,14 @@ pods_setup() {
     done
 }
 
-pods_delete() {
-    _echo_p "Delete resnet Pods"
-    for pod_name in "${POD_NAMES[@]}" ; do
-        oc_ocp -n default delete "pod/$pod_name" || true
-    done
+pod_deployment_delete() {
+    _echo_p "Delete resnet Deployment $POD_NAME_BASE"
+    oc_ocp -n default delete --wait=false "deployment/$POD_NAME_BASE" || :
 }
 
 pods_wait_deleted() {
     _echo_p "Wait for resnet pods to be deleted"
-    for pod_name in "${POD_NAMES[@]}" ; do
-        oc_ocp -n default wait --for="delete" "pod/$pod_name" --timeout=15m
-    done
+    oc_ocp -n default wait --for="delete" -l app="$POD_NAME_BASE-service" pod --timeout=15m
 }
 
 nginx_setup_base() {
@@ -638,7 +639,7 @@ nginx_setup_upstream() {
     # definition is configured to hand out a certain 10.56.217.0/24 range to
     # the pods.
 
-    for pod_name in "${POD_NAMES[@]}" ; do
+    while IFS= read -r pod_name ; do
         ip="$(pod_detect_net1_ip 180 "$pod_name")" \
             || { _echo_p "${C_RED}ERROR${C_RESET}: Failure to detect IP address in $pod_name"; return 1; }
 
@@ -649,7 +650,7 @@ nginx_setup_upstream() {
 
         _echo_p "Configure pod/nginx with upstream IP address $ip for $pod_name"
         nginx_setup_upstream_ip "$ip"
-    done
+    done < <(get_podnames)
 }
 
 nginx_setup_reload() {
@@ -768,6 +769,7 @@ _exec() {
     local host
     local args=()
     local args_cmd
+    local name
 
     while : ; do
         case "$1" in
@@ -858,8 +860,9 @@ _exec() {
         mgmt)
             args=( ssh "${_ssh_t[@]}" "root@172.22.0.1" "$args_cmd" )
             ;;
-        dh4-pod-[123])
-            args=( oc --kubeconfig="/root/kubeconfig.opicluster" exec -n default "${_oc_t[@]}" -i "pod/resnet50-model-server-${host##*-}" -- "${args[@]}" )
+        dh4-pod-[1-9])
+            name="$(get_podname "${host##*-}")"
+            args=( oc --kubeconfig="/root/kubeconfig.opicluster" exec -n default "${_oc_t[@]}" -i "pod/$name" -- "${args[@]}" )
             ;;
         dh4-acc-nginx)
             args=( oc --kubeconfig="/root/kubeconfig.dh4-acc" exec -n openshift-dpu-operator "${_oc_t[@]}" -i pod/nginx -- "${args[@]}" )
@@ -988,7 +991,7 @@ show_info() {
 cleanup_all() {
     _echo_p "Delete SFC"
     sfc_delete
-    pods_delete
+    pod_deployment_delete
 
     _echo_p "Wait for SFC and Pods to be gone"
     sfc_wait_deleted \
@@ -1309,7 +1312,7 @@ do_redeploy() {
         cleanup_all
 
         sfc_create
-        pods_create
+        pod_deployment_create
 
         sfc_wait
         pods_wait
