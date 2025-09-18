@@ -746,7 +746,7 @@ EOF
 }
 
 # 2:check cluster:1
-# HOST [CMD...]
+# HOST [-s] [-T] [CMD...]
 # Run command on host. First argument is the host followed by the command.
 # If no command is given, it defaults to bash.
 #
@@ -755,16 +755,37 @@ EOF
 #
 # Also supported is "dh4-acc-nginx" and "dh4-pod-[123]", in which we use
 # oc-exec to run a command inside the pods.
+#
+# The flags "-s" and "-T" make the command silent and without TTY, respectively.
+# Also, OPI_DEMO_EXEC_{SILENT,NOTTY}=1 environment is honored.
 do_exec() {
     _EXEC_SILENT="$OPI_DEMO_EXEC_SILENT" \
+    _EXEC_NOTTY="$OPI_DEMO_EXEC_NOTTY" \
     _exec "$@"
 }
 
 _exec() {
-    local host="$1"
+    local host
     local args=()
     local args_cmd
 
+    while : ; do
+        case "$1" in
+            -s)
+                local _EXEC_SILENT=1
+                shift
+                ;;
+            -T)
+                local _EXEC_NOTTY=1
+                shift
+                ;;
+            *)
+                break
+                ;;
+        esac
+    done
+
+    host="$1"
     [ -n "$host" ] || die "missing name of target host for exec"
 
     shift
