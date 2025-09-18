@@ -747,11 +747,14 @@ EOF
 
 # 2:check cluster:1
 # HOST [CMD...]
-# Run command on host. First argument is the host (localhost, tgen1,
-# opicluster-master-[123], dh4, dh4-acc, dh4-imc, mgmt), followed by the
-# command.
+# Run command on host. First argument is the host followed by the command.
+# If no command is given, it defaults to bash.
 #
-# If no command is given, default to an interactive "bash" session.
+# Supported hosts are "localhost", "tgen1", "opicluster-master-[123]", "dh4",
+# "dh4-acc", dh4-imc", "mgmt". In those case, the command uses SSH via tgen1.
+#
+# Also supported is "dh4-acc-nginx" and "dh4-pod-[123]", in which we use
+# oc-exec to run a command inside the pods.
 do_exec() {
     _EXEC_SILENT="$OPI_DEMO_EXEC_SILENT" \
     _exec "$@"
@@ -760,7 +763,7 @@ do_exec() {
 _exec() {
     local host="$1"
     local args=()
-    local cmd
+    local args_cmd
 
     [ -n "$host" ] || die "missing name of target host for exec"
 
@@ -782,16 +785,20 @@ _exec() {
             ;;
     esac
 
-    cmd="$(printf '%q ' "${args[@]}")"
-    cmd="${cmd% }"
+    args_cmd="$(printf '%q ' "${args[@]}")"
+    args_cmd="${args_cmd% }"
 
     if [ "$_EXEC_SILENT" != 1 ] ; then
-        _echo_p "Run on $host: $cmd"
+        _echo_p "Run on $host: $args_cmd"
     fi
 
     local _ssh_t=()
+    local _oc_t=()
     if [ "$_EXEC_NOTTY" != 1 ] ; then
         _ssh_t=( "${_OPI_SSH_T[@]}" )
+        if [ "${#_OPI_SSH_T[@]}" -gt 0 ] ; then
+            _oc_t=( '-t' )
+        fi
     fi
 
     local ssh_cmd_tgen1=()
@@ -811,24 +818,30 @@ _exec() {
             ;;
         tgen1)
             if [ "${#ssh_cmd_tgen1[@]}" -gt 0 ] ; then
-                args=( "${ssh_cmd_tgen1[@]}" "$cmd" )
+                args=( "${ssh_cmd_tgen1[@]}" "$args_cmd" )
             fi
             ssh_cmd_tgen1=()
             ;;
         opicluster-master-[123])
-            args=( ssh "${_ssh_t[@]}" "core@192.168.122.$(( "${host##*-}" + 1 ))" "$cmd" )
+            args=( ssh "${_ssh_t[@]}" "core@192.168.122.$(( "${host##*-}" + 1 ))" "$args_cmd" )
             ;;
         dh4-acc)
-            args=( ssh "${_ssh_t[@]}" "root@172.16.3.16" "$cmd" )
+            args=( ssh "${_ssh_t[@]}" "root@172.16.3.16" "$args_cmd" )
             ;;
         dh4-imc)
-            args=( ssh "${_ssh_t[@]}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR "root@172.22.4.4" "$cmd" )
+            args=( ssh "${_ssh_t[@]}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR "root@172.22.4.4" "$args_cmd" )
             ;;
         dh4)
-            args=( ssh "${_ssh_t[@]}" "core@$HOST_DH4_IP" "$cmd" )
+            args=( ssh "${_ssh_t[@]}" "core@$HOST_DH4_IP" "$args_cmd" )
             ;;
         mgmt)
-            args=( ssh "${_ssh_t[@]}" "root@172.22.0.1" "$cmd" )
+            args=( ssh "${_ssh_t[@]}" "root@172.22.0.1" "$args_cmd" )
+            ;;
+        dh4-pod-[123])
+            args=( oc --kubeconfig="/root/kubeconfig.opicluster" exec -n default "${_oc_t[@]}" -i "pod/resnet50-model-server-${host##*-}" -- "${args[@]}" )
+            ;;
+        dh4-acc-nginx)
+            args=( oc --kubeconfig="/root/kubeconfig.dh4-acc" exec -n openshift-dpu-operator "${_oc_t[@]}" -i pod/nginx -- "${args[@]}" )
             ;;
         *)
             die "Invalid host $host for exec"
