@@ -119,7 +119,7 @@ _retry_with_timeout() {
             return 0
         fi
 
-        if (( "$(_now)" > deadline )) ; then
+        if (( "$(_now)" >= deadline )) ; then
             return 124
         fi
 
@@ -134,9 +134,10 @@ usage() {
 
     _echo "Usage $C_GREEN$SCRIPTNAME$C_RESET COMMAND..."
     _echo
-    _echo "Run with \`bash -x\` to see what the shell script does."
+    _echo "Inspect the script or run with \`bash -x\` to see what the shell script does."
     _echo "You may source the script and call the shell functions directly."
     _echo
+    _echo "Uses:"
     _echo "  export KC_OCP=$C_BLUE$(printf '%q' "$KC_OCP")$C_RESET"
     _echo "  export KC_MSH=$C_BLUE$(printf '%q' "$KC_MSH")$C_RESET"
     _echo
@@ -201,7 +202,7 @@ usage() {
     _echo
     _echo "Setup localhost:"
     _echo " - # connect to VPN (\`openconnect --protocol=f5 vpn.opiproject-lab.org\`)"
-    _echo " - $(printf '%q' "$SCRIPTNAME0") ssh_copy_id \$PUBKEY"
+    _echo " - $(printf '%q' "$SCRIPTNAME0") ssh_copy_id \$SSHKEY"
     _echo " - $(printf '%q' "$SCRIPTNAME0") etc_hosts update"
     _echo " - $(printf '%q' "$SCRIPTNAME0") kubeconfigs /tmp"
     _echo " - $(printf '%q' "$SCRIPTNAME0") info"
@@ -210,6 +211,20 @@ usage() {
 is_tgen1() {
     [ "$(hostname)" = "tgen1" ] || return 1
     return 0
+}
+
+get_podname() {
+    local pod_name="$1"
+
+    case "$pod_name" in
+        [0-9]|[0-9][0-9])
+            pod_name="resnet50-model-server-$pod_name"
+            ;;
+        *)
+            ;;
+    esac
+
+    _echo "$pod_name"
 }
 
 # 2:check cluster:5
@@ -447,33 +462,40 @@ pod_create() {
 EOF
 }
 
-pod_detect_net1_ip() {
-    local pod_name
+_pod_detect_net1_ip() {
+    local pod_name="$1"
+    local rc=0
     local ip
-    local rc
 
-    pod_name="$1"
+    ip="$(
+        oc_ocp -n default get pod "$pod_name" \
+            -o jsonpath='{.metadata.annotations.k8s\.v1\.cni\.cncf\.io/network-status}' \
+            | jq -r '
+                   .[]
+                   | select(.interface == "net1")
+                   | .ips[0]
+            ' \
+        )" \
+        || rc=1
 
-    for _ in {1..200} ; do
-        rc=0
-        ip="$(
-            oc_ocp -n default get pod "$pod_name" \
-                -o jsonpath='{.metadata.annotations.k8s\.v1\.cni\.cncf\.io/network-status}' \
-                | jq -r '
-                       .[]
-                       | select(.interface == "net1")
-                       | .ips[0]
-                ' \
-            )" \
-            || rc=1
-        if [ "$rc" -eq 0 ] && [ -n "$ip" ] ; then
-            printf '%s' "$ip"
-            return 0
-        fi
-        sleep 1
-    done
+    if [ "$rc" -eq 0 ] && [ -n "$ip" ] ; then
+        printf '%s' "$ip"
+        return 0
+    fi
 
     return 1
+}
+
+pod_detect_net1_ip() {
+    local timeout="$1"
+    local pod_name="$2"
+    local rc
+
+    pod_name="$(get_podname "$pod_name")"
+    rc="0"
+    _retry_with_timeout "$timeout" \
+        _pod_detect_net1_ip "$pod_name" || rc="$?"
+    return "$rc"
 }
 
 pods_create() {
@@ -499,18 +521,12 @@ pods_setup() {
     fi
 
     for pod_name in "${pod_names[@]}" ; do
-        case "$pod_name" in
-            [0-9]|[0-9][0-9])
-                pod_name="resnet50-model-server-$pod_name"
-                ;;
-            *)
-                ;;
-        esac
+        pod_name="$(get_podname "$pod_name")"
         _echo_p "Install tcpdump and tools in resnet pod $pod_name"
         oc_ocp -n default exec -i "pod/$pod_name" -- /bin/bash -c '
             set -x &&
             apt-get update &&
-            apt-get install -y iproute2 iputils-ping net-tools tcpdump &&
+            apt-get install -y procps iproute2 iputils-ping net-tools tcpdump &&
             true
         '
     done
@@ -533,20 +549,31 @@ pods_wait_deleted() {
 nginx_setup_base() {
     _echo_p "Configure pod/nginx with base configuration"
 
+    # Install TLS key and certificate.
     oc_nginx_exec /bin/bash -c 'cat > /etc/nginx/server.crt' < ./server.crt
     oc_nginx_exec /bin/bash -c 'cat > /etc/nginx/server.key' < ./server.key
 
+    # Move conflicting default configuration.
     oc_nginx_exec /bin/bash -c '[ ! -f /etc/nginx/conf.d/default.conf ] || mv /etc/nginx/conf.d/default.conf "/etc/nginx/conf.d/default.conf~"'
 
+    # Install a "91-upstream.conf" configuration file. See function
+    # nginx_setup_upstream() which modifies this file.
     cat <<EOF | sed 's/^        //' | oc_nginx_exec /bin/bash -c 'cat > /etc/nginx/conf.d/91-upstream.conf'
         upstream model_servers {
             # Add "server $IP:9000;" entries to pods.
         }
 EOF
 
+    # Install a "90-base.conf" file for proxying requests to the model servers.
     cat <<'    EOF' | sed 's/^        //' | oc_nginx_exec /bin/bash -c 'cat > /etc/nginx/conf.d/90-base.conf'
+        log_format main2 '$remote_addr:$remote_port > '
+                         '[$time_iso8601.$msec] "$request" '
+                         '$status $body_bytes_sent "$http_referer" '
+                         '"$http_user_agent" "$http_x_forwarded_for" '
+                         'rt=$request_time';
+
         server {
-            access_log /var/log/nginx/access.log;
+            access_log /var/log/nginx/access.log main2;
 
             listen *:443 ssl http2;
 
@@ -570,11 +597,17 @@ EOF
 }
 
 nginx_setup_ipaddr() {
+    # Install a few useful packages and configure static IP addresses
+    # inside the pod.
+    # - 10.56.217.3/24: IP address to talk with AI demo pods (see also
+    #   nad_ip_range() function).
+    # - 172.16.3.200/24: this IP address is reachable from external. HTTP
+    #   requests on this address will be load balanced by the nginx proxy.
     _echo_p "Configure pod/nginx with IP addresses"
     oc_nginx_exec bash -c "
         set -x && \\
         apt-get update && \\
-        apt-get install -y iproute2 iputils-ping net-tools tcpdump && \\
+        apt-get install -y procps iproute2 iputils-ping net-tools tcpdump && \\
         ip addr flush dev net1 && \\
         ip addr flush dev net2 && \\
         ip addr add 10.56.217.3/24 dev net2 && \\
@@ -598,8 +631,15 @@ nginx_setup_upstream() {
     local pod_name
     local ip
 
+    # Detect and configure the IP addresses of the AI pods as upstream for the
+    # nginx load balancer.
+    #
+    # See also nad_ip_range(). On the host side the network attachment
+    # definition is configured to hand out a certain 10.56.217.0/24 range to
+    # the pods.
+
     for pod_name in "${POD_NAMES[@]}" ; do
-        ip="$(pod_detect_net1_ip "$pod_name")" \
+        ip="$(pod_detect_net1_ip 180 "$pod_name")" \
             || { _echo_p "${C_RED}ERROR${C_RESET}: Failure to detect IP address in $pod_name"; return 1; }
 
         if ! _validate_ip "$ip" ; then
@@ -618,6 +658,10 @@ nginx_setup_reload() {
 }
 
 nginx_setup() {
+    # We run the unmodified nginx pod from Docker Container Registry.
+    #
+    # For the demo setup, we must configure it in a suitable way. Primarily the
+    # nginx configuration.
     _echo_p "Setup nginx pod on dh4-acc"
     (
         # shellcheck disable=SC2030
@@ -651,90 +695,187 @@ do_pods_setup() {
     _OPI_DEMO_PODS_SETUP_POD="$1" pods_setup
 }
 
+# 2:check cluster:9
+# POD
+# Lookup the IP address on the secondary network net1 of the AI pod on the OCP
+# side. This is the upstream IP address for the nginx load balancer.
+do_pod_detect_net1_ip() {
+    [ "$#" -le 1 ] || die "Invalid arguments"
+    [ "$#" -eq 1 ] || die "Missing pod name"
+    pod_detect_net1_ip 0 "$1"
+}
+
+_cmd_nginx_macs() {
+    oc_msh -n openshift-dpu-operator exec pod/nginx -- bash -c '(ip link show net1; ip link show net2) | sed -n "s/^.*link\/ether \+\([^ ]\+\) \+.*$/\1/p"'
+}
+
+# Check interface rx/tx statistics on dh4-ipu. Call via `watch`
+# shellcheck disable=SC2120
+_cmd_ipu_statistics() {
+    local watch="$1"
+    shift || :
+    local macs=( "$@" )
+    local macs_re
+    local cmd
+
+    if [ "${#macs[@]}" -eq 0 ] ; then
+        mapfile -t macs <<< "$(_cmd_nginx_macs)"
+    fi
+
+    macs_re="$(printf '%s\\|' "${macs[@]}")"
+    macs_re="${macs_re%\\|}"
+
+    cmd="$(cat <<EOF | sed 's/^ */ /' | tr -d '\n'
+            while read -r mac vsi_id ; do
+                printf "%s\\n" "Interface \$mac (\$vsi_id)" ;
+                cli_client -q -s -v "\$vsi_id" | sed -n "s/.*\\(ingress\\|egress\\) packet:.*/  \\0/p" ;
+            done < <(cli_client -c -q | sed -n "/$macs_re/ s/.*vsi_id: \\([0-9xa-fA-F]\\+\\) .*mac addr: \\([^ ]*\\).*/\\2 \\1/p") ;
+EOF
+    )"
+
+    local args=( bash -c "$cmd" )
+    local _notty=1
+    if [ "$watch" = 1 ] ; then
+        args=( watch -x -n 0.3 "${args[@]}" )
+        _notty=0
+    fi
+
+    _EXEC_NOTTY="$_notty" \
+    _EXEC_SILENT=1 \
+    _exec dh4-imc "${args[@]}"
+}
+
 # 2:check cluster:1
-# HOST CMD...
-# Run command on host. First argument is the host (localhost, tgen1, dh4,
-# dh4-acc, dh4-imc), followed by the command.
+# HOST [-s] [-T] [CMD...]
+# Run command on host. First argument is the host followed by the command.
+# If no command is given, it defaults to bash.
+#
+# Supported hosts are "localhost", "tgen1", "opicluster-master-[123]", "dh4",
+# "dh4-acc", dh4-imc", "mgmt". In those case, the command uses SSH via tgen1.
+#
+# Also supported is "dh4-acc-nginx" and "dh4-pod-[123]", in which we use
+# oc-exec to run a command inside the pods.
+#
+# The flags "-s" and "-T" make the command silent and without TTY, respectively.
+# Also, OPI_DEMO_EXEC_{SILENT,NOTTY}=1 environment is honored.
 do_exec() {
     _EXEC_SILENT="$OPI_DEMO_EXEC_SILENT" \
+    _EXEC_NOTTY="$OPI_DEMO_EXEC_NOTTY" \
     _exec "$@"
 }
 
 _exec() {
-    local host="$1"
-    local ssh_cmd=()
+    local host
     local args=()
-    local cmd
-    local _ssh_t=( "${_OPI_SSH_T[@]}" )
+    local args_cmd
 
+    while : ; do
+        case "$1" in
+            -s)
+                local _EXEC_SILENT=1
+                shift
+                ;;
+            -T)
+                local _EXEC_NOTTY=1
+                shift
+                ;;
+            *)
+                break
+                ;;
+        esac
+    done
+
+    host="$1"
     [ -n "$host" ] || die "missing name of target host for exec"
 
     shift
 
-    [ "$#" -gt 0 ] || die "missing command to execute on host $host"
-
-    if [ "$_EXEC_NOTTY" = 1 ] ; then
-        _ssh_t=()
+    if [ "$#" -gt 0 ] ; then
+        args=( "$@" )
+    else
+        args=( bash )
     fi
 
-    if ! is_tgen1 ; then
-        ssh_cmd=( ssh "${_ssh_t[@]}" "root@$HOST_TGEN1_IP" )
-    fi
+    case "$host" in
+        master-[123]|opicluster-master-[123])
+            host="opicluster-master-${host##*-}"
+            args=( sudo -- bash -c "cd &&$(printf ' %q' "${args[@]}")" )
+            ;;
+        dh4)
+            args=( sudo -- bash -c "cd &&$(printf ' %q' "${args[@]}")" )
+            ;;
+    esac
 
-    args=( "$@" )
-
-    if [ "$host" = 'dh4' ] ; then
-        args=( sudo -- "${args[@]}" )
-    fi
-
-    cmd="$(printf '%q ' "${args[@]}")"
-    cmd="${cmd% }"
+    args_cmd="$(printf '%q ' "${args[@]}")"
+    args_cmd="${args_cmd% }"
 
     if [ "$_EXEC_SILENT" != 1 ] ; then
-        _echo_p "Run on $host: $cmd"
+        _echo_p "Run on $host: $args_cmd"
+    fi
+
+    local _ssh_t=()
+    local _oc_t=()
+    if [ "$_EXEC_NOTTY" != 1 ] ; then
+        _ssh_t=( "${_OPI_SSH_T[@]}" )
+        if [ "${#_OPI_SSH_T[@]}" -gt 0 ] ; then
+            _oc_t=( '-t' )
+        fi
+    fi
+
+    local ssh_cmd_tgen1=()
+    if ! is_tgen1 ; then
+        # If we are not on tgen1, we progably will first remote the call via
+        # ssh. that has two reasons:
+        # - some hosts (dh4-acc) are not directly accessible via the SSH. We
+        #   Need to go through tgen1
+        # - by going through tgen1, we only need authentication via that host.
+        #   tgen1 can from there password-less login to the other hosts.
+        ssh_cmd_tgen1=( ssh "${_ssh_t[@]}" "root@$HOST_TGEN1_IP" )
     fi
 
     case "$host" in
         localhost)
+            ssh_cmd_tgen1=()
             ;;
         tgen1)
-            if [ "${#ssh_cmd[@]}" -gt 0 ] ; then
-                args=( "${ssh_cmd[@]}" "$cmd" )
+            if [ "${#ssh_cmd_tgen1[@]}" -gt 0 ] ; then
+                args=( "${ssh_cmd_tgen1[@]}" "$args_cmd" )
             fi
+            ssh_cmd_tgen1=()
+            ;;
+        opicluster-master-[123])
+            args=( ssh "${_ssh_t[@]}" "core@192.168.122.$(( "${host##*-}" + 1 ))" "$args_cmd" )
             ;;
         dh4-acc)
-            args=( ssh "${_ssh_t[@]}" "root@172.16.3.16" "$cmd" )
-
-            if [ "${#ssh_cmd[@]}" -gt 0 ] ; then
-                cmd="$(printf '%q ' "${args[@]}")"
-                cmd="${cmd% }"
-                args=( "${ssh_cmd[@]}" "$cmd" )
-            fi
+            args=( ssh "${_ssh_t[@]}" "root@172.16.3.16" "$args_cmd" )
             ;;
         dh4-imc)
-            args=( ssh "${_ssh_t[@]}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR "root@172.22.4.4" "$cmd" )
-
-            if [ "${#ssh_cmd[@]}" -gt 0 ] ; then
-                cmd="$(printf '%q ' "${args[@]}")"
-                cmd="${cmd% }"
-                args=( "${ssh_cmd[@]}" "$cmd" )
-            fi
+            args=( ssh "${_ssh_t[@]}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR "root@172.22.4.4" "$args_cmd" )
             ;;
         dh4)
-            args=( ssh "${_ssh_t[@]}" "core@$HOST_DH4_IP" "$cmd" )
-
-            # We use ssh here. Maybe should should instead use
-            #   oc_ocp debug -q node/dh4 -- chroot /host ...
-            if [ "${#ssh_cmd[@]}" -gt 0 ] ; then
-                cmd="$(printf '%q ' "${args[@]}")"
-                cmd="${cmd% }"
-                args=( "${ssh_cmd[@]}" "$cmd" )
-            fi
+            args=( ssh "${_ssh_t[@]}" "core@$HOST_DH4_IP" "$args_cmd" )
+            ;;
+        mgmt)
+            args=( ssh "${_ssh_t[@]}" "root@172.22.0.1" "$args_cmd" )
+            ;;
+        dh4-pod-[123])
+            args=( oc --kubeconfig="/root/kubeconfig.opicluster" exec -n default "${_oc_t[@]}" -i "pod/resnet50-model-server-${host##*-}" -- "${args[@]}" )
+            ;;
+        dh4-acc-nginx)
+            args=( oc --kubeconfig="/root/kubeconfig.dh4-acc" exec -n openshift-dpu-operator "${_oc_t[@]}" -i pod/nginx -- "${args[@]}" )
             ;;
         *)
             die "Invalid host $host for exec"
             ;;
     esac
+
+    if [ "${#ssh_cmd_tgen1[@]}" -gt 0 ] ; then
+        local cmd2
+
+        cmd2="$(printf '%q ' "${args[@]}")"
+        cmd2="${cmd2% }"
+        args=( "${ssh_cmd_tgen1[@]}" "$cmd2" )
+    fi
 
     (
         cd "$ORIGINAL_PWD"
@@ -766,8 +907,17 @@ do_remote() {
         "root@$HOST_TGEN1_IP:$tdir/" \
         ;
 
+    local envs=()
+    if [ -n "$OPI_DEMO_SLEEP_TIME" ] ; then
+        envs+=( "OPI_DEMO_SLEEP_TIME=$OPI_DEMO_SLEEP_TIME" )
+    fi
+
     # shellcheck disable=SC2031
-    _exec tgen1 /usr/bin/env _ECHO_P_INDENT="$_ECHO_P_INDENT  " bash "${_OPI_BASH_X[@]}" "$tdir/$SCRIPTNAME" "$@"
+    _exec tgen1 \
+        /usr/bin/env \
+        _ECHO_P_INDENT="$_ECHO_P_INDENT  " \
+        "${envs[@]}" \
+        bash "${_OPI_BASH_X[@]}" "$tdir/$SCRIPTNAME" "$@"
 }
 
 exec_podman_k8stft_on_host() {
@@ -800,13 +950,7 @@ do_tcpdump_pod() {
 
     shift
 
-    case "$pod_name" in
-        [0-9]|[0-9][0-9])
-            pod_name="resnet50-model-server-$pod_name"
-            ;;
-        *)
-            ;;
-    esac
+    pod_name="$(get_podname "$pod_name")"
 
     args=( -i net1 -n "$@" )
 
@@ -838,6 +982,7 @@ show_info() {
     _echo_p "Show ovs-vsctl inside VSP pod $pod on DPU side"
     oc_msh -n openshift-dpu-operator exec -i "$pod" -- /opt/p4/p4-cp-nws/bin/ovs-vsctl show || true
     oc_msh -n openshift-dpu-operator exec -i "$pod" -- /opt/p4/p4-cp-nws/bin/p4rt-ctl dump-entries br0 | head -n10 || true
+    _cmd_ipu_statistics
 }
 
 cleanup_all() {
@@ -846,8 +991,10 @@ cleanup_all() {
     pods_delete
 
     _echo_p "Wait for SFC and Pods to be gone"
-    sfc_wait_deleted
-    pods_wait_deleted
+    sfc_wait_deleted \
+        || _echo_p "  Failed"
+    pods_wait_deleted \
+        || _echo_p "  Failed"
 }
 
 py_pip_install() {
@@ -891,9 +1038,9 @@ nad_ip_range() {
     local value
     local new_value
 
-    # We want to manually configure an IP address in the nginx NF.
-    # To avoid clashes, restrict the range that gets automatically assigned
-    # to the resnet pods.
+    # We want to manually configure the 10.56.217.3 address in the nginx NF.
+    # To avoid clashes, restrict the range that gets automatically assigned to
+    # the resnet pods. We do that by patching the network attachment definition.
     #
     # See also https://github.com/openshift/dpu-operator/pull/514
 
@@ -916,14 +1063,16 @@ _wait_node_ready_ocp_masters() {
     _echo_p "Wait for master nodes in opicluster to be ready"
     KUBECONFIG="$KC_OCP" \
     _retry_with_timeout 180 \
-        oc_node_in_state '^opicluster-master-[0-9]+$' all True
+        oc_node_in_state '^opicluster-master-[0-9]+$' all True \
+        || { _echo_p "  not ready"; return 1; }
 }
 
 _wait_node_ready_ocp_dh4() {
     _echo_p "Wait for worker node dh4 in opicluster to be ready"
     KUBECONFIG="$KC_OCP" \
     _retry_with_timeout 180 \
-        oc_node_in_state '^dh4$' all True
+        oc_node_in_state '^dh4$' all True \
+        || { _echo_p "  not ready"; return 1; }
 }
 
 _wait_node_ready_microshift() {
@@ -987,7 +1136,7 @@ _reboot_dh4_acc_one() {
     _EXEC_CMDSILENT=1 \
     _indent2 _exec dh4-imc \
         bash -c "$_opidemo_poweroffcmd" \
-        || return 1
+        || { _echo_p "  ${C_YELLOW}power off command for dh4-imc failed$C_RESET"; return 1 ; }
 
     sleep 60
 
@@ -1075,6 +1224,8 @@ _reboot_dh4_reload_idpf_reload_idpf() {
 # healthy again.
 #
 # With "full", also reboot provisioning host "tgen1" and the master VM nodes.
+#
+# Warning: this will take a while.
 do_reboot() {
     local full=0
 
@@ -1239,7 +1390,7 @@ do_inspect() {
 # Regenerate TLS certificate for the nginx pod. This overwrites
 # "server.{key,crt}" in the script directory and is used during redeploy.
 do_tls_generate_keys() {
-    _echo_p "Generate TLS keys ./server.key and ./server.crt"
+    _echo_p "Generate TLS keys $PWD/server.key and $PWD/server.crt"
 
     openssl genpkey -quiet -algorithm RSA -out server.key -pkeyopt rsa_keygen_bits:2048
 
@@ -1275,7 +1426,7 @@ do_tls_generate_keys() {
 # 3:extra helper:2
 # [update]
 # Show entries for your /etc/hosts to be able to locally access console. Pass
-# "update" to update the file with sudo.
+# "update" to update the file using sudo.
 do_etc_hosts() {
     set +x
     local content
@@ -1334,25 +1485,61 @@ EOF
 }
 
 # 3:extra helper:3
-# SSHKEY
+# SSHKEY [WHERE]
 # Call ssh-copy-id to install SSH key in the demo cluster. Pass the SSH key.
+#
+# By default, the SSHKEY is only installed on "tgen1" host. This usually
+# suffices. If you want, set the WHERE parameter to "all" to install it on all
+# related hosts. Alternatively, WHERE can be one of the host names
+# tgen1, opicluster-master-[123], dh4, dh4-acc.
 do_ssh_copy_id() {
     local sshkey="$1"
     local rc=0
+    local i
 
     [ -f "$sshkey" ] || die "Command requires file to SSH key to install"
 
     shift
+
+    local where='tgen1'
+    case "$1" in
+        all|a|-a)
+            where='all'
+            shift
+            ;;
+        tgen1|opicluster-master-[123]|dh4|dh4-acc)
+            where="$1"
+            shift
+            ;;
+        master-[123])
+            where="opicluster-master-${1##*-}"
+            shift
+            ;;
+    esac
+
     [ "$#" -eq 0 ] || die "Invalid arguments"
 
-    _echo_p "Install SSH key $sshkey at tgen1 (root@$HOST_TGEN1_IP)"
-    ssh-copy-id -i "$sshkey" "root@$HOST_TGEN1_IP"
+    if [ "$where" = 'all' ] || [ "$where" = 'tgen1' ] ; then
+        _echo_p "Install SSH key $sshkey at tgen1 (root@$HOST_TGEN1_IP)"
+        ssh-copy-id -i "$sshkey" "root@$HOST_TGEN1_IP"
+    fi
 
-    _echo_p "Install SSH key $sshkey at dh4 (core@$HOST_DH4_IP)"
-    ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "core@$HOST_DH4_IP" || rc=1
+    for i in {1..3} ; do
+        if [ "$where" = 'all' ] || [ "$where" = "opicluster-master-$i" ] ; then
+            _echo_p "Install SSH key $sshkey at opicluster-master-$i (core@192.168.122.$(( i + 1 )))"
+            ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "core@192.168.122.$(( i + 1 ))" || rc=1
+        fi
+    done
 
-    _echo_p "Install SSH key $sshkey at dh4-acc (root@172.16.3.16)"
-    ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "root@172.16.3.16" || rc=1
+    if [ "$where" = 'all' ] || [ "$where" = 'dh4' ] ; then
+        _echo_p "Install SSH key $sshkey at dh4 (core@$HOST_DH4_IP)"
+        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "core@$HOST_DH4_IP" || rc=1
+    fi
+
+    if [ "$where" = 'all' ] || [ "$where" = 'dh4-acc' ] ; then
+        _echo_p "Install SSH key $sshkey at dh4-acc (root@172.16.3.16)"
+        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "root@172.16.3.16" || rc=1
+    fi
 
     return "$rc"
 }
@@ -1449,6 +1636,16 @@ _main() {
     local cmd="$1"
     shift || true
 
+    # For convenience, accept the following aliases:
+    case "$cmd" in
+        'predict_images'|predict_images/)
+            cmd='predict'
+            ;;
+        'inspect.sh')
+            cmd='inspect'
+            ;;
+    esac
+
     case "$cmd" in
         check | \
         info | \
@@ -1467,6 +1664,7 @@ _main() {
         exec | \
         inspect | \
         kubeconfigs | \
+        pod_detect_net1_ip | \
         pods_setup | \
         reboot | \
         remote | \

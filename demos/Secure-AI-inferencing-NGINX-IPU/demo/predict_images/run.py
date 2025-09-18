@@ -21,7 +21,7 @@ LB_ADDR = "172.16.3.200:443"
 LB_TLSCERT = f"{BASEDIR}/server.crt"
 
 
-@dataclasses.dataclass(kw_only=True, frozen=True)
+@dataclasses.dataclass(frozen=True)
 class WorkerResult:
     image_path: str
     thread_id: int
