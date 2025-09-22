@@ -16,11 +16,11 @@ pane0_commands=(
   "./demo.sh exec dh4-acc cat /etc/os-release"
   "./demo.sh exec dh4-acc ifconfig enp0s1f0d1"
   "./demo.sh exec dh4-imc cat /etc/issue"
-  "./demo.sh oc_msh get nodes -o wide ; sleep 3; ./demo.sh oc_msh get pods -A"
+  "./demo.sh oc_ipu get nodes -o wide ; sleep 3; ./demo.sh oc_ipu get pods -A"
   "./demo.sh oc_ocp get nodes -o wide ; sleep 3; ./demo.sh oc_ocp get pods -n default"
-  "export pod=\$(./demo.sh oc_msh get pods -A -o name | grep 'vsp-p4' | head -n1); echo \"podname: \$pod\""
-  "./demo.sh oc_msh exec -it \$pod -n openshift-dpu-operator -- /opt/p4/p4-cp-nws/bin/ovs-vsctl show"
-  "./demo.sh oc_msh exec -it \$pod -n openshift-dpu-operator -- /opt/p4/p4-cp-nws/bin/p4rt-ctl dump-entries br0 | tail -n 25"
+  "export pod=\$(./demo.sh oc_ipu get pods -A -o name | grep 'vsp-p4' | head -n1); echo \"podname: \$pod\""
+  "./demo.sh oc_ipu exec -it \$pod -n openshift-dpu-operator -- /opt/p4/p4-cp-nws/bin/ovs-vsctl show"
+  "./demo.sh oc_ipu exec -it \$pod -n openshift-dpu-operator -- /opt/p4/p4-cp-nws/bin/p4rt-ctl dump-entries br0 | tail -n 25"
 )
 pane0_comments=(
   "Redhat OS running on Intel IPU Compuete Complex (ACC)"
@@ -35,10 +35,10 @@ pane0_comments=(
 
 pane1_commands=(
   #"./demo.sh nginx_setup"
-  "./demo.sh oc_msh exec -n openshift-dpu-operator -it nginx -- ifconfig"
-  "./demo.sh oc_msh exec -n openshift-dpu-operator -it nginx -- bash -c 'grep -R ^ /etc/nginx/*.conf /etc/nginx/conf.d/*.conf'"
-  #"nowait:./demo.sh oc_msh exec -n openshift-dpu-operator -it nginx -- tcpdump -ni net2"
-  "nowait:./demo.sh oc_msh logs -n openshift-dpu-operator --follow nginx"
+  "./demo.sh oc_ipu exec -n openshift-dpu-operator -it nginx -- ifconfig"
+  "./demo.sh oc_ipu exec -n openshift-dpu-operator -it nginx -- bash -c 'grep -R ^ /etc/nginx/*.conf /etc/nginx/conf.d/*.conf'"
+  #"nowait:./demo.sh oc_ipu exec -n openshift-dpu-operator -it nginx -- tcpdump -ni net2"
+  "nowait:./demo.sh oc_ipu logs -n openshift-dpu-operator --follow nginx"
 )
 pane1_comments=(
   #"Bring In NGINX Server Configuration Running at Microshift Cluster on Intel IPU"

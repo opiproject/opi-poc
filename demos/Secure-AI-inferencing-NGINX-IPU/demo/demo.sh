@@ -36,7 +36,7 @@ HOST_MGMT="${HOST_MGMT:-172.22.0.1}" # mgmt
 NUM_PODS="${NUM_PODS:-3}"
 
 KC_OCP="${KC_OCP:-}"
-KC_MSH="${KC_MSH:-}"
+KC_IPU="${KC_IPU:-}"
 
 ###############################################################################
 
@@ -45,10 +45,10 @@ if [ -z "$KC_OCP" ] ; then
     if [ ! -f "$KC_OCP" ] && [ -f "/tmp/kubeconfig.ocpcluster"  ] ; then KC_OCP="/tmp/kubeconfig.ocpcluster"  ; fi
     if [ ! -f "$KC_OCP" ] && [ -f "/root/kubeconfig.ocpcluster" ] ; then KC_OCP="/root/kubeconfig.ocpcluster" ; fi
 fi
-if [ -z "$KC_MSH" ] ; then
-    KC_MSH="$PWD/kubeconfig.microshift"
-    if [ ! -f "$KC_MSH" ] && [ -f "/tmp/kubeconfig.microshift"  ] ; then KC_MSH="/tmp/kubeconfig.microshift"  ; fi
-    if [ ! -f "$KC_MSH" ] && [ -f "/root/kubeconfig.microshift" ] ; then KC_MSH="/root/kubeconfig.microshift" ; fi
+if [ -z "$KC_IPU" ] ; then
+    KC_IPU="$PWD/kubeconfig.microshift-ipu"
+    if [ ! -f "$KC_IPU" ] && [ -f "/tmp/kubeconfig.microshift-ipu"  ] ; then KC_IPU="/tmp/kubeconfig.microshift-ipu"  ; fi
+    if [ ! -f "$KC_IPU" ] && [ -f "/root/kubeconfig.microshift-ipu" ] ; then KC_IPU="/root/kubeconfig.microshift-ipu" ; fi
 fi
 
 POD_NAME_BASE="resnet50-model-server"
@@ -159,7 +159,7 @@ usage() {
     _echo
     _echo "Uses:"
     _echo "  export KC_OCP=$C_BLUE$(printf '%q' "$KC_OCP")$C_RESET"
-    _echo "  export KC_MSH=$C_BLUE$(printf '%q' "$KC_MSH")$C_RESET"
+    _echo "  export KC_IPU=$C_BLUE$(printf '%q' "$KC_IPU")$C_RESET"
     _echo
 
     # Parse the shell script itself, to get out the available commands and
@@ -280,12 +280,12 @@ oc_ocp() {
 # 2:check cluster:6
 # OC_ARGS...
 # Call `oc` command for microshift on dh4-acc.
-oc_msh() {
-    oc --kubeconfig="$KC_MSH" "$@"
+oc_ipu() {
+    oc --kubeconfig="$KC_IPU" "$@"
 }
 
 oc_nginx_exec() {
-    oc_msh -n openshift-dpu-operator exec -i pod/nginx -- "$@"
+    oc_ipu -n openshift-dpu-operator exec -i pod/nginx -- "$@"
 }
 
 _oc_node_pattern_filter() {
@@ -411,7 +411,7 @@ wait_ssh() {
 
 sfc_create() {
     _echo_p "Create SFC \"sfc-test\" in openshift-dpu-operator"
-    cat <<'    EOF' | sed 's/^        //' | oc_msh create -f -
+    cat <<'    EOF' | sed 's/^        //' | oc_ipu create -f -
         apiVersion: config.openshift.io/v1
         kind: ServiceFunctionChain
         metadata:
@@ -428,19 +428,19 @@ sfc_create() {
 sfc_wait() {
     _echo_p "Wait for SFC pod with nginx to be ready"
     _retry_with_timeout "60" \
-        oc_msh -n openshift-dpu-operator get pod/nginx &>/dev/null \
+        oc_ipu -n openshift-dpu-operator get pod/nginx &>/dev/null \
         || return 1
-    oc_msh -n openshift-dpu-operator wait --for=condition=Ready pod/nginx --timeout=15m \
+    oc_ipu -n openshift-dpu-operator wait --for=condition=Ready pod/nginx --timeout=15m \
         || return 1
     return 0
 }
 
 sfc_delete() {
-    oc_msh -n openshift-dpu-operator delete ServiceFunctionChain/sfc-test || true
+    oc_ipu -n openshift-dpu-operator delete ServiceFunctionChain/sfc-test || true
 }
 
 sfc_wait_deleted() {
-    oc_msh -n openshift-dpu-operator wait --for="delete" "pod/nginx" --timeout=15m
+    oc_ipu -n openshift-dpu-operator wait --for="delete" "pod/nginx" --timeout=15m
 }
 
 pod_deployment_create() {
@@ -745,7 +745,7 @@ do_pod_detect_net1_ip() {
 }
 
 _cmd_nginx_macs() {
-    oc_msh -n openshift-dpu-operator exec pod/nginx -- bash -c '(ip link show net1; ip link show net2) | sed -n "s/^.*link\/ether \+\([^ ]\+\) \+.*$/\1/p"'
+    oc_ipu -n openshift-dpu-operator exec pod/nginx -- bash -c '(ip link show net1; ip link show net2) | sed -n "s/^.*link\/ether \+\([^ ]\+\) \+.*$/\1/p"'
 }
 
 # Check interface rx/tx statistics on dh4-ipu. Call via `watch`
@@ -1014,15 +1014,15 @@ show_info() {
     oc_ocp -n openshift-dpu-operator get all
     oc_ocp -n default get all
 
-    _echo_p "Information about microshift on dh4 for $KC_MSH"
-    oc_msh get node
-    oc_msh -n openshift-dpu-operator get all
-    oc_msh -n default get all
+    _echo_p "Information about microshift on dh4 for $KC_IPU"
+    oc_ipu get node
+    oc_ipu -n openshift-dpu-operator get all
+    oc_ipu -n default get all
 
-    pod="$(oc_msh get pods -A -o name | grep 'vsp-p4' | head -n1)"
+    pod="$(oc_ipu get pods -A -o name | grep 'vsp-p4' | head -n1)"
     _echo_p "Show ovs-vsctl inside VSP pod $pod on DPU side"
-    oc_msh -n openshift-dpu-operator exec -i "$pod" -- /opt/p4/p4-cp-nws/bin/ovs-vsctl show || true
-    oc_msh -n openshift-dpu-operator exec -i "$pod" -- /opt/p4/p4-cp-nws/bin/p4rt-ctl dump-entries br0 | head -n10 || true
+    oc_ipu -n openshift-dpu-operator exec -i "$pod" -- /opt/p4/p4-cp-nws/bin/ovs-vsctl show || true
+    oc_ipu -n openshift-dpu-operator exec -i "$pod" -- /opt/p4/p4-cp-nws/bin/p4rt-ctl dump-entries br0 | head -n10 || true
     _cmd_ipu_statistics
 }
 
@@ -1118,7 +1118,7 @@ _wait_node_ready_ocp_dh4() {
 
 _wait_node_ready_microshift() {
     _echo_p "Wait for nodes in microshift on IPU to be ready"
-    KUBECONFIG="$KC_MSH" \
+    KUBECONFIG="$KC_IPU" \
     _retry_with_timeout 180 \
         oc_node_in_state '^dh4-acc$' all True
 }
@@ -1614,10 +1614,10 @@ do_kubeconfigs() {
     [ "$#" -eq 0 ] || die "Invalid arguments"
 
     do_kubeconfig_ocp > "$dir/kubeconfig.ocpcluster"
-    do_kubeconfig_microshift > "$dir/kubeconfig.microshift"
+    do_kubeconfig_microshift_ipu > "$dir/kubeconfig.microshift-ipu"
 
     _echo "export KC_OCP=$(printf '%q' "$dir/kubeconfig.ocpcluster")"
-    _echo "export KC_MSH=$(printf '%q' "$dir/kubeconfig.microshift")"
+    _echo "export KC_IPU=$(printf '%q' "$dir/kubeconfig.microshift-ipu")"
 
     cd "$pwd0"
 }
@@ -1628,13 +1628,13 @@ do_kubeconfigs() {
 do_kubeconfig_ocp() {
     _EXEC_NOTTY=1 \
     _EXEC_SILENT=1 \
-    _exec tgen1 cat /root/opicluster/kubeconfig
+    _exec tgen1 cat /root/kubeconfig.ocpcluster
 }
 
 # 3:extra helper:7
 #
 # Show the kubeconfig for the IPU on dh4.
-do_kubeconfig_microshift() {
+do_kubeconfig_microshift_ipu() {
     local hh
 
     if is_prov_host ; then
@@ -1695,7 +1695,7 @@ _main() {
         check | \
         info | \
         kubeadmin | \
-        kubeconfig_microshift | \
+        kubeconfig_microshift_ipu | \
         kubeconfig_ocp | \
         nginx_setup | \
         predict | \
@@ -1719,7 +1719,7 @@ _main() {
         )
             "do_$cmd" "$@"
             ;;
-        oc_msh | \
+        oc_ipu | \
         oc_ocp \
         )
             "$cmd" "$@"
