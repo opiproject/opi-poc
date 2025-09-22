@@ -90,7 +90,7 @@ pane0_client_comments=(
 
 pane_nginx_status_commands=(
    #"nowait:watch -n1 ./demo.sh remote exec tgen1 curl -s --cacert /tmp/opilab-demo/server.crt https://172.16.3.200/nginx_status"
-   "nowait:bash -c 'source ./demo.sh ; _cmd_ipu_statistics 1'"
+   "nowait:bash -c 'source ./demo.sh ; oc_kind=ipu ; _cmd_ipu_statistics 1'"
 )
 pane_nginx_status_comments=(
   #"Offloaded NGINX Proxy Server Realtime Stats - Running On Intel IPU (SmartNIC)"
