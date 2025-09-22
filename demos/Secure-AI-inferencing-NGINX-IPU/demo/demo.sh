@@ -10,19 +10,41 @@
 # See https://docs.google.com/document/d/140XMmFQKQorSDLL0IEmtWUDpMNYoF1RECNC8izBKru0/edit?tab=t.0 aboud
 # how the cluster and operator was installed.
 
+###############################################################################
+
+# Provisioning host
+HOST_PROV="${HOST_PROV:-172.22.1.100}" # tgen1
+
+# worker node with IPU (as reachable from $HOST_PROV)
+HOST_NODE_IPU="${HOST_NODE_IPU:-172.22.1.4}" # dh4
+
+# The IPU DPU
+HOST_DPU_IPU="${HOST_DPU_IPU:-172.16.3.16}" # dh4-acc
+
+# The IPU DPU (as reachable from localhost)
+HOST_DPU_IPU_EXTERN="${HOST_DPU_IPU_EXTERN:-172.22.1.104}" # dh4-acc
+
+# The IPU's IMC
+HOST_BMC_IPU="${HOST_BMC_IPU:-172.22.4.4}" # dh4-imc
+
+# The public facing IP address inside the nginx pod on the IPU.
+HOST_NGINX_IPU="${HOST_NGINX_IPU:-172.16.3.200}"
+
+# Management host
+HOST_MGMT="${HOST_MGMT:-172.22.0.1}" # mgmt
 
 NUM_PODS="${NUM_PODS:-3}"
 
-HOST_TGEN1_IP="172.22.1.100"
-HOST_DH4_IP="172.22.1.4"
-
 KC_OCP="${KC_OCP:-}"
+KC_MSH="${KC_MSH:-}"
+
+###############################################################################
+
 if [ -z "$KC_OCP" ] ; then
     KC_OCP="$PWD/kubeconfig.ocpcluster"
     if [ ! -f "$KC_OCP" ] && [ -f "/tmp/kubeconfig.ocpcluster"  ] ; then KC_OCP="/tmp/kubeconfig.ocpcluster"  ; fi
     if [ ! -f "$KC_OCP" ] && [ -f "/root/kubeconfig.ocpcluster" ] ; then KC_OCP="/root/kubeconfig.ocpcluster" ; fi
 fi
-KC_MSH="${KC_MSH:-}"
 if [ -z "$KC_MSH" ] ; then
     KC_MSH="$PWD/kubeconfig.microshift"
     if [ ! -f "$KC_MSH" ] && [ -f "/tmp/kubeconfig.microshift"  ] ; then KC_MSH="/tmp/kubeconfig.microshift"  ; fi
@@ -206,9 +228,23 @@ usage() {
     _echo " - $(printf '%q' "$SCRIPTNAME0") info"
 }
 
-is_tgen1() {
-    [ "$(hostname)" = "tgen1" ] || return 1
-    return 0
+is_prov_host() {
+    # Check whether the current host is the provisioning host.
+    local h
+    local is=1
+
+    for h in $(hostname -I) ; do
+        if [ "$h" = "$HOST_PROV" ] ; then
+            is=0
+            break
+        fi
+    done
+
+    # Update the function itself with a memoized value. Let's only
+    # detect once.
+    eval "is_prov_host() { return $is ; }"
+
+    return $is
 }
 
 get_podnames() {
@@ -604,7 +640,7 @@ nginx_setup_ipaddr() {
     # inside the pod.
     # - 10.56.217.3/24: IP address to talk with AI demo pods (see also
     #   nad_ip_range() function).
-    # - 172.16.3.200/24: this IP address is reachable from external. HTTP
+    # - $HOST_NGINX_IPU/24: this IP address is reachable from external. HTTP
     #   requests on this address will be load balanced by the nginx proxy.
     _echo_p "Configure pod/nginx with IP addresses"
     oc_nginx_exec bash -c "
@@ -614,7 +650,7 @@ nginx_setup_ipaddr() {
         ip addr flush dev net1 && \\
         ip addr flush dev net2 && \\
         ip addr add 10.56.217.3/24 dev net2 && \\
-        ip addr add 172.16.3.200/24 dev net2 && \\
+        ip addr add $HOST_NGINX_IPU/24 dev net2 && \\
         ip addr
     "
 }
@@ -678,7 +714,7 @@ nginx_setup() {
 }
 
 nginx_wait() {
-    wait_ping tgen1 30 172.16.3.200
+    wait_ping tgen1 30 "$HOST_NGINX_IPU"
 }
 
 # 2:check cluster:7
@@ -827,14 +863,14 @@ _exec() {
     fi
 
     local ssh_cmd_tgen1=()
-    if ! is_tgen1 ; then
+    if ! is_prov_host ; then
         # If we are not on tgen1, we progably will first remote the call via
         # ssh. that has two reasons:
         # - some hosts (dh4-acc) are not directly accessible via the SSH. We
         #   Need to go through tgen1
         # - by going through tgen1, we only need authentication via that host.
         #   tgen1 can from there password-less login to the other hosts.
-        ssh_cmd_tgen1=( ssh "${_ssh_t[@]}" "root@$HOST_TGEN1_IP" )
+        ssh_cmd_tgen1=( ssh "${_ssh_t[@]}" "root@$HOST_PROV" )
     fi
 
     case "$host" in
@@ -851,16 +887,16 @@ _exec() {
             args=( ssh "${_ssh_t[@]}" "core@192.168.122.$(( "${host##*-}" + 1 ))" "$args_cmd" )
             ;;
         dh4-acc)
-            args=( ssh "${_ssh_t[@]}" "root@172.16.3.16" "$args_cmd" )
+            args=( ssh "${_ssh_t[@]}" "root@$HOST_DPU_IPU" "$args_cmd" )
             ;;
         dh4-imc)
-            args=( ssh "${_ssh_t[@]}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR "root@172.22.4.4" "$args_cmd" )
+            args=( ssh "${_ssh_t[@]}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR "root@$HOST_BMC_IPU" "$args_cmd" )
             ;;
         dh4)
-            args=( ssh "${_ssh_t[@]}" "core@$HOST_DH4_IP" "$args_cmd" )
+            args=( ssh "${_ssh_t[@]}" "core@$HOST_NODE_IPU" "$args_cmd" )
             ;;
         mgmt)
-            args=( ssh "${_ssh_t[@]}" "root@172.22.0.1" "$args_cmd" )
+            args=( ssh "${_ssh_t[@]}" "root@$HOST_MGMT" "$args_cmd" )
             ;;
         dh4-pod-[1-9])
             name="$(get_podname "${host##*-}")"
@@ -909,7 +945,7 @@ do_remote() {
         --exclude="__pycache__/" \
         --exclude="kubeconfig*" \
         . \
-        "root@$HOST_TGEN1_IP:$tdir/" \
+        "root@$HOST_PROV:$tdir/" \
         ;
 
     local envs=()
@@ -1088,19 +1124,21 @@ _wait_node_ready_microshift() {
 }
 
 _wait_is_up_tgen1() {
-    wait_ssh localhost 300 "root@$HOST_TGEN1_IP"
+    wait_ssh localhost 300 "root@$HOST_PROV"
     _wait_node_ready_ocp_masters
 }
 
 _wait_is_up_dh4() {
-    wait_ssh tgen1 300 "core@$HOST_DH4_IP"
+    wait_ssh tgen1 300 "core@$HOST_NODE_IPU"
     _wait_node_ready_ocp_dh4
 }
 
 _wait_is_up_dpu() {
-    wait_ssh tgen1 300 "root@172.22.4.4" || return 1
-    wait_ssh tgen1 180 "root@172.16.3.16" || return 1
-    wait_ssh localhost 60 "root@172.22.1.104" || return 1
+    wait_ssh tgen1 300 "root@$HOST_BMC_IPU" || return 1
+    wait_ssh tgen1 180 "root@$HOST_DPU_IPU" || return 1
+    if ! is_prov_host ; then
+        wait_ssh localhost 60 "root@$HOST_DPU_IPU_EXTERN" || return 1
+    fi
     _wait_node_ready_microshift || return 1
 }
 
@@ -1115,7 +1153,7 @@ _reboot_tgen1_tgen1() {
 
     sleep 60
 
-    _indent wait_ssh localhost 300 "root@$HOST_TGEN1_IP"
+    _indent wait_ssh localhost 300 "root@$HOST_PROV"
 
     _EXEC_NOTTY=1 \
     _indent _exec tgen1 /etc/nftables.sh
@@ -1250,7 +1288,7 @@ do_reboot() {
 
     if [ "$full" -eq 1 ] ; then
         _echo_p "reboot (tgen1, dh4, dh4-acc)..."
-        if is_tgen1 ; then
+        if is_prov_host ; then
             die "Cannot run this command on tgen1, because it will reboot itself."
         fi
         _indent _reboot_tgen1_tgen1
@@ -1331,7 +1369,7 @@ do_redeploy() {
 # Test the nginx load balancer by asking the resnet pods to classify images
 # of animals. This is the demo usage.
 do_predict() {
-    if ! is_tgen1 ; then
+    if ! is_prov_host ; then
         # The nginx IP is only accessible from tgen1. Remote the call.
         do_remote predict
         return 0
@@ -1382,7 +1420,7 @@ do_inspect() {
         esac
     fi
 
-    if [ "$_local" != 1 ] && ! is_tgen1 ; then
+    if [ "$_local" != 1 ] && ! is_prov_host ; then
         do_remote inspect
         return 0
     fi
@@ -1399,7 +1437,7 @@ do_tls_generate_keys() {
 
     openssl genpkey -quiet -algorithm RSA -out server.key -pkeyopt rsa_keygen_bits:2048
 
-    cat <<'    EOL' | sed 's/^        //' > /tmp/opilab-demo-san.cnf
+    cat <<EOL | sed 's/^        //' > /tmp/opilab-demo-san.cnf
         [req]
         distinguished_name = req_distinguished_name
         req_extensions = v3_req
@@ -1415,8 +1453,8 @@ do_tls_generate_keys() {
 
         [alt_names]
         DNS.1 = n1.nginx.ipu.opicluster.opiproject-lab.org
-        IP.1 = 172.16.3.200
-    EOL
+        IP.1 = $HOST_NGINX_IPU
+EOL
 
     openssl req -x509 \
         -days $((3*365)) \
@@ -1525,25 +1563,25 @@ do_ssh_copy_id() {
     [ "$#" -eq 0 ] || die "Invalid arguments"
 
     if [ "$where" = 'all' ] || [ "$where" = 'tgen1' ] ; then
-        _echo_p "Install SSH key $sshkey at tgen1 (root@$HOST_TGEN1_IP)"
-        ssh-copy-id -i "$sshkey" "root@$HOST_TGEN1_IP"
+        _echo_p "Install SSH key $sshkey at tgen1 (root@$HOST_PROV)"
+        ssh-copy-id -i "$sshkey" "root@$HOST_PROV"
     fi
 
     for i in {1..3} ; do
         if [ "$where" = 'all' ] || [ "$where" = "opicluster-master-$i" ] ; then
             _echo_p "Install SSH key $sshkey at opicluster-master-$i (core@192.168.122.$(( i + 1 )))"
-            ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "core@192.168.122.$(( i + 1 ))" || rc=1
+            ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_PROV nc %h %p" "core@192.168.122.$(( i + 1 ))" || rc=1
         fi
     done
 
     if [ "$where" = 'all' ] || [ "$where" = 'dh4' ] ; then
-        _echo_p "Install SSH key $sshkey at dh4 (core@$HOST_DH4_IP)"
-        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "core@$HOST_DH4_IP" || rc=1
+        _echo_p "Install SSH key $sshkey at dh4 (core@$HOST_NODE_IPU)"
+        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_PROV nc %h %p" "core@$HOST_NODE_IPU" || rc=1
     fi
 
     if [ "$where" = 'all' ] || [ "$where" = 'dh4-acc' ] ; then
-        _echo_p "Install SSH key $sshkey at dh4-acc (root@172.16.3.16)"
-        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "root@172.16.3.16" || rc=1
+        _echo_p "Install SSH key $sshkey at dh4-acc (root@$HOST_DPU_IPU)"
+        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_PROV nc %h %p" "root@$HOST_DPU_IPU" || rc=1
     fi
 
     return "$rc"
@@ -1599,10 +1637,12 @@ do_kubeconfig_ocp() {
 do_kubeconfig_microshift() {
     local hh
 
-    if is_tgen1 ; then
-        hh='172.16.3.16'
+    if is_prov_host ; then
+        hh="$HOST_DPU_IPU"
     else
-        hh='172.22.1.104'
+        # if we are on localhost, we want that the kubeconfig can directly access
+        # the microshift instance. We thus use the external facing IP address.
+        hh="$HOST_DPU_IPU_EXTERN"
     fi
 
     _EXEC_NOTTY=1 \
