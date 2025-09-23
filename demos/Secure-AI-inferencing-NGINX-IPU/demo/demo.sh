@@ -391,10 +391,12 @@ sfc_create() {
 
 sfc_wait() {
     _echo_p "Wait for SFC pod with nginx to be ready"
-    if ! oc_msh -n openshift-dpu-operator get pod/nginx &>/dev/null ; then
-        timeout 60 bash -c 'while ! oc_msh -n openshift-dpu-operator get pod/nginx ; do sleep 1 ; done'
-    fi
-    oc_msh -n openshift-dpu-operator wait --for=condition=Ready pod/nginx --timeout=15m
+    _retry_with_timeout "60" \
+        oc_msh -n openshift-dpu-operator get pod/nginx &>/dev/null \
+        || return 1
+    oc_msh -n openshift-dpu-operator wait --for=condition=Ready pod/nginx --timeout=15m \
+        || return 1
+    return 0
 }
 
 sfc_delete() {
