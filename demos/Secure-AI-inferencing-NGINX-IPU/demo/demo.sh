@@ -746,6 +746,8 @@ nginx_setup_ipaddr() {
         set -x && \\
         apt-get update && \\
         apt-get install -y procps iproute2 iputils-ping net-tools tcpdump ethtool && \\
+        ethtool -K net1 rx off tx off && \\
+        ethtool -K net2 rx off tx off && \\
         ip addr flush dev net1 && \\
         ip addr flush dev net2 && \\
         ip addr add 10.56.217.3/24 dev net1 && \\
