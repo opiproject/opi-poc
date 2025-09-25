@@ -84,10 +84,10 @@ can run for example
 
 - `oc --kubeconfig=/tmp/kubeconfig.ocpcluster get node`
 
-- `oc --kubeconfig=/tmp/kubeconfig.microshift get node`
+- `oc --kubeconfig=/tmp/kubeconfig.microshift-ipu get node`
 
 Alternatively, if you wish, you can also run `./demos.sh oc_ocp ARGS...` and
-`./demo.sh oc_msh ARGS...`. That is the same as calling the `oc` commands with
+`./demo.sh oc_ipu ARGS...`. That is the same as calling the `oc` commands with
 the right kubeconfig. The `oc` command line tool allows you to investigate the
 cluster.
 
@@ -123,7 +123,7 @@ response is returned. Finally, the script prints the classification result
 of the images.
 
 See the NGINX configuration with the upstream pods via
-`./demo.sh oc_msh -n openshift-dpu-operator exec -ti pod/nginx -- cat /etc/nginx/conf.d/91-upstream.conf`.
+`./demo.sh oc_ipu -n openshift-dpu-operator exec -ti pod/nginx -- cat /etc/nginx/conf.d/91-upstream.conf`.
 
 ### Investigate the Demo Setup
 
@@ -133,7 +133,7 @@ Now we can look at the system. Try some of the example commands.
 
     ```bash
     ./demo.sh oc_ocp -n openshift-dpu-operator get all
-    ./demo.sh oc_msh -n openshift-dpu-operator get all
+    ./demo.sh oc_ipu -n openshift-dpu-operator get all
     ```
 
 1. Inspect the AI Inferencing Pods on the host
@@ -147,8 +147,8 @@ Now we can look at the system. Try some of the example commands.
 1. Inspect the NGINX loadbalancer Pod on the IPU
 
     ```bash
-    ./demo.sh oc_msh -n openshift-dpu-operator get pod/nginx
-    ./demo.sh oc_msh -n openshift-dpu-operator exec -ti pod/nginx -- bash
+    ./demo.sh oc_ipu -n openshift-dpu-operator get pod/nginx
+    ./demo.sh oc_ipu -n openshift-dpu-operator exec -ti pod/nginx -- bash
     ```
 
 1. Check IP configuration and traffic
@@ -157,18 +157,18 @@ Now we can look at the system. Try some of the example commands.
     `ping` and `tcpdump` to investigate what is happening.
 
     Either start first an interactive shell via
-    `./demo.sh oc_msh -n openshift-dpu-operator exec -ti pod/nginx -- bash`,
+    `./demo.sh oc_ipu -n openshift-dpu-operator exec -ti pod/nginx -- bash`,
     or run as separate commands:
 
     ```bash
-    ./demo.sh oc_msh -n openshift-dpu-operator exec -ti pod/nginx -- ps aux
+    ./demo.sh oc_ipu -n openshift-dpu-operator exec -ti pod/nginx -- ps aux
 
-    ./demo.sh oc_msh -n openshift-dpu-operator exec -ti pod/nginx -- ip addr
+    ./demo.sh oc_ipu -n openshift-dpu-operator exec -ti pod/nginx -- ip addr
 
     POD_IP=$(./demo.sh pod_detect_net1_ip resnet50-model-server-2)
-    ./demo.sh oc_msh -n openshift-dpu-operator exec -ti pod/nginx -- ping -c 3 "$POD_IP"
+    ./demo.sh oc_ipu -n openshift-dpu-operator exec -ti pod/nginx -- ping -c 3 "$POD_IP"
 
-    ./demo.sh oc_msh -n openshift-dpu-operator exec -ti pod/nginx -- tcpdump -ni net2
+    ./demo.sh oc_ipu -n openshift-dpu-operator exec -ti pod/nginx -- tcpdump -ni net2
     ```
 
 ### Run the Demo "inspect" Example
@@ -199,7 +199,7 @@ at the `pod_create()` function.
 
 Likewise, to create the NGINX network function on the IPU side, we create a
 `ServiceFunctionChain` CR. You can see how that is done in the `sfc_create()`
-function. You can also see this service function chain via `./demo.sh oc_msh
+function. You can also see this service function chain via `./demo.sh oc_ipu
 get sfc -A`. Based on that custom resource will the DPU operator create the
 NGINX pod.
 

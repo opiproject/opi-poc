@@ -10,28 +10,60 @@
 # See https://docs.google.com/document/d/140XMmFQKQorSDLL0IEmtWUDpMNYoF1RECNC8izBKru0/edit?tab=t.0 aboud
 # how the cluster and operator was installed.
 
+###############################################################################
+
+# Provisioning host
+HOST_PROV="${HOST_PROV:-172.22.1.100}" # tgen1
+
+# worker node with IPU (as reachable from $HOST_PROV)
+HOST_NODE_IPU="${HOST_NODE_IPU:-172.22.1.4}" # dh4
+
+# The IPU DPU
+HOST_DPU_IPU="${HOST_DPU_IPU:-172.16.3.16}" # dh4-acc
+
+# The IPU DPU (as reachable from localhost)
+HOST_DPU_IPU_EXTERN="${HOST_DPU_IPU_EXTERN:-172.22.1.104}" # dh4-acc
+
+# The IPU's IMC
+HOST_BMC_IPU="${HOST_BMC_IPU:-172.22.4.4}" # dh4-imc
+
+# The MVL DPU
+HOST_DPU_MVL="${HOST_DPU_MVL:-172.16.3.13}" # dh3-acc
+
+# The MVL DPU (as reachable from localhost)
+HOST_DPU_MVL_EXTERN="${HOST_DPU_MVL_EXTERN:-172.22.1.103}" # dh3-acc
+
+# The public facing IP address inside the nginx pod on the IPU.
+HOST_NGINX_IPU="${HOST_NGINX_IPU:-172.16.3.200}"
+
+# Management host
+HOST_MGMT="${HOST_MGMT:-172.22.0.1}" # mgmt
+
+# Whether this script is *not* used with the OPI lab but another cluster. In that case,
+# the user will set environment variables to make the script usable.
+EXTERNAL_CLUSTER="${EXTERNAL_CLUSTER:-0}"
 
 NUM_PODS="${NUM_PODS:-3}"
 
-HOST_TGEN1_IP="172.22.1.100"
-HOST_DH4_IP="172.22.1.4"
+###############################################################################
 
-KC_OCP="${KC_OCP:-}"
 if [ -z "$KC_OCP" ] ; then
     KC_OCP="$PWD/kubeconfig.ocpcluster"
     if [ ! -f "$KC_OCP" ] && [ -f "/tmp/kubeconfig.ocpcluster"  ] ; then KC_OCP="/tmp/kubeconfig.ocpcluster"  ; fi
     if [ ! -f "$KC_OCP" ] && [ -f "/root/kubeconfig.ocpcluster" ] ; then KC_OCP="/root/kubeconfig.ocpcluster" ; fi
 fi
-KC_MSH="${KC_MSH:-}"
-if [ -z "$KC_MSH" ] ; then
-    KC_MSH="$PWD/kubeconfig.microshift"
-    if [ ! -f "$KC_MSH" ] && [ -f "/tmp/kubeconfig.microshift"  ] ; then KC_MSH="/tmp/kubeconfig.microshift"  ; fi
-    if [ ! -f "$KC_MSH" ] && [ -f "/root/kubeconfig.microshift" ] ; then KC_MSH="/root/kubeconfig.microshift" ; fi
+if [ -z "${KC_IPU+x}" ] ; then
+    KC_IPU="$PWD/kubeconfig.microshift-ipu"
+    if [ ! -f "$KC_IPU" ] && [ -f "/tmp/kubeconfig.microshift-ipu"  ] ; then KC_IPU="/tmp/kubeconfig.microshift-ipu"  ; fi
+    if [ ! -f "$KC_IPU" ] && [ -f "/root/kubeconfig.microshift-ipu" ] ; then KC_IPU="/root/kubeconfig.microshift-ipu" ; fi
 fi
-POD_NAMES=()
-for i in $(seq 1 "$NUM_PODS") ; do
-    POD_NAMES+=( "resnet50-model-server-$i" )
-done
+if [ -z "${KC_MVL+x}" ] ; then
+    KC_MVL="$PWD/kubeconfig.microshift-ipu"
+    if [ ! -f "$KC_MVL" ] && [ -f "/tmp/kubeconfig.microshift-ipu"  ] ; then KC_MVL="/tmp/kubeconfig.microshift-ipu"  ; fi
+    if [ ! -f "$KC_MVL" ] && [ -f "/root/kubeconfig.microshift-ipu" ] ; then KC_MVL="/root/kubeconfig.microshift-ipu" ; fi
+fi
+
+POD_NAME_BASE="resnet50-model-server"
 
 INFERENCE_VENV="/tmp/opilab-demo-inference-venv"
 
@@ -127,19 +159,22 @@ _retry_with_timeout() {
     done
 }
 
-usage() {
+_usage() {
+    local scriptname="$1"
+    local scriptname0="$2"
     local commands
 
-    mapfile -t commands < <(sed -n '/^    case "''$''cmd" in/,/    esac$/ s/^        \([a-zA-Z_0-9]\+\).*/\1/p' "$SCRIPTNAME")
+    mapfile -t commands < <(sed -n '/^    case "''$''main_cmd" in/,/    esac$/ s/^        \([a-zA-Z_0-9]\+\).*/\1/p' "$scriptname")
 
-    _echo "Usage $C_GREEN$SCRIPTNAME$C_RESET COMMAND..."
+    _echo "Usage $C_GREEN$scriptname$C_RESET COMMAND..."
     _echo
     _echo "Inspect the script or run with \`bash -x\` to see what the shell script does."
     _echo "You may source the script and call the shell functions directly."
     _echo
     _echo "Uses:"
     _echo "  export KC_OCP=$C_BLUE$(printf '%q' "$KC_OCP")$C_RESET"
-    _echo "  export KC_MSH=$C_BLUE$(printf '%q' "$KC_MSH")$C_RESET"
+    _echo "  export KC_IPU=$C_BLUE$(printf '%q' "$KC_IPU")$C_RESET"
+    _echo "  export KC_MVL=$C_BLUE$(printf '%q' "$KC_MVL")$C_RESET"
     _echo
 
     # Parse the shell script itself, to get out the available commands and
@@ -193,7 +228,7 @@ usage() {
             print(f"  {c_green}{cmd}{c_reset}{synopsis}")
             print("".join(f"    {s}\n" for s in doc), end="")
     ' \
-        "$SCRIPTNAME" \
+        "$scriptname" \
         "$C_YELLOW" \
         "$C_GREEN" \
         "$C_RESET" \
@@ -202,47 +237,152 @@ usage() {
     _echo
     _echo "Setup localhost:"
     _echo " - # connect to VPN (\`openconnect --protocol=f5 vpn.opiproject-lab.org\`)"
-    _echo " - $(printf '%q' "$SCRIPTNAME0") ssh_copy_id \$SSHKEY"
-    _echo " - $(printf '%q' "$SCRIPTNAME0") etc_hosts update"
-    _echo " - $(printf '%q' "$SCRIPTNAME0") kubeconfigs /tmp"
-    _echo " - $(printf '%q' "$SCRIPTNAME0") info"
+    _echo " - $(printf '%q' "$scriptname0") ssh_copy_id \$SSHKEY"
+    _echo " - $(printf '%q' "$scriptname0") etc_hosts update"
+    _echo " - $(printf '%q' "$scriptname0") kubeconfigs /tmp"
+    _echo " - $(printf '%q' "$scriptname0") info"
 }
 
-is_tgen1() {
-    [ "$(hostname)" = "tgen1" ] || return 1
-    return 0
+usage() {
+    _usage "$SCRIPTNAME" "$SCRIPTNAME0"
+}
+
+check_no_external_cluster() {
+    if [ "$EXTERNAL_CLUSTER" = 1 ] ; then
+        die "Cannot call $main_cmd with external cluster"
+    fi
+}
+
+host_has_ip() {
+    # Check whether the current host is the provisioning host.
+    local ip="$1"
+    local h
+    local is=1
+
+    for h in $(hostname -I) ; do
+        if [ "$h" = "$ip" ] ; then
+            is=0
+            break
+        fi
+    done
+
+    return $is
+}
+
+is_prov_host() {
+    # Check whether the current host is the provisioning host.
+    local rc=0
+
+    host_has_ip "$HOST_PROV" || rc=1
+
+    # Update the function itself with a memoized value. Let's only
+    # detect once.
+    eval "is_prov_host() { return $rc ; }"
+    return $rc
+}
+
+get_podnames() {
+    _EXEC_NOTTY=1 \
+    oc_ocp -n default get pods \
+        -l app="$POD_NAME_BASE-service" \
+        -o custom-columns=:metadata.name --no-headers \
+        --sort-by=.metadata.name
 }
 
 get_podname() {
     local pod_name="$1"
 
     case "$pod_name" in
-        [0-9]|[0-9][0-9])
-            pod_name="resnet50-model-server-$pod_name"
+        [0-9] | \
+        [0-9][0-9] | \
+        pod-[0-9] | \
+        pod-[0-9][0-9] )
+            get_podnames | sed -n "${pod_name##*-} p"
             ;;
         *)
+            _echo "$pod_name"
             ;;
     esac
+}
 
-    _echo "$pod_name"
+_detect_kind() {
+    case "$1" in
+        ""|a|auto)
+            [ -n "$KC_IPU" ] || [ -n "$KC_MVL" ] || die "no KC_IPU or KC_MVL to detect kind"
+            [ -z "$KC_IPU" ] || { _echo 'ipu' ; return 0 ; }
+            [ -z "$KC_MVL" ] || { _echo 'mvl' ; return 0 ; }
+
+            local oc_kind
+            local rc
+            local out
+            for oc_kind in 'ipu' 'mvl' ; do
+                if [ -n "$(_oc get nodes -l dpu=true --no-headers 2>/dev/null ; true)" ] ; then
+                    _echo "$oc_kind"
+                    return 0
+                fi
+            done
+            # default to "ipu"
+            _echo 'ipu'
+            ;;
+        i|ipu)
+            [ -n "$KC_IPU" ] || die "no KC_IPU for IPU kind"
+            _echo 'ipu'
+            ;;
+        m|mvl|mrvl|marvell)
+            [ -n "$KC_MVL" ] || die "no KC_MVL for marvell kind"
+            _echo 'mvl'
+            ;;
+        *)
+            die "invalid kind $(_echo "$1")"
+            ;;
+    esac
+}
+
+_oc() {
+    "oc_$oc_kind" "$@"
 }
 
 # 2:check cluster:5
 # OC_ARGS...
 # Call `oc` command for OCP cluster "opicluster".
 oc_ocp() {
-    oc --kubeconfig="$KC_OCP" "$@"
+    [ -n "$KC_OCP" ] || die "No KC_OCP to access OCP cluster"
+    if [ "$EXTERNAL_CLUSTER" = 1 ] ; then
+        _EXEC_SILENT=1 \
+        _exec prov oc --kubeconfig="$KC_OCP" "$@"
+    else
+        oc --kubeconfig="$KC_OCP" "$@"
+    fi
 }
 
 # 2:check cluster:6
 # OC_ARGS...
-# Call `oc` command for microshift on dh4-acc.
-oc_msh() {
-    oc --kubeconfig="$KC_MSH" "$@"
+# Call `oc` command for microshift on the IPU on dh4-acc.
+oc_ipu() {
+    [ -n "$KC_IPU" ] || die "No KC_IPU to access IPU cluster"
+    if [ "$EXTERNAL_CLUSTER" = 1 ] ; then
+        _EXEC_SILENT=1 \
+        _exec prov oc --kubeconfig="$KC_IPU" "$@"
+    else
+        oc --kubeconfig="$KC_IPU" "$@"
+    fi
+}
+
+# 2:check cluster:7
+# OC_ARGS...
+# Call `oc` command for microshift on Marvell DPU on dh3-acc.
+oc_mvl() {
+    [ -n "$KC_MVL" ] || die "No KC_MVL to access Marvell cluster"
+    if [ "$EXTERNAL_CLUSTER" = 1 ] ; then
+        _EXEC_SILENT=1 \
+        _exec prov oc --kubeconfig="$KC_MVL" "$@"
+    else
+        oc --kubeconfig="$KC_MVL" "$@"
+    fi
 }
 
 oc_nginx_exec() {
-    oc_msh -n openshift-dpu-operator exec -i pod/nginx -- "$@"
+    _oc -n openshift-dpu-operator exec -i pod/nginx -- "$@"
 }
 
 _oc_node_pattern_filter() {
@@ -368,13 +508,15 @@ wait_ssh() {
 
 sfc_create() {
     _echo_p "Create SFC \"sfc-test\" in openshift-dpu-operator"
-    cat <<'    EOF' | sed 's/^        //' | oc_msh create -f -
+    cat <<'    EOF' | sed 's/^        //' | _oc create -f -
         apiVersion: config.openshift.io/v1
         kind: ServiceFunctionChain
         metadata:
           name: sfc-test
           namespace: openshift-dpu-operator
         spec:
+          nodeSelector:
+            dpu.config.openshift.io/dpuside: "dpu"
           networkFunctions:
           - name: nginx
             image: nginx
@@ -384,81 +526,88 @@ sfc_create() {
 
 sfc_wait() {
     _echo_p "Wait for SFC pod with nginx to be ready"
-    if ! oc_msh -n openshift-dpu-operator get pod/nginx &>/dev/null ; then
-        timeout 60 bash -c 'while ! oc_msh -n openshift-dpu-operator get pod/nginx ; do sleep 1 ; done'
-    fi
-    oc_msh -n openshift-dpu-operator wait --for=condition=Ready pod/nginx --timeout=15m
+    _retry_with_timeout "60" \
+        _oc -n openshift-dpu-operator get pod/nginx &>/dev/null \
+        || return 1
+    _oc -n openshift-dpu-operator wait --for=condition=Ready pod/nginx --timeout=15m \
+        || return 1
+    return 0
 }
 
 sfc_delete() {
-    oc_msh -n openshift-dpu-operator delete ServiceFunctionChain/sfc-test || true
+    _oc -n openshift-dpu-operator delete ServiceFunctionChain/sfc-test || true
 }
 
 sfc_wait_deleted() {
-    oc_msh -n openshift-dpu-operator wait --for="delete" "pod/nginx" --timeout=15m
+    _oc -n openshift-dpu-operator wait "--for=delete" "pod/nginx" --timeout=15m
 }
 
-pod_create() {
-    local pod_name="$1"
-
-    _echo_p "Create resnet pod \"$pod_name\" in default namespace"
+pod_deployment_create() {
+    _echo_p "Create resnet deployment \"$POD_NAME_BASE\" in default namespace"
 
     cat <<EOF | sed 's/^        //' | oc_ocp create -f -
-        apiVersion: v1
-        kind: Pod
+        apiVersion: apps/v1
+        kind: Deployment
         metadata:
-          name: $pod_name
+          name: $POD_NAME_BASE
           namespace: default
-          annotations:
-            k8s.v1.cni.cncf.io/networks: default-sriov-net
-          labels:
-            app: resnet50-model-server-service
         spec:
-          securityContext:
-            runAsUser: 0
-          nodeSelector:
-            kubernetes.io/hostname: dh4
-          volumes:
-            - name: model-volume
-              emptyDir: {}
-          initContainers:
-            - name: model-downloader
-              image: ubuntu:latest
+          replicas: $NUM_PODS
+          selector:
+            matchLabels:
+              app: $POD_NAME_BASE-service
+          template:
+            metadata:
+              annotations:
+                k8s.v1.cni.cncf.io/networks: default-sriov-net
+              labels:
+                app: $POD_NAME_BASE-service
+            spec:
               securityContext:
                 runAsUser: 0
-              command:
-                - bash
-                - -c
-                - |
-                  apt-get update && \
-                  apt-get install -y wget ca-certificates && \
-                  mkdir -p /models/1 && \
-                  wget --no-check-certificate https://storage.openvinotoolkit.org/repositories/open_model_zoo/2022.1/models_bin/2/resnet50-binary-0001/FP32-INT1/resnet50-binary-0001.xml -O /models/1/model.xml && \
-                  wget --no-check-certificate https://storage.openvinotoolkit.org/repositories/open_model_zoo/2022.1/models_bin/2/resnet50-binary-0001/FP32-INT1/resnet50-binary-0001.bin -O /models/1/model.bin
-              volumeMounts:
+              nodeSelector:
+                dpu.config.openshift.io/dpuside: "dpu-host"
+              volumes:
                 - name: model-volume
-                  mountPath: /models
-          containers:
-            - name: ovms
-              image: openvino/model_server:latest
-              args:
-                - "--model_path=/models"
-                - "--model_name=resnet50"
-                - "--port=9000"
-                - "--rest_port=8000"
-              ports:
-                - containerPort: 8000
-                - containerPort: 9000
-              volumeMounts:
-                - name: model-volume
-                  mountPath: /models
-              securityContext:
-                  privileged: true
-              resources:
-                requests:
-                  openshift.io/dpu: '1'
-                limits:
-                  openshift.io/dpu: '1'
+                  emptyDir: {}
+              initContainers:
+                - name: model-downloader
+                  image: ubuntu:latest
+                  securityContext:
+                    runAsUser: 0
+                  command:
+                    - bash
+                    - -c
+                    - |
+                      apt-get update && \
+                      apt-get install -y wget ca-certificates && \
+                      mkdir -p /models/1 && \
+                      wget --no-check-certificate https://storage.openvinotoolkit.org/repositories/open_model_zoo/2022.1/models_bin/2/resnet50-binary-0001/FP32-INT1/resnet50-binary-0001.xml -O /models/1/model.xml && \
+                      wget --no-check-certificate https://storage.openvinotoolkit.org/repositories/open_model_zoo/2022.1/models_bin/2/resnet50-binary-0001/FP32-INT1/resnet50-binary-0001.bin -O /models/1/model.bin
+                  volumeMounts:
+                    - name: model-volume
+                      mountPath: /models
+              containers:
+                - name: ovms
+                  image: openvino/model_server:latest
+                  args:
+                    - "--model_path=/models"
+                    - "--model_name=resnet50"
+                    - "--port=9000"
+                    - "--rest_port=8000"
+                  ports:
+                    - containerPort: 8000
+                    - containerPort: 9000
+                  volumeMounts:
+                    - name: model-volume
+                      mountPath: /models
+                  securityContext:
+                      privileged: true
+                  resources:
+                    requests:
+                      openshift.io/dpu: '1'
+                    limits:
+                      openshift.io/dpu: '1'
 EOF
 }
 
@@ -498,26 +647,19 @@ pod_detect_net1_ip() {
     return "$rc"
 }
 
-pods_create() {
-    for pod_name in "${POD_NAMES[@]}" ; do
-        pod_create "$pod_name"
-    done
-}
-
 pods_wait() {
     _echo_p "Wait for resnet pods to be ready"
-    for pod_name in "${POD_NAMES[@]}" ; do
-         oc_ocp -n default wait --for="condition=Ready" "pod/$pod_name" --timeout=15m
-    done
+    oc_ocp -n default wait --for="condition=Ready" -l app="$POD_NAME_BASE-service" pod  --timeout=15m
 }
 
 pods_setup() {
+    local pod_name
     local pod_names
 
     if [ -n "$_OPI_DEMO_PODS_SETUP_POD" ] ; then
         mapfile -t pod_names <<< "$_OPI_DEMO_PODS_SETUP_POD"
     else
-        pod_names=( "${POD_NAMES[@]}" )
+        mapfile -t pod_names < <(get_podnames)
     fi
 
     for pod_name in "${pod_names[@]}" ; do
@@ -526,24 +668,20 @@ pods_setup() {
         oc_ocp -n default exec -i "pod/$pod_name" -- /bin/bash -c '
             set -x &&
             apt-get update &&
-            apt-get install -y procps iproute2 iputils-ping net-tools tcpdump &&
+            apt-get install -y procps iproute2 iputils-ping net-tools tcpdump ethtool &&
             true
         '
     done
 }
 
-pods_delete() {
-    _echo_p "Delete resnet Pods"
-    for pod_name in "${POD_NAMES[@]}" ; do
-        oc_ocp -n default delete "pod/$pod_name" || true
-    done
+pod_deployment_delete() {
+    _echo_p "Delete resnet Deployment $POD_NAME_BASE"
+    oc_ocp -n default delete --wait=false "deployment/$POD_NAME_BASE" || :
 }
 
 pods_wait_deleted() {
     _echo_p "Wait for resnet pods to be deleted"
-    for pod_name in "${POD_NAMES[@]}" ; do
-        oc_ocp -n default wait --for="delete" "pod/$pod_name" --timeout=15m
-    done
+    oc_ocp -n default wait "--for=delete" -l app="$POD_NAME_BASE-service" pod --timeout=15m
 }
 
 nginx_setup_base() {
@@ -601,17 +739,19 @@ nginx_setup_ipaddr() {
     # inside the pod.
     # - 10.56.217.3/24: IP address to talk with AI demo pods (see also
     #   nad_ip_range() function).
-    # - 172.16.3.200/24: this IP address is reachable from external. HTTP
+    # - $HOST_NGINX_IPU/24: this IP address is reachable from external. HTTP
     #   requests on this address will be load balanced by the nginx proxy.
     _echo_p "Configure pod/nginx with IP addresses"
     oc_nginx_exec bash -c "
         set -x && \\
         apt-get update && \\
-        apt-get install -y procps iproute2 iputils-ping net-tools tcpdump && \\
+        apt-get install -y procps iproute2 iputils-ping net-tools tcpdump ethtool && \\
+        ethtool -K net1 rx off tx off && \\
+        ethtool -K net2 rx off tx off && \\
         ip addr flush dev net1 && \\
         ip addr flush dev net2 && \\
-        ip addr add 10.56.217.3/24 dev net2 && \\
-        ip addr add 172.16.3.200/24 dev net2 && \\
+        ip addr add 10.56.217.3/24 dev net1 && \\
+        ip addr add $HOST_NGINX_IPU/24 dev net2 && \\
         ip addr
     "
 }
@@ -629,6 +769,7 @@ nginx_setup_upstream_ip() {
 
 nginx_setup_upstream() {
     local pod_name
+    local pod_names
     local ip
 
     # Detect and configure the IP addresses of the AI pods as upstream for the
@@ -638,7 +779,9 @@ nginx_setup_upstream() {
     # definition is configured to hand out a certain 10.56.217.0/24 range to
     # the pods.
 
-    for pod_name in "${POD_NAMES[@]}" ; do
+    mapfile -t pod_names < <(get_podnames)
+
+    for pod_name in "${pod_names[@]}" ; do
         ip="$(pod_detect_net1_ip 180 "$pod_name")" \
             || { _echo_p "${C_RED}ERROR${C_RESET}: Failure to detect IP address in $pod_name"; return 1; }
 
@@ -675,18 +818,19 @@ nginx_setup() {
 }
 
 nginx_wait() {
-    wait_ping tgen1 30 172.16.3.200
+    wait_ping tgen1 30 "$HOST_NGINX_IPU"
 }
 
-# 2:check cluster:7
+# 2:check cluster:8
 #
 # Reconfigure the nginx pod on dh4-acc. This is a subset of redeploy.
 do_nginx_setup() {
+    local oc_kind='ipu'
     nginx_setup
     nginx_wait
 }
 
-# 2:check cluster:8
+# 2:check cluster:9
 # [POD]
 # Reconfigure the resnet pods in the OCP cluster. This is a subset of redeploy.
 # If no pod is given, all of them are reconfigured.
@@ -695,7 +839,7 @@ do_pods_setup() {
     _OPI_DEMO_PODS_SETUP_POD="$1" pods_setup
 }
 
-# 2:check cluster:9
+# 2:check cluster:10
 # POD
 # Lookup the IP address on the secondary network net1 of the AI pod on the OCP
 # side. This is the upstream IP address for the nginx load balancer.
@@ -706,7 +850,7 @@ do_pod_detect_net1_ip() {
 }
 
 _cmd_nginx_macs() {
-    oc_msh -n openshift-dpu-operator exec pod/nginx -- bash -c '(ip link show net1; ip link show net2) | sed -n "s/^.*link\/ether \+\([^ ]\+\) \+.*$/\1/p"'
+    _oc -n openshift-dpu-operator exec pod/nginx -- bash -c '(ip link show net1; ip link show net2) | sed -n "s/^.*link\/ether \+\([^ ]\+\) \+.*$/\1/p"'
 }
 
 # Check interface rx/tx statistics on dh4-ipu. Call via `watch`
@@ -768,6 +912,7 @@ _exec() {
     local host
     local args=()
     local args_cmd
+    local name
 
     while : ; do
         case "$1" in
@@ -823,21 +968,21 @@ _exec() {
     fi
 
     local ssh_cmd_tgen1=()
-    if ! is_tgen1 ; then
+    if ! is_prov_host ; then
         # If we are not on tgen1, we progably will first remote the call via
         # ssh. that has two reasons:
         # - some hosts (dh4-acc) are not directly accessible via the SSH. We
         #   Need to go through tgen1
         # - by going through tgen1, we only need authentication via that host.
         #   tgen1 can from there password-less login to the other hosts.
-        ssh_cmd_tgen1=( ssh "${_ssh_t[@]}" "root@$HOST_TGEN1_IP" )
+        ssh_cmd_tgen1=( ssh "${_ssh_t[@]}" "root@$HOST_PROV" )
     fi
 
     case "$host" in
         localhost)
             ssh_cmd_tgen1=()
             ;;
-        tgen1)
+        prov|tgen1)
             if [ "${#ssh_cmd_tgen1[@]}" -gt 0 ] ; then
                 args=( "${ssh_cmd_tgen1[@]}" "$args_cmd" )
             fi
@@ -847,19 +992,20 @@ _exec() {
             args=( ssh "${_ssh_t[@]}" "core@192.168.122.$(( "${host##*-}" + 1 ))" "$args_cmd" )
             ;;
         dh4-acc)
-            args=( ssh "${_ssh_t[@]}" "root@172.16.3.16" "$args_cmd" )
+            args=( ssh "${_ssh_t[@]}" "root@$HOST_DPU_IPU" "$args_cmd" )
             ;;
         dh4-imc)
-            args=( ssh "${_ssh_t[@]}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR "root@172.22.4.4" "$args_cmd" )
+            args=( ssh "${_ssh_t[@]}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR "root@$HOST_BMC_IPU" "$args_cmd" )
             ;;
         dh4)
-            args=( ssh "${_ssh_t[@]}" "core@$HOST_DH4_IP" "$args_cmd" )
+            args=( ssh "${_ssh_t[@]}" "core@$HOST_NODE_IPU" "$args_cmd" )
             ;;
         mgmt)
-            args=( ssh "${_ssh_t[@]}" "root@172.22.0.1" "$args_cmd" )
+            args=( ssh "${_ssh_t[@]}" "root@$HOST_MGMT" "$args_cmd" )
             ;;
-        dh4-pod-[123])
-            args=( oc --kubeconfig="/root/kubeconfig.opicluster" exec -n default "${_oc_t[@]}" -i "pod/resnet50-model-server-${host##*-}" -- "${args[@]}" )
+        dh4-pod-[1-9])
+            name="$(get_podname "${host##*-}")"
+            args=( oc --kubeconfig="/root/kubeconfig.opicluster" exec -n default "${_oc_t[@]}" -i "pod/$name" -- "${args[@]}" )
             ;;
         dh4-acc-nginx)
             args=( oc --kubeconfig="/root/kubeconfig.dh4-acc" exec -n openshift-dpu-operator "${_oc_t[@]}" -i pod/nginx -- "${args[@]}" )
@@ -904,12 +1050,15 @@ do_remote() {
         --exclude="__pycache__/" \
         --exclude="kubeconfig*" \
         . \
-        "root@$HOST_TGEN1_IP:$tdir/" \
+        "root@$HOST_PROV:$tdir/" \
         ;
 
     local envs=()
     if [ -n "$OPI_DEMO_SLEEP_TIME" ] ; then
         envs+=( "OPI_DEMO_SLEEP_TIME=$OPI_DEMO_SLEEP_TIME" )
+    fi
+    if [ "$HOST_PROV" != '172.22.1.100' ] ; then
+        envs+=( "HOST_PROV=$HOST_PROV" )
     fi
 
     # shellcheck disable=SC2031
@@ -973,25 +1122,42 @@ show_info() {
     oc_ocp -n openshift-dpu-operator get all
     oc_ocp -n default get all
 
-    _echo_p "Information about microshift on dh4 for $KC_MSH"
-    oc_msh get node
-    oc_msh -n openshift-dpu-operator get all
-    oc_msh -n default get all
+    local oc_kind
 
-    pod="$(oc_msh get pods -A -o name | grep 'vsp-p4' | head -n1)"
-    _echo_p "Show ovs-vsctl inside VSP pod $pod on DPU side"
-    oc_msh -n openshift-dpu-operator exec -i "$pod" -- /opt/p4/p4-cp-nws/bin/ovs-vsctl show || true
-    oc_msh -n openshift-dpu-operator exec -i "$pod" -- /opt/p4/p4-cp-nws/bin/p4rt-ctl dump-entries br0 | head -n10 || true
-    _cmd_ipu_statistics
+    for oc_kind in ipu mvl ; do
+        if [ "$oc_kind" = 'ipu' ] ; then
+            _echo_p "Information about microshift on dh4 for $KC_IPU"
+        else
+            _echo_p "Information about microshift on dh3 for $KC_MVL"
+        fi
+        _oc get node
+        _oc -n openshift-dpu-operator get all
+        _oc -n default get all
+
+        if [ "$oc_kind" = 'ipu' ] ; then
+            pod="$(_oc get pods -A -o name | grep 'vsp-p4' | head -n1)"
+            _echo_p "Show ovs-vsctl inside VSP pod $pod on DPU side"
+            _oc -n openshift-dpu-operator exec -i "$pod" -- /opt/p4/p4-cp-nws/bin/ovs-vsctl show || true
+            _oc -n openshift-dpu-operator exec -i "$pod" -- /opt/p4/p4-cp-nws/bin/p4rt-ctl dump-entries br0 | head -n10 || true
+            _cmd_ipu_statistics
+        fi
+    done
 }
 
 cleanup_all() {
     _echo_p "Delete SFC"
-    sfc_delete
-    pods_delete
+    [ -z "$KC_IPU" ] \
+        || oc_kind=ipu sfc_delete
+    [ -z "$KC_MVL" ] \
+        || oc_kind=mvl sfc_delete
+    pod_deployment_delete
 
     _echo_p "Wait for SFC and Pods to be gone"
-    sfc_wait_deleted \
+    [ -z "$KC_IPU" ] \
+        || oc_kind=ipu sfc_wait_deleted \
+        || _echo_p "  Failed"
+    [ -z "$KC_MVL" ] \
+        || oc_kind=mvl sfc_wait_deleted \
         || _echo_p "  Failed"
     pods_wait_deleted \
         || _echo_p "  Failed"
@@ -1077,25 +1243,27 @@ _wait_node_ready_ocp_dh4() {
 
 _wait_node_ready_microshift() {
     _echo_p "Wait for nodes in microshift on IPU to be ready"
-    KUBECONFIG="$KC_MSH" \
+    KUBECONFIG="$KC_IPU" \
     _retry_with_timeout 180 \
         oc_node_in_state '^dh4-acc$' all True
 }
 
 _wait_is_up_tgen1() {
-    wait_ssh localhost 300 "root@$HOST_TGEN1_IP"
+    wait_ssh localhost 300 "root@$HOST_PROV"
     _wait_node_ready_ocp_masters
 }
 
 _wait_is_up_dh4() {
-    wait_ssh tgen1 300 "core@$HOST_DH4_IP"
+    wait_ssh tgen1 300 "core@$HOST_NODE_IPU"
     _wait_node_ready_ocp_dh4
 }
 
 _wait_is_up_dpu() {
-    wait_ssh tgen1 300 "root@172.22.4.4" || return 1
-    wait_ssh tgen1 180 "root@172.16.3.16" || return 1
-    wait_ssh localhost 60 "root@172.22.1.104" || return 1
+    wait_ssh tgen1 300 "root@$HOST_BMC_IPU" || return 1
+    wait_ssh tgen1 180 "root@$HOST_DPU_IPU" || return 1
+    if ! is_prov_host ; then
+        wait_ssh localhost 60 "root@$HOST_DPU_IPU_EXTERN" || return 1
+    fi
     _wait_node_ready_microshift || return 1
 }
 
@@ -1110,7 +1278,7 @@ _reboot_tgen1_tgen1() {
 
     sleep 60
 
-    _indent wait_ssh localhost 300 "root@$HOST_TGEN1_IP"
+    _indent wait_ssh localhost 300 "root@$HOST_PROV"
 
     _EXEC_NOTTY=1 \
     _indent _exec tgen1 /etc/nftables.sh
@@ -1245,7 +1413,7 @@ do_reboot() {
 
     if [ "$full" -eq 1 ] ; then
         _echo_p "reboot (tgen1, dh4, dh4-acc)..."
-        if is_tgen1 ; then
+        if is_prov_host ; then
             die "Cannot run this command on tgen1, because it will reboot itself."
         fi
         _indent _reboot_tgen1_tgen1
@@ -1290,15 +1458,25 @@ do_reboot() {
 }
 
 # 1:main:2
-#
+# [KIND]
 # Delete the pods and SFC (if any) and redeploy them from scratch.  As we
 # manually adjust the running pods for the demo, we need to redeploy after a
 # pod gets deleted or restarted.
 #
 # Consider running `remote redeploy`, if you didn't setup your system
 # according to "Setup localhost".
+#
+# KIND can be "auto", "ipu" or "marvell" to deploy on the respective host.
 do_redeploy() {
-    _echo_p "Redeploy nginx and resnet"
+    local kind="$1"
+    shift || :
+    local oc_kind
+
+    oc_kind="$(_detect_kind "$kind")" || die "Cannot detect kind: $oc_kind"
+
+    [ "$#" -eq 0 ] || die "invalid arguments"
+
+    _echo_p "Redeploy nginx and resnet for $oc_kind"
 
     (
         # shellcheck disable=SC2031
@@ -1309,7 +1487,7 @@ do_redeploy() {
         cleanup_all
 
         sfc_create
-        pods_create
+        pod_deployment_create
 
         sfc_wait
         pods_wait
@@ -1326,7 +1504,7 @@ do_redeploy() {
 # Test the nginx load balancer by asking the resnet pods to classify images
 # of animals. This is the demo usage.
 do_predict() {
-    if ! is_tgen1 ; then
+    if ! is_prov_host ; then
         # The nginx IP is only accessible from tgen1. Remote the call.
         do_remote predict
         return 0
@@ -1377,7 +1555,7 @@ do_inspect() {
         esac
     fi
 
-    if [ "$_local" != 1 ] && ! is_tgen1 ; then
+    if [ "$_local" != 1 ] && ! is_prov_host ; then
         do_remote inspect
         return 0
     fi
@@ -1394,7 +1572,7 @@ do_tls_generate_keys() {
 
     openssl genpkey -quiet -algorithm RSA -out server.key -pkeyopt rsa_keygen_bits:2048
 
-    cat <<'    EOL' | sed 's/^        //' > /tmp/opilab-demo-san.cnf
+    cat <<EOL | sed 's/^        //' > /tmp/opilab-demo-san.cnf
         [req]
         distinguished_name = req_distinguished_name
         req_extensions = v3_req
@@ -1410,8 +1588,8 @@ do_tls_generate_keys() {
 
         [alt_names]
         DNS.1 = n1.nginx.ipu.opicluster.opiproject-lab.org
-        IP.1 = 172.16.3.200
-    EOL
+        IP.1 = $HOST_NGINX_IPU
+EOL
 
     openssl req -x509 \
         -days $((3*365)) \
@@ -1431,6 +1609,8 @@ do_etc_hosts() {
     set +x
     local content
     local update=0
+
+    check_no_external_cluster
 
     [ "$#" -le 1 ] || die "invalid arguments"
     if [ "$#" -ge 1 ] ; then
@@ -1520,25 +1700,25 @@ do_ssh_copy_id() {
     [ "$#" -eq 0 ] || die "Invalid arguments"
 
     if [ "$where" = 'all' ] || [ "$where" = 'tgen1' ] ; then
-        _echo_p "Install SSH key $sshkey at tgen1 (root@$HOST_TGEN1_IP)"
-        ssh-copy-id -i "$sshkey" "root@$HOST_TGEN1_IP"
+        _echo_p "Install SSH key $sshkey at tgen1 (root@$HOST_PROV)"
+        ssh-copy-id -i "$sshkey" "root@$HOST_PROV"
     fi
 
     for i in {1..3} ; do
         if [ "$where" = 'all' ] || [ "$where" = "opicluster-master-$i" ] ; then
             _echo_p "Install SSH key $sshkey at opicluster-master-$i (core@192.168.122.$(( i + 1 )))"
-            ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "core@192.168.122.$(( i + 1 ))" || rc=1
+            ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_PROV nc %h %p" "core@192.168.122.$(( i + 1 ))" || rc=1
         fi
     done
 
     if [ "$where" = 'all' ] || [ "$where" = 'dh4' ] ; then
-        _echo_p "Install SSH key $sshkey at dh4 (core@$HOST_DH4_IP)"
-        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "core@$HOST_DH4_IP" || rc=1
+        _echo_p "Install SSH key $sshkey at dh4 (core@$HOST_NODE_IPU)"
+        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_PROV nc %h %p" "core@$HOST_NODE_IPU" || rc=1
     fi
 
     if [ "$where" = 'all' ] || [ "$where" = 'dh4-acc' ] ; then
-        _echo_p "Install SSH key $sshkey at dh4-acc (root@172.16.3.16)"
-        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_TGEN1_IP nc %h %p" "root@172.16.3.16" || rc=1
+        _echo_p "Install SSH key $sshkey at dh4-acc (root@$HOST_DPU_IPU)"
+        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_PROV nc %h %p" "root@$HOST_DPU_IPU" || rc=1
     fi
 
     return "$rc"
@@ -1560,6 +1740,8 @@ do_kubeconfigs() {
     local dir="${1:-$ORIGINAL_PWD}"
     local pwd0="$PWD"
 
+    check_no_external_cluster
+
     cd "$ORIGINAL_PWD"
 
     dir="$(realpath -s "$dir")"
@@ -1571,10 +1753,12 @@ do_kubeconfigs() {
     [ "$#" -eq 0 ] || die "Invalid arguments"
 
     do_kubeconfig_ocp > "$dir/kubeconfig.ocpcluster"
-    do_kubeconfig_microshift > "$dir/kubeconfig.microshift"
+    _kubeconfig_microshift 'ipu' > "$dir/kubeconfig.microshift-ipu"
+    _kubeconfig_microshift 'mvl' > "$dir/kubeconfig.microshift-mvl"
 
     _echo "export KC_OCP=$(printf '%q' "$dir/kubeconfig.ocpcluster")"
-    _echo "export KC_MSH=$(printf '%q' "$dir/kubeconfig.microshift")"
+    _echo "export KC_IPU=$(printf '%q' "$dir/kubeconfig.microshift-ipu")"
+    _echo "export KC_MVL=$(printf '%q' "$dir/kubeconfig.microshift-mvl")"
 
     cd "$pwd0"
 }
@@ -1585,29 +1769,65 @@ do_kubeconfigs() {
 do_kubeconfig_ocp() {
     _EXEC_NOTTY=1 \
     _EXEC_SILENT=1 \
-    _exec tgen1 cat /root/opicluster/kubeconfig
+    _exec tgen1 cat /root/kubeconfig.ocpcluster
+}
+
+_kubeconfig_microshift() {
+    local kind="$1"
+    local host
+    local external_ip
+
+    case "$kind" in
+        "ipu")
+            if is_prov_host ; then
+                external_ip="$HOST_DPU_IPU"
+            else
+                # if we are on localhost, we want that the kubeconfig can directly access
+                # the microshift instance. We thus use the external facing IP address.
+                external_ip="$HOST_DPU_IPU_EXTERN"
+            fi
+            host='dh4-acc'
+            ;;
+        "mvl")
+            if is_prov_host ; then
+                external_ip="$HOST_DPU_MVL"
+            else
+                external_ip="$HOST_DPU_MVL_EXTERN"
+            fi
+            host="dh3-acc"
+            ;;
+    esac
+
+    _EXEC_NOTTY=1 \
+    _EXEC_SILENT=1 \
+    _exec "$host" \
+        cat /var/lib/microshift/resources/kubeadmin/kubeconfig \
+        |   if [ "$EXTERNAL_CLUSTER" = 1 ] ; then
+                # from the external cluster, there is anyway no known public IP address. The user can
+                # download the kubeconfig, but they will have to adjust the server line to what works
+                # for them.
+                cat
+            else
+                sed -e 's/^\( *\)\(certificate-authority-data: .*\)$/\1#\2\n\1insecure-skip-tls-verify: true/' \
+                    -e 's#server: https://localhost:6443#server: https://'"$external_ip"':6443#'
+            fi
 }
 
 # 3:extra helper:7
 #
-# Show the kubeconfig for the IPU on dh4.
-do_kubeconfig_microshift() {
-    local hh
-
-    if is_tgen1 ; then
-        hh='172.16.3.16'
-    else
-        hh='172.22.1.104'
-    fi
-
-    _EXEC_NOTTY=1 \
-    _EXEC_SILENT=1 \
-    _exec dh4-acc cat /var/lib/microshift/resources/kubeadmin/kubeconfig \
-        | sed -e 's/^\( *\)\(certificate-authority-data: .*\)$/\1#\2\n\1insecure-skip-tls-verify: true/' \
-              -e 's#server: https://localhost:6443#server: https://'"$hh"':6443#'
+# Show the kubeconfig for microshift on the IPU on dh4.
+do_kubeconfig_microshift_ipu() {
+    _kubeconfig_microshift "ipu"
 }
 
 # 3:extra helper:8
+#
+# Show the kubeconfig for microshift on the Marvell DPU on dh3.
+do_kubeconfig_microshift_mvl() {
+    _kubeconfig_microshift "mvl"
+}
+
+# 3:extra helper:9
 #
 # Run shellcheck, black and mypy on the sources of the demo script.
 do_check() {
@@ -1633,32 +1853,32 @@ do_check() {
 }
 
 _main() {
-    local cmd="$1"
+    local main_cmd="$1"
     shift || true
 
     # For convenience, accept the following aliases:
-    case "$cmd" in
+    case "$main_cmd" in
         'predict_images'|predict_images/)
-            cmd='predict'
+            main_cmd='predict'
             ;;
         'inspect.sh')
-            cmd='inspect'
+            main_cmd='inspect'
             ;;
     esac
 
-    case "$cmd" in
+    case "$main_cmd" in
         check | \
         info | \
         kubeadmin | \
-        kubeconfig_microshift | \
+        kubeconfig_microshift_ipu | \
+        kubeconfig_microshift_mvl | \
         kubeconfig_ocp | \
         nginx_setup | \
         predict | \
-        redeploy | \
         tls_generate_keys \
         )
             [ "$#" -eq 0 ] || die "Invalid arguments"
-            "do_$cmd"
+            "do_$main_cmd"
             ;;
         etc_hosts | \
         exec | \
@@ -1667,17 +1887,19 @@ _main() {
         pod_detect_net1_ip | \
         pods_setup | \
         reboot | \
+        redeploy | \
         remote | \
         ssh_copy_id | \
         tcpdump_dh4 | \
         tcpdump_pod \
         )
-            "do_$cmd" "$@"
+            "do_$main_cmd" "$@"
             ;;
-        oc_msh | \
+        oc_ipu | \
+        oc_mvl | \
         oc_ocp \
         )
-            "$cmd" "$@"
+            "$main_cmd" "$@"
             ;;
         "-h"|"--help")
             usage
@@ -1688,7 +1910,7 @@ _main() {
             ;;
         *)
             usage
-            die "Unknown command '$cmd'"
+            die "Unknown command '$main_cmd'"
             ;;
     esac
 }
