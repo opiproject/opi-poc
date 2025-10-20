@@ -15,6 +15,9 @@
 # Provisioning host
 HOST_PROV="${HOST_PROV:-172.22.1.100}" # tgen1
 
+# worker node with Marvell (as reachable from $HOST_PROV)
+HOST_NODE_MARVELL="${HOST_NODE_MARVELL:-172.22.1.3}" # dh3
+
 # worker node with IPU (as reachable from $HOST_PROV)
 HOST_NODE_IPU="${HOST_NODE_IPU:-172.22.1.4}" # dh4
 
@@ -58,9 +61,9 @@ if [ -z "${KC_IPU+x}" ] ; then
     if [ ! -f "$KC_IPU" ] && [ -f "/root/kubeconfig.microshift-ipu" ] ; then KC_IPU="/root/kubeconfig.microshift-ipu" ; fi
 fi
 if [ -z "${KC_MVL+x}" ] ; then
-    KC_MVL="$PWD/kubeconfig.microshift-ipu"
-    if [ ! -f "$KC_MVL" ] && [ -f "/tmp/kubeconfig.microshift-ipu"  ] ; then KC_MVL="/tmp/kubeconfig.microshift-ipu"  ; fi
-    if [ ! -f "$KC_MVL" ] && [ -f "/root/kubeconfig.microshift-ipu" ] ; then KC_MVL="/root/kubeconfig.microshift-ipu" ; fi
+    KC_MVL="$PWD/kubeconfig.microshift-mvl"
+    if [ ! -f "$KC_MVL" ] && [ -f "/tmp/kubeconfig.microshift-mvl"  ] ; then KC_MVL="/tmp/kubeconfig.microshift-mvl"  ; fi
+    if [ ! -f "$KC_MVL" ] && [ -f "/root/kubeconfig.microshift-mvl" ] ; then KC_MVL="/root/kubeconfig.microshift-mvl" ; fi
 fi
 
 POD_NAME_BASE="resnet50-model-server"
@@ -515,8 +518,6 @@ sfc_create() {
           name: sfc-test
           namespace: openshift-dpu-operator
         spec:
-          nodeSelector:
-            dpu.config.openshift.io/dpuside: "dpu"
           networkFunctions:
           - name: nginx
             image: nginx
@@ -566,7 +567,7 @@ pod_deployment_create() {
               securityContext:
                 runAsUser: 0
               nodeSelector:
-                dpu.config.openshift.io/dpuside: "dpu-host"
+                kubernetes.io/hostname: dh4
               volumes:
                 - name: model-volume
                   emptyDir: {}
@@ -990,6 +991,9 @@ _exec() {
             ;;
         opicluster-master-[123])
             args=( ssh "${_ssh_t[@]}" "core@192.168.122.$(( "${host##*-}" + 1 ))" "$args_cmd" )
+            ;;
+        dh3)
+            args=( ssh "${_ssh_t[@]}" "root@$HOST_NODE_MARVELL" "$args_cmd" )
             ;;
         dh4-acc)
             args=( ssh "${_ssh_t[@]}" "root@$HOST_DPU_IPU" "$args_cmd" )
@@ -1671,7 +1675,7 @@ EOF
 # By default, the SSHKEY is only installed on "tgen1" host. This usually
 # suffices. If you want, set the WHERE parameter to "all" to install it on all
 # related hosts. Alternatively, WHERE can be one of the host names
-# tgen1, opicluster-master-[123], dh4, dh4-acc.
+# tgen1, opicluster-master-[123], dh3, dh4, dh4-acc.
 do_ssh_copy_id() {
     local sshkey="$1"
     local rc=0
@@ -1687,7 +1691,7 @@ do_ssh_copy_id() {
             where='all'
             shift
             ;;
-        tgen1|opicluster-master-[123]|dh4|dh4-acc)
+        mgmt|tgen1|opicluster-master-[123]|dh3|dh4|dh4-acc)
             where="$1"
             shift
             ;;
@@ -1710,6 +1714,16 @@ do_ssh_copy_id() {
             ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_PROV nc %h %p" "core@192.168.122.$(( i + 1 ))" || rc=1
         fi
     done
+
+    if [ "$where" = 'all' ] || [ "$where" = 'mgmt' ] ; then
+        _echo_p "Install SSH key $sshkey at mgmt (core@$HOST_MGMT)"
+        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_PROV nc %h %p" "root@$HOST_MGMT" || rc=1
+    fi
+
+    if [ "$where" = 'all' ] || [ "$where" = 'dh3' ] ; then
+        _echo_p "Install SSH key $sshkey at dh3 (core@$HOST_NODE_MARVELL)"
+        ssh-copy-id -i "$sshkey" -o "ProxyCommand ssh root@$HOST_PROV nc %h %p" "root@$HOST_NODE_MARVELL" || rc=1
+    fi
 
     if [ "$where" = 'all' ] || [ "$where" = 'dh4' ] ; then
         _echo_p "Install SSH key $sshkey at dh4 (core@$HOST_NODE_IPU)"
@@ -1753,8 +1767,8 @@ do_kubeconfigs() {
     [ "$#" -eq 0 ] || die "Invalid arguments"
 
     do_kubeconfig_ocp > "$dir/kubeconfig.ocpcluster"
-    _kubeconfig_microshift 'ipu' > "$dir/kubeconfig.microshift-ipu"
-    _kubeconfig_microshift 'mvl' > "$dir/kubeconfig.microshift-mvl"
+    _kubeconfig_microshift 'ipu' > "$dir/kubeconfig.microshift-ipu" || _echo "${C_RED}Failure to fetch kubeconfig.microshift-ipu$C_RESET"
+    _kubeconfig_microshift 'mvl' > "$dir/kubeconfig.microshift-mvl" || _echo "${C_RED}Failure to fetch kubeconfig.microshift-mvl$C_RESET"
 
     _echo "export KC_OCP=$(printf '%q' "$dir/kubeconfig.ocpcluster")"
     _echo "export KC_IPU=$(printf '%q' "$dir/kubeconfig.microshift-ipu")"
@@ -1798,10 +1812,22 @@ _kubeconfig_microshift() {
             ;;
     esac
 
-    _EXEC_NOTTY=1 \
-    _EXEC_SILENT=1 \
-    _exec "$host" \
-        cat /var/lib/microshift/resources/kubeadmin/kubeconfig \
+    local out
+    local rc
+
+    rc=0
+    out="$(
+        _EXEC_NOTTY=1 \
+        _EXEC_SILENT=1 \
+        _exec "$host" \
+            cat /var/lib/microshift/resources/kubeadmin/kubeconfig
+        )" || rc=1
+
+    if [ -z "$out" ] || [ "$rc" -ne 0 ] ; then
+        return 1
+    fi
+
+    _echo "$out" \
         |   if [ "$EXTERNAL_CLUSTER" = 1 ] ; then
                 # from the external cluster, there is anyway no known public IP address. The user can
                 # download the kubeconfig, but they will have to adjust the server line to what works
