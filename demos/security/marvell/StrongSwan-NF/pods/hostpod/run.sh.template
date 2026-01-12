@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+echo "Adding route to IPsec network..."
+ip r add ${EXTERNAL_SUBNET} via ${HOST_GATEWAY} || echo "Warning: Route may already exist"
+
+echo "Host pod ready. Container running..."
+sleep infinity

@@ -1,0 +1,9 @@
+apiVersion: config.openshift.io/v1
+kind: ServiceFunctionChain
+metadata:
+  name: sfc-name
+  namespace: openshift-dpu-operator
+spec:
+  networkFunctions:
+  - name: opi-nf
+    image: {{.registry}}/strongswan-nf:latest

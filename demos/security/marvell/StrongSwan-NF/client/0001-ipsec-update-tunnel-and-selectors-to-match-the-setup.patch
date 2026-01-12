@@ -1,0 +1,115 @@
+From 7093aa19504bdcb2d7d8139a2728d9c6fef4c472 Mon Sep 17 00:00:00 2001
+From: root <root@localhost.localdomain>
+Date: Fri, 19 Dec 2025 19:11:34 +0530
+Subject: [PATCH] ipsec: update tunnel and selectors to match the setup
+
+Signed-off-by: root <root@localhost.localdomain>
+
+diff --git a/cmd/ipsec/ipsec-test.go b/cmd/ipsec/ipsec-test.go
+index 97dc29d..ff32022 100644
+--- a/cmd/ipsec/ipsec-test.go
++++ b/cmd/ipsec/ipsec-test.go
+@@ -15,7 +15,9 @@ import (
+ // NewTestCommand returns the ipsec tests command
+ func NewTestCommand() *cobra.Command {
+ 	var (
+-		pingaddr string
++		pingaddr     string
++		localTsCidr  string
++		remoteTsCidr string
+ 	)
+ 	cmd := &cobra.Command{
+ 		Use:     "test",
+@@ -26,11 +28,13 @@ func NewTestCommand() *cobra.Command {
+ 			addr, err := c.Flags().GetString(common.AddrCmdLineArg)
+ 			cobra.CheckErr(err)
+ 
+-			res := ipsec.TestIpsec(addr, pingaddr)
++			res := ipsec.TestIpsec(addr, pingaddr, localTsCidr, remoteTsCidr)
+ 			fmt.Println(res)
+ 		},
+ 	}
+ 	flags := cmd.Flags()
+ 	flags.StringVar(&pingaddr, "pingaddr", "localhost", "address of other tunnel end to Ping")
++	flags.StringVar(&localTsCidr, "local-ts", "10.56.217.0/24", "local traffic selector CIDR")
++	flags.StringVar(&remoteTsCidr, "remote-ts", "20.20.20.0/24", "remote traffic selector CIDR")
+ 	return cmd
+ }
+diff --git a/ipsec/ipsec.go b/ipsec/ipsec.go
+index c7e776a..9666407 100644
+--- a/ipsec/ipsec.go
++++ b/ipsec/ipsec.go
+@@ -39,7 +39,7 @@ func Stats(address string) error {
+ }
+ 
+ // TestIpsec runs few basic tests establishing ipsec tunnels, version and stats
+-func TestIpsec(address string, pingaddr string) error {
++func TestIpsec(address string, pingaddr string, localTsCidr string, remoteTsCidr string) error {
+ 	// connection
+ 	if conn == nil {
+ 		err := dialConnection(address)
+@@ -59,7 +59,7 @@ func TestIpsec(address string, pingaddr string) error {
+ 	getStats(ctx, c1)
+ 
+ 	// Load IPsec connection
+-	loadConnections(ctx, c1)
++	loadConnections(ctx, c1, localTsCidr, remoteTsCidr)
+ 
+ 	// Bring the connection up
+ 	initConn := pb.IPsecInitiateRequest{
+@@ -99,7 +99,8 @@ func TestIpsec(address string, pingaddr string) error {
+ 	}
+ 	log.Printf("Rekeyed IKE_SA %s: %v", "opi-test", rekeyRet)
+ 
+-	doCleanup(ctx, c1)
++	// Skip clean up of SAs
++	// doCleanup(ctx, c1)
+ 	defer disconnectConnection()
+ 	return nil
+ }
+@@ -190,7 +191,7 @@ func doPing(a string) {
+ 	log.Printf("Ping stats: %v", stats)
+ }
+ 
+-func loadConnections(ctx context.Context, client pb.IPsecServiceClient) {
++func loadConnections(ctx context.Context, client pb.IPsecServiceClient, localTsCidr string, remoteTsCidr string) {
+ 	localIpsec := pb.IPsecLoadConnRequest{
+ 		Connection: &pb.Connection{
+ 			Name:    "opi-test",
+@@ -198,12 +199,12 @@ func loadConnections(ctx context.Context, client pb.IPsecServiceClient) {
+ 			Vips:    &pb.Vips{Vip: []string{"0.0.0.0"}},
+ 			LocalAddrs: []*pb.Addrs{
+ 				{
+-					Addr: "192.168.200.200",
++					Addr: "20.20.20.1",
+ 				},
+ 			},
+ 			RemoteAddrs: []*pb.Addrs{
+ 				{
+-					Addr: "192.168.200.210",
++					Addr: "20.20.20.20",
+ 				},
+ 			},
+ 			LocalAuth:  &pb.LocalAuth{Auth: pb.AuthType_AUTH_TYPE_PSK, Id: "hacker@strongswan.org"},
+@@ -216,10 +217,17 @@ func loadConnections(ctx context.Context, client pb.IPsecServiceClient) {
+ 						IntegAlg:  []pb.IntegAlgorithm{pb.IntegAlgorithm_INTEG_ALGORITHM_SHA512},
+ 						Dhgroups:  []pb.DHGroups{pb.DHGroups_DH_GROUPS_CURVE25519},
+ 					},
++					LocalTs: &pb.TrafficSelectors{
++						Ts: []*pb.TrafficSelectors_TrafficSelector{
++							{
++								Cidr: localTsCidr,
++							},
++						},
++					},
+ 					RemoteTs: &pb.TrafficSelectors{
+ 						Ts: []*pb.TrafficSelectors_TrafficSelector{
+ 							{
+-								Cidr: "10.1.0.0/16",
++								Cidr: remoteTsCidr,
+ 							},
+ 						},
+ 					},
+-- 
+2.47.3
+

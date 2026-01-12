@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+# Configure network interfaces
+echo "Configuring network interfaces..."
+ifconfig net1 ${NF_HOST_IP} || echo "Warning: net1 configuration failed"
+ifconfig net2 ${NF_EXTERNAL_IP} || echo "Warning: net2 configuration failed"
+
+# Start IPsec
+echo "Starting IPsec..."
+ipsec restart
+swanctl --load-all
+
+# Start OPI StrongSwan Bridge
+echo "Starting OPI StrongSwan Bridge on port 50151..."
+/opi-vici-bridge -port=50151

@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: host-pod
+  namespace: default
+  annotations:
+    k8s.v1.cni.cncf.io/networks: default-sriov-net
+spec:
+  containers:
+  - name: appcntr1
+    image: {{.registry}}/host-pod:latest
+    imagePullPolicy: IfNotPresent
+    env:
+    - name: EXTERNAL_SUBNET
+      value: "20.20.20.0/24"
+    - name: HOST_GATEWAY
+      value: "10.56.217.1"
+    securityContext:
+      privileged: true
+      runAsNonRoot: false
+      runAsUser: 0
+      seccompProfile:
+        type: RuntimeDefault
+    resources:
+      requests:
+        openshift.io/dpu: '1'
+      limits:
+        openshift.io/dpu: '1'

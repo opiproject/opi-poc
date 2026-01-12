@@ -1,0 +1,29 @@
+rw {
+   pools = rw_pool
+
+   local {
+      auth = pubkey
+      certs = serverCert.pem
+      id = server.strongswan.org
+   }
+   remote {
+      auth = pubkey
+      cacerts = caCert.pem
+   }
+   children {
+      net {
+         local_ts = ${EXTERNAL_SUBNET}
+         remote_ts = ${HOST_SUBNET}
+
+         esp_proposals = aes256gcm128-chacha20poly1305-x25519
+         dpd_action = clear
+      }
+      host {
+         esp_proposals = aes256gcm128-chacha20poly1305-x25519
+         dpd_action = clear
+      }
+   }
+   version = 2
+   proposals = aes256-sha256-x25519
+   dpd_delay = 60s
+}
